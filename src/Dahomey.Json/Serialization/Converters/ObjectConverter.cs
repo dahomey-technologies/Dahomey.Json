@@ -26,6 +26,7 @@ namespace Dahomey.Json.Serialization.Converters
             public ByteBufferDictionary<IMemberConverter> ForRead = new ByteBufferDictionary<IMemberConverter>();
             public Dictionary<string, IMemberConverter> ForReadAsString;
             public List<IMemberConverter> ForWrite = new List<IMemberConverter>();
+            public IExtensionDataMemberConverter ExtensionData;
 
             public static MemberConverters Create(JsonSerializerOptions options)
             {
@@ -40,6 +41,23 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     if (propertyInfo.IsDefined(typeof(JsonIgnoreAttribute)))
                     {
+                        continue;
+                    }
+
+                    if (propertyInfo.IsDefined(typeof(JsonExtensionDataAttribute)))
+                    {
+                        Type propertyType = propertyInfo.PropertyType;
+                        if (propertyType != typeof(Dictionary<string, object>)
+                            && propertyType != typeof(Dictionary<string, JsonElement>))
+                        {
+                            throw new JsonException("Invalid Serialization DataExtension Property");
+                        }
+
+                        converters.ExtensionData = (IExtensionDataMemberConverter)
+                            Activator.CreateInstance(typeof(ExtensionDataMemberConverter<,>)
+                                .MakeGenericType(typeof(T), propertyType.GetGenericArguments()[1]),
+                                propertyInfo, options);
+
                         continue;
                     }
 
@@ -67,11 +85,9 @@ namespace Dahomey.Json.Serialization.Converters
         }
 
         private readonly Lazy<MemberConverters> _memberConverters;
-        private readonly ReadOnlyMemory<byte> _discriminatorValue;
         private readonly DiscriminatorPolicy _discriminatorPolicy;
 
         public IReadOnlyList<IMemberConverter> MemberConvertersForWrite => _memberConverters.Value.ForWrite;
-        public ReadOnlySpan<byte> DiscriminatorValue => _discriminatorValue.Span;
 
         public ObjectConverter(JsonSerializerOptions options)
         {
@@ -150,12 +166,18 @@ namespace Dahomey.Json.Serialization.Converters
 
         public void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options)
         {
+            var memberConverters = _memberConverters.Value;
+
             if (options.PropertyNameCaseInsensitive 
-                && _memberConverters.Value.ForReadAsString.TryGetValue(Encoding.UTF8.GetString(memberName), out IMemberConverter memberConverter)
+                && memberConverters.ForReadAsString.TryGetValue(Encoding.UTF8.GetString(memberName), out IMemberConverter memberConverter)
                 || !options.PropertyNameCaseInsensitive
-                && _memberConverters.Value.ForRead.TryGetValue(memberName, out memberConverter))
+                && memberConverters.ForRead.TryGetValue(memberName, out memberConverter))
             {
                 memberConverter.Read(ref reader, obj, options);
+            }
+            else if (memberConverters.ExtensionData != null)
+            {
+                memberConverters.ExtensionData.Read(ref reader, obj, memberName, options);
             }
             else
             {

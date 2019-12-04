@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -22,6 +23,7 @@ namespace Dahomey.Json.Serialization.Converters
         Action<T, TM> _memberSetter;
         JsonConverter<TM> _jsonConverter;
         ReadOnlyMemory<byte> _memberName;
+        private Func<object, bool> _shouldSeriliazeMethod;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
         public string MemberNameAsString { get; }
@@ -35,6 +37,7 @@ namespace Dahomey.Json.Serialization.Converters
             _memberGetter = (Func<T, TM>)propertyInfo.GetMethod.CreateDelegate(typeof(Func<T, TM>));
             _memberSetter = (Action<T, TM>)propertyInfo.SetMethod.CreateDelegate(typeof(Action<T, TM>));
             _jsonConverter = (JsonConverter<TM>)options.GetConverter(typeof(TM));
+            _shouldSeriliazeMethod = GenerateShouldSerializeMethod(propertyInfo);
         }
 
         public bool ShouldSerialize(object obj, JsonSerializerOptions options)
@@ -44,11 +47,21 @@ namespace Dahomey.Json.Serialization.Converters
                 return false;
             }
 
+            if (_shouldSeriliazeMethod != null && !_shouldSeriliazeMethod(obj))
+            {
+                return false;
+            }
+
             return true;
         }
 
         public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
         {
+            if (options.IgnoreNullValues && reader.TokenType == JsonTokenType.Null)
+            {
+                return;
+            }
+
             _memberSetter((T)obj, _jsonConverter.Read(ref reader, typeof(TM), options));
         }
 
@@ -77,6 +90,30 @@ namespace Dahomey.Json.Serialization.Converters
             {
                 return propertyInfo.Name;
             }
+        }
+
+        private Func<object, bool> GenerateShouldSerializeMethod(PropertyInfo propertyInfo)
+        {
+            string shouldSerializeMethodName = "ShouldSerialize" + propertyInfo.Name;
+            Type objectType = typeof(T);
+
+            MethodInfo shouldSerializeMethodInfo = objectType.GetMethod(shouldSerializeMethodName, new Type[] { });
+            if (shouldSerializeMethodInfo != null &&
+                shouldSerializeMethodInfo.IsPublic &&
+                shouldSerializeMethodInfo.ReturnType == typeof(bool))
+            {
+                // obj => ((TClass) obj).ShouldSerializeXyz()
+                ParameterExpression objParameter = Expression.Parameter(typeof(object), "obj");
+                Expression<Func<object, bool>> lambdaExpression = Expression.Lambda<Func<object, bool>>(
+                    Expression.Call(
+                        Expression.Convert(objParameter, objectType),
+                        shouldSerializeMethodInfo),
+                    objParameter);
+
+                return lambdaExpression.Compile();
+            }
+
+            return null;
         }
     }
 }
