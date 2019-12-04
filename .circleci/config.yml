@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+    steps:
+      - checkout
+      - run: dotnet build -c Release src/Dahomey.Json
+      
+  test:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+    steps:
+      - checkout
+      - run: dotnet test -c Release src/Dahomey.Json.Tests
+      
+  deploy:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+    steps:
+      - checkout
+      - run: dotnet pack -p:Version=${CIRCLE_TAG} -p:FileVersion=${CIRCLE_TAG} -p:AssemblyVersion=${CIRCLE_TAG} -c Release src/Dahomey.Json
+      - run: dotnet nuget push src/Dahomey.Json/bin/Release/Dahomey.Json.${CIRCLE_TAG}.nupkg -k ${NUGET_API_KEY} -s https://api.nuget.org/v3/index.json
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build
+      - test
+      - deploy:
+          context: deployment
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[0-9]\.[0-9]\.[0-9]/

@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <PackageReleaseNotes>cf. https://github.com/dahomey-technologies/Dahomey.Json/releases/tag/$(Version)</PackageReleaseNotes>
+    <Authors>Michaël Catanzariti</Authors>
+    <Company>Dahomey Technologies</Company>
+    <Description>The main purpose of this library is to bring missing features to the official .Net namespace System.Text.Json</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/dahomey-technologies/Dahomey.Json</PackageProjectUrl>
+    <PackageTags>serialization;json</PackageTags>
+    <RepositoryUrl>https://github.com/dahomey-technologies/Dahomey.Json.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageIcon>https://avatars3.githubusercontent.com/u/29336625?s=200&amp;v=4</PackageIcon>
+    <Copyright>Copyright © Dahomey Technologies 2019</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="1.6.0" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0" />
+  </ItemGroup>
+
+</Project>
