@@ -69,7 +69,14 @@ namespace Dahomey.Json.Serialization.Converters
 
             foreach (KeyValuePair<TK, TV> kvp in value)
             {
-                writer.WritePropertyName(kvp.Key.ToString());
+                string key = kvp.Key.ToString();
+
+                if (options.DictionaryKeyPolicy != null)
+                {
+                    key = options.DictionaryKeyPolicy.ConvertName(key);
+                }
+
+                writer.WritePropertyName(key);
                 _valueConverter.Write(writer, kvp.Value, options);
             }
 

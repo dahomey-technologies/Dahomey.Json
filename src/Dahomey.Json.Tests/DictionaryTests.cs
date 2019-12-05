@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Dahomey.Json.Tests
 {
-    public class DictionaryTests
+    public class Dictionary
     {
         [Fact]
         public void ReadDictionary()
