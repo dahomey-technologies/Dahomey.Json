@@ -9,6 +9,7 @@ The main purpose of this library is to bring missing features to the official .N
 
 ## Features
 * Extensible Polymorphism support based on discriminator conventions
+* Conditional Property Serialization support based on the existence of a method ShouldSerialize\[PropertyName\]()
 
 ## Installation
 ### NuGet
@@ -173,4 +174,21 @@ JsonSerializerOptions options = new JsonSerializerOptions();
 options.SetupExtensions();
 DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
 registry.DiscriminatorPolicy = DiscriminatorPolicy.Always;
+```
+### Conditional Property Serialization
+
+In the class to serialize, if a method exists which signature is bool ShouldSerialize\[PropertyName\](), it will be called to conditionally serialize the matching property.
+
+ ```csharp
+public class WeatherForecast
+{
+    public DateTimeOffset Date { get; set; }
+    public int TemperatureCelsius { get; set; }
+    public string Summary { get; set; }
+    
+    public bool ShouldSerializeSummary()
+    {
+        return !string.IsNullOrEmpty(Summary);
+    }
+}
 ```
