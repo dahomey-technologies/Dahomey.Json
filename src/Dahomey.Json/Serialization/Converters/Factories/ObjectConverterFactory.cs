@@ -8,7 +8,7 @@ namespace Dahomey.Json.Serialization.Converters.Factories
     {
         public override bool CanConvert(Type typeToConvert)
         {
-            return typeToConvert.IsClass && typeToConvert != typeof(string);
+            return typeToConvert.IsClass && typeToConvert != typeof(string) || typeToConvert.IsInterface;
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)

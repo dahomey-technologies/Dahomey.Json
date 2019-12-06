@@ -17,8 +17,10 @@ namespace Dahomey.Json.Serialization.Converters
     }
 
     public class ObjectConverter<T> : JsonConverter<T>, IObjectConverter
-        where T : class, new()
+        where T : class
     {
+        private readonly Func<T> _constructor;
+        private readonly bool _isInterfaceOrAbstract;
         private readonly IDiscriminatorConvention _discriminatorConvention;
 
         private class MemberConverters
@@ -95,11 +97,34 @@ namespace Dahomey.Json.Serialization.Converters
             _discriminatorConvention = registry.GetConvention(typeof(T));
             _discriminatorPolicy = registry.DiscriminatorPolicy;
             _memberConverters = new Lazy<MemberConverters>(() => MemberConverters.Create(options));
+
+            _isInterfaceOrAbstract = typeof(T).IsInterface || typeof(T).IsAbstract;
+
+            if (!_isInterfaceOrAbstract)
+            {
+                ConstructorInfo defaultConstructorInfo = typeof(T).GetConstructor(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    Type.EmptyTypes,
+                    null);
+
+                if (defaultConstructorInfo == null)
+                {
+                    throw new JsonException($"Cannot find a default constructor on type {typeof(T)}");
+                }
+
+                _constructor = defaultConstructorInfo.CreateDelegate<T>();
+            }
         }
 
         public object CreateInstance()
         {
-            return new T();
+            if (_isInterfaceOrAbstract)
+            {
+                throw new JsonException("Cannot instantiate an interface nor an abstract classes");
+            }
+
+            return _constructor();
         }
 
         public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
