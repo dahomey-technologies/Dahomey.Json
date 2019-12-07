@@ -10,7 +10,8 @@ The main purpose of this library is to bring missing features to the official .N
 ## Features
 * Extensible Polymorphism support based on discriminator conventions
 * Conditional Property Serialization support based on the existence of a method ShouldSerialize\[PropertyName\]()
-* Support interfaces and abstract classes
+* Support for interfaces and abstract classes
+* Support for numeric, enum and custom dictionary keys
 
 ## Installation
 ### NuGet
