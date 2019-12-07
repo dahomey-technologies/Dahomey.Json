@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System;
 using System.Text;
+using System.Buffers;
 
 namespace Dahomey.Json.Serialization.Converters
 {
@@ -145,7 +146,7 @@ namespace Dahomey.Json.Serialization.Converters
                 throw new JsonException();
             }
 
-            ReadOnlySpan<byte> memberName = reader.ValueSpan;
+            ReadOnlySpan<byte> memberName = reader.GetRawString();
             reader.Read();
 
             T obj;
@@ -180,7 +181,7 @@ namespace Dahomey.Json.Serialization.Converters
                     throw new JsonException();
                 }
 
-                memberName = reader.ValueSpan;
+                memberName = reader.GetRawString();
                 reader.Read();
 
                 converter.ReadValue(ref reader, obj, memberName, options);
