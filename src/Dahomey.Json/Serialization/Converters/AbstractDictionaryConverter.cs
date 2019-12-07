@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Dahomey.Json.Serialization.Converters.DictionaryKeys;
+using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,6 +9,7 @@ namespace Dahomey.Json.Serialization.Converters
     public abstract class AbstractDictionaryConverter<TC, TK, TV> : JsonConverter<TC>
         where TC : IDictionary<TK, TV>
     {
+        private readonly IDictionaryKeyConverter<TK> _keyConverter;
         private readonly JsonConverter<TV> _valueConverter;
 
         protected abstract IDictionary<TK, TV> InstantiateWorkingCollection();
@@ -16,6 +17,7 @@ namespace Dahomey.Json.Serialization.Converters
 
         public AbstractDictionaryConverter(JsonSerializerOptions options)
         {
+            _keyConverter = options.GetDictionaryKeyConverterRegistry().GetDictionaryKeyConverter<TK>();
             _valueConverter = (JsonConverter<TV>)options.GetConverter(typeof(TV));
         }
 
@@ -45,8 +47,7 @@ namespace Dahomey.Json.Serialization.Converters
                     throw new JsonException();
                 }
 
-                string propertyName = reader.GetString();
-                TK key = (TK)Convert.ChangeType(propertyName, typeof(TK));
+                TK key = _keyConverter.Read(ref reader, options);
 
                 reader.Read();
                 TV value = _valueConverter.Read(ref reader, typeof(TV), options);
@@ -69,14 +70,16 @@ namespace Dahomey.Json.Serialization.Converters
 
             foreach (KeyValuePair<TK, TV> kvp in value)
             {
-                string key = kvp.Key.ToString();
-
                 if (options.DictionaryKeyPolicy != null)
                 {
-                    key = options.DictionaryKeyPolicy.ConvertName(key);
+                    string key = options.DictionaryKeyPolicy.ConvertName(_keyConverter.ToString(kvp.Key));
+                    writer.WritePropertyName(key);
+                }
+                else
+                {
+                    _keyConverter.Write(writer, kvp.Key, options);
                 }
 
-                writer.WritePropertyName(key);
                 _valueConverter.Write(writer, kvp.Value, options);
             }
 

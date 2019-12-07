@@ -37,8 +37,29 @@ namespace Dahomey.Json.Tests
                 [2] = "bar"
             };
 
-            string actual = JsonSerializer.Serialize<Dictionary<int, string>>(dictionary, options);
+            string actual = JsonSerializer.Serialize(dictionary, options);
             const string expected = @"{""1"":""foo"",""2"":""bar""}";
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void WriteDictionaryWithPolicy()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.SetupExtensions();
+
+            Dictionary<string, string> dictionary = new Dictionary<string, string>
+            {
+                ["Foo"] = "foo",
+                ["Bar"] = "bar"
+            };
+
+            string actual = JsonSerializer.Serialize(dictionary, options);
+            const string expected = @"{""foo"":""foo"",""bar"":""bar""}";
 
             Assert.Equal(expected, actual);
         }
@@ -94,8 +115,50 @@ namespace Dahomey.Json.Tests
                 }
             };
 
-            string actual = JsonSerializer.Serialize<ObjectWithDictionary>(obj, options);
+            string actual = JsonSerializer.Serialize(obj, options);
             string expected = @"{""Dictionary"":{""1"":{""Id"":1},""2"":{""Id"":2}}}";
+
+            Assert.Equal(expected, actual);
+        }
+
+        public enum Enum
+        {
+            Foo,
+            Bar
+        }
+
+        [Fact]
+        public void ReadEnumDictionary()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            const string json = @"{""Foo"":""foo"",""Bar"":""bar""}";
+            Dictionary<Enum, string> actual = JsonSerializer.Deserialize<Dictionary<Enum, string>>(json, options);
+
+            Dictionary<Enum, string> expected = new Dictionary<Enum, string>
+            {
+                [Enum.Foo] = "foo",
+                [Enum.Bar] = "bar"
+            };
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void WriteEnumDictionary()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            Dictionary<Enum, string> dictionary = new Dictionary<Enum, string>
+            {
+                [Enum.Foo] = "foo",
+                [Enum.Bar] = "bar"
+            };
+
+            string actual = JsonSerializer.Serialize(dictionary, options);
+            const string expected = @"{""Foo"":""foo"",""Bar"":""bar""}";
 
             Assert.Equal(expected, actual);
         }
