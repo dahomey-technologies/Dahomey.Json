@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Dahomey.Json.Util;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Conventions
 {
-    public class DiscriminatorConventionRegistry : JsonConverter<object>
+    public class DiscriminatorConventionRegistry : AbstractRegistry<DiscriminatorConventionRegistry>
     {
         private readonly ConcurrentStack<IDiscriminatorConvention> _conventions = new ConcurrentStack<IDiscriminatorConvention>();
         private readonly ConcurrentDictionary<Type, IDiscriminatorConvention> _conventionsByType = new ConcurrentDictionary<Type, IDiscriminatorConvention>();
@@ -18,21 +18,6 @@ namespace Dahomey.Json.Serialization.Conventions
         {
             // order matters. It's in reverse order of how they'll get consumed
             RegisterConvention(new DefaultDiscriminatorConvention(options));
-        }
-
-        public override bool CanConvert(Type typeToConvert)
-        {
-            return typeToConvert == typeof(DiscriminatorConventionRegistry);
-        }
-
-        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
-        {
-            throw new NotSupportedException();
         }
 
         /// <summary>
