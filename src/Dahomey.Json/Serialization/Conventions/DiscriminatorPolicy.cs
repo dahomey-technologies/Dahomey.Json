@@ -2,6 +2,7 @@
 {
     public enum DiscriminatorPolicy
     {
+        Default,
         Auto,
         Never,
         Always

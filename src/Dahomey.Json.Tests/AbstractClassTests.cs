@@ -1,6 +1,5 @@
 ﻿using Dahomey.Json.Attributes;
 using Dahomey.Json.Serialization.Conventions;
-using System;
 using System.Text.Json;
 using Xunit;
 
@@ -52,14 +51,20 @@ namespace Dahomey.Json.Tests
             string json1 = JsonSerializer.Serialize(origin1, options);
             string json2 = JsonSerializer.Serialize(origin2, options);
 
-            Console.WriteLine(json1); // {"Tag":"Box","Width":10,"Height":20}
-            Console.WriteLine(json2); // {"Tag":"Circle","Radius":30}
+            Assert.Equal(@"{""Tag"":""Box"",""Width"":10,""Height"":20}", json1);
+            Assert.Equal(@"{""Tag"":""Circle"",""Radius"":30}", json2);
 
-            var restored1 = JsonSerializer.Deserialize<Shape>(json1, options);
-            var restored2 = JsonSerializer.Deserialize<Shape>(json2, options);
+            Shape restored1 = JsonSerializer.Deserialize<Shape>(json1, options);
+            Shape restored2 = JsonSerializer.Deserialize<Shape>(json2, options);
 
-            Console.WriteLine(restored1); // Box: Width=10, Height=20
-            Console.WriteLine(restored2); // Circle: Radius=30
+            Assert.NotNull(restored1);
+            Box restoredBox = Assert.IsType<Box>(restored1);
+            Assert.Equal(10, restoredBox.Width);
+            Assert.Equal(20, restoredBox.Height);
+
+            Assert.NotNull(restored2);
+            Circle restoredCircle = Assert.IsType<Circle>(restored2);
+            Assert.Equal(30, restoredCircle.Radius);
         }
     }
 }

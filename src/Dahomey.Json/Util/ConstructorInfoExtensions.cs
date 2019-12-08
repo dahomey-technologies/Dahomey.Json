@@ -19,5 +19,17 @@ namespace Dahomey.Json.Util
             return lambda.Compile();
 
         }
+
+        public static Delegate CreateDelegate(this ConstructorInfo constructorInfo)
+        {
+            ParameterExpression[] parameters = constructorInfo.GetParameters()
+                .Select(p => Expression.Parameter(p.ParameterType, p.Name))
+                .ToArray();
+
+            NewExpression body = Expression.New(constructorInfo, parameters);
+
+            LambdaExpression lambda = Expression.Lambda(body, parameters);
+            return lambda.Compile();
+        }
     }
 }

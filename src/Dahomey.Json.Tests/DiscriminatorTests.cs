@@ -56,7 +56,6 @@ namespace Dahomey.Json.Tests
             options.SetupExtensions();
             DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
             registry.RegisterConvention(new AttributeBasedDiscriminatorConvention<int>(options));
-            registry.RegisterType<BaseObjectHolder>();
             registry.RegisterType<NameObject>();
 
             object obj = JsonSerializer.Deserialize<object>(json, options);
@@ -66,6 +65,7 @@ namespace Dahomey.Json.Tests
         }
 
         [Theory]
+        [InlineData(DiscriminatorPolicy.Default, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
         [InlineData(DiscriminatorPolicy.Auto, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
         [InlineData(DiscriminatorPolicy.Never, @"{""BaseObject"":{""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
         [InlineData(DiscriminatorPolicy.Always, @"{""$type"":""Dahomey.Json.Tests.BaseObjectHolder, Dahomey.Json.Tests"",""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""$type"":12,""Name"":""bar"",""Id"":2}}")]

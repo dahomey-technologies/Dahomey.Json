@@ -76,6 +76,12 @@ namespace Dahomey.Json.Serialization.Conventions
                 {
                     _conventionsByType.TryAdd(currentType, convention);
                 }
+
+                // setup discriminator for all interfaces
+                foreach (Type @interface in type.GetInterfaces())
+                {
+                    _conventionsByType.TryAdd(@interface, convention);
+                }
             }
 
             return convention;

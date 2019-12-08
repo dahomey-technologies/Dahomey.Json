@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Dahomey.Json.Serialization.Conventions;
+using Dahomey.Json.Serialization.Converters.Mappings;
+using Dahomey.Json.Util;
+using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -10,49 +14,40 @@ namespace Dahomey.Json.Serialization.Converters
     public interface IMemberConverter
     {
         ReadOnlySpan<byte> MemberName { get; }
+        bool IgnoreIfDefault { get; }
         string MemberNameAsString { get; }
         void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options);
         void Write(Utf8JsonWriter writer, object obj, JsonSerializerOptions options);
-        bool ShouldSerialize(object obj, JsonSerializerOptions options);
+        object Read(ref Utf8JsonReader reader, JsonSerializerOptions options);
+        void Set(object obj, object value);
+        bool ShouldSerialize(object obj, Type declaredType, JsonSerializerOptions options);
     }
 
     public class MemberConverter<T, TM> : IMemberConverter
         where T : class
     {
-        Func<T, TM> _memberGetter;
-        Action<T, TM> _memberSetter;
-        JsonConverter<TM> _jsonConverter;
-        ReadOnlyMemory<byte> _memberName;
-        private Func<object, bool> _shouldSeriliazeMethod;
+        private readonly Func<T, TM> _memberGetter;
+        private readonly Action<T, TM> _memberSetter;
+        private readonly JsonConverter<TM> _jsonConverter;
+        private readonly ReadOnlyMemory<byte> _memberName;
+        private readonly TM _defaultValue;
+        private readonly bool _ignoreIfDefault;
+        private readonly Func<object, bool> _shouldSeriliazeMethod;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
         public string MemberNameAsString { get; }
+        public bool IgnoreIfDefault => _ignoreIfDefault;
 
-        public MemberConverter(PropertyInfo propertyInfo, JsonSerializerOptions options)
+        public MemberConverter(JsonSerializerOptions options, IMemberMapping memberMapping)
         {
-            string name = GenerateMemberName(propertyInfo, options);
-            MemberNameAsString = name;
-            _memberName = Encoding.UTF8.GetBytes(name);
-
-            _memberGetter = (Func<T, TM>)propertyInfo.GetMethod.CreateDelegate(typeof(Func<T, TM>));
-            _memberSetter = (Action<T, TM>)propertyInfo.SetMethod.CreateDelegate(typeof(Action<T, TM>));
-            _jsonConverter = (JsonConverter<TM>)options.GetConverter(typeof(TM));
-            _shouldSeriliazeMethod = GenerateShouldSerializeMethod(propertyInfo);
-        }
-
-        public bool ShouldSerialize(object obj, JsonSerializerOptions options)
-        {
-            if (options.IgnoreNullValues && typeof(TM).IsClass && _memberGetter((T)obj) == null)
-            {
-                return false;
-            }
-
-            if (_shouldSeriliazeMethod != null && !_shouldSeriliazeMethod(obj))
-            {
-                return false;
-            }
-
-            return true;
+            MemberNameAsString = memberMapping.MemberName;
+            _memberName = Encoding.UTF8.GetBytes(MemberNameAsString);
+            _memberGetter = GenerateGetter(memberMapping.MemberInfo);
+            _memberSetter = GenerateSetter(memberMapping.MemberInfo);
+            _jsonConverter = (JsonConverter<TM>)memberMapping.Converter;
+            _defaultValue = (TM)memberMapping.DefaultValue;
+            _ignoreIfDefault = memberMapping.IgnoreIfDefault;
+            _shouldSeriliazeMethod = memberMapping.ShouldSerializeMethod;
         }
 
         public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
@@ -70,50 +65,150 @@ namespace Dahomey.Json.Serialization.Converters
             _jsonConverter.Write(writer, _memberGetter((T)obj), options);
         }
 
-        private string GenerateMemberName(PropertyInfo propertyInfo, JsonSerializerOptions options)
+        public object Read(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            if (propertyInfo == null)
+            return _jsonConverter.Read(ref reader, typeof(TM), options);
+        }
+
+        public void Set(object obj, object value)
+        {
+            _memberSetter((T)obj, (TM)value);
+        }
+
+        public bool ShouldSerialize(object obj, Type declaredType, JsonSerializerOptions options)
+        {
+            if (options.IgnoreNullValues && typeof(TM).IsClass && _memberGetter((T)obj) == null)
             {
-                return null;
+                return false;
             }
 
-            JsonPropertyNameAttribute nameAttribute = propertyInfo.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: false);
-            if (nameAttribute != null)
+            if (IgnoreIfDefault && EqualityComparer<TM>.Default.Equals(_memberGetter((T)obj), _defaultValue))
             {
-                return nameAttribute.Name ?? throw new JsonException();
+                return false;
             }
-            else if (options.PropertyNamingPolicy != null)
+
+            if (_shouldSeriliazeMethod != null && !_shouldSeriliazeMethod(obj))
             {
-                return options.PropertyNamingPolicy.ConvertName(propertyInfo.Name) ?? throw new JsonException();
+                return false;
             }
-            else
+
+            return true;
+        }
+
+        private Func<T, TM> GenerateGetter(MemberInfo memberInfo)
+        {
+            switch (memberInfo)
             {
-                return propertyInfo.Name;
+                case PropertyInfo propertyInfo:
+                    if (propertyInfo.GetMethod.IsStatic)
+                    {
+                        if (!propertyInfo.CanRead)
+                        {
+                            return null;
+                        }
+
+                        ParameterExpression objParam = Expression.Parameter(typeof(T), "obj");
+                        return Expression.Lambda<Func<T, TM>>(
+                            Expression.Property(null, propertyInfo),
+                            objParam).Compile();
+                    }
+
+                    return propertyInfo.CanRead
+                       ? propertyInfo.GenerateGetter<T, TM>()
+                       : null;
+
+                case FieldInfo fieldInfo:
+                    return fieldInfo.GenerateGetter<T, TM>();
+
+                default:
+                    return null;
             }
         }
 
-        private Func<object, bool> GenerateShouldSerializeMethod(PropertyInfo propertyInfo)
+        private Action<T, TM> GenerateSetter(MemberInfo memberInfo)
         {
-            string shouldSerializeMethodName = "ShouldSerialize" + propertyInfo.Name;
-            Type objectType = typeof(T);
-
-            MethodInfo shouldSerializeMethodInfo = objectType.GetMethod(shouldSerializeMethodName, new Type[] { });
-            if (shouldSerializeMethodInfo != null &&
-                shouldSerializeMethodInfo.IsPublic &&
-                shouldSerializeMethodInfo.ReturnType == typeof(bool))
+            switch (memberInfo)
             {
-                // obj => ((TClass) obj).ShouldSerializeXyz()
-                ParameterExpression objParameter = Expression.Parameter(typeof(object), "obj");
-                Expression<Func<object, bool>> lambdaExpression = Expression.Lambda<Func<object, bool>>(
-                    Expression.Call(
-                        Expression.Convert(objParameter, objectType),
-                        shouldSerializeMethodInfo),
-                    objParameter);
+                case PropertyInfo propertyInfo:
+                    if (!propertyInfo.CanWrite || propertyInfo.SetMethod.IsStatic)
+                    {
+                        return null;
+                    }
 
-                return lambdaExpression.Compile();
+                    return propertyInfo.GenerateSetter<T, TM>();
+
+                case FieldInfo fieldInfo:
+                    if (fieldInfo.IsStatic || fieldInfo.IsInitOnly)
+                    {
+                        return null;
+                    }
+
+                    return fieldInfo.GenerateSetter<T, TM>();
+
+                default:
+                    return null;
+            }
+        }
+    }
+
+    public class DiscriminatorMemberConverter<T> : IMemberConverter
+        where T : class
+    {
+        private readonly IDiscriminatorConvention _discriminatorConvention;
+        private readonly DiscriminatorPolicy _discriminatorPolicy;
+        private readonly ReadOnlyMemory<byte> _memberName;
+
+        public ReadOnlySpan<byte> MemberName => _memberName.Span;
+        public string MemberNameAsString { get; private set; }
+        public bool IgnoreIfDefault => false;
+
+        public DiscriminatorMemberConverter(
+            IDiscriminatorConvention discriminatorConvention,
+            DiscriminatorPolicy discriminatorPolicy)
+        {
+            _discriminatorConvention = discriminatorConvention;
+            _discriminatorPolicy = discriminatorPolicy;
+
+            if (discriminatorConvention != null)
+            {
+                ReadOnlySpan<byte> discriminatorMemberName = discriminatorConvention.MemberName;
+                _memberName = discriminatorMemberName.ToArray();
+                MemberNameAsString = Encoding.UTF8.GetString(discriminatorMemberName);
+            }
+        }
+
+        public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException();
+        }
+
+        public object Read(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Set(object obj, object value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public bool ShouldSerialize(object obj, Type declaredType, JsonSerializerOptions options)
+        {
+            if (_discriminatorConvention == null)
+            {
+                return false;
             }
 
-            return null;
+            DiscriminatorPolicy discriminatorPolicy = _discriminatorPolicy != DiscriminatorPolicy.Default ? _discriminatorPolicy
+                : (options.GetDiscriminatorConventionRegistry().DiscriminatorPolicy != DiscriminatorPolicy.Default ? options.GetDiscriminatorConventionRegistry().DiscriminatorPolicy : DiscriminatorPolicy.Auto);
+
+            return discriminatorPolicy == DiscriminatorPolicy.Always
+                || discriminatorPolicy == DiscriminatorPolicy.Auto && obj.GetType() != declaredType;
+        }
+
+        public void Write(Utf8JsonWriter writer, object obj, JsonSerializerOptions options)
+        {
+            _discriminatorConvention.WriteDiscriminator(writer, obj.GetType());
         }
     }
 }

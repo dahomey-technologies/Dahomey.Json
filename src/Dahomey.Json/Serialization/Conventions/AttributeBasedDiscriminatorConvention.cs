@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
-using Dahomey.Json.Attributes;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System;
 using System.Text;
+using Dahomey.Json.Serialization.Converters.Mappings;
 
 namespace Dahomey.Json.Serialization.Conventions
 {
@@ -32,9 +31,9 @@ namespace Dahomey.Json.Serialization.Conventions
 
         public bool TryRegisterType(Type type)
         {
-            JsonDiscriminatorAttribute discriminatorAttribute = type.GetCustomAttribute<JsonDiscriminatorAttribute>();
+            IObjectMapping objectMapping = _options.GetObjectMappingRegistry().Lookup(type);
 
-            if (discriminatorAttribute == null || !(discriminatorAttribute.Discriminator is T discriminator))
+            if (objectMapping.Discriminator == null || !(objectMapping.Discriminator is T discriminator))
             {
                 return false;
             }
