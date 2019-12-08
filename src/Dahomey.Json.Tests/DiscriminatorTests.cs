@@ -181,5 +181,40 @@ namespace Dahomey.Json.Tests
 
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public void ReadWithNoDiscriminator()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
+            registry.ClearConventions();
+
+            const string json = @"{""Name"":""foo"",""Id"":12}";
+            BaseObject obj = JsonSerializer.Deserialize<BaseObject>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.Equal(12, obj.Id);
+        }
+
+        [Fact]
+        public void WriteWithNoDiscriminator()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
+            registry.ClearConventions();
+
+            NameObject obj = new NameObject
+            {
+                Id = 12,
+                Name = "foo"
+            };
+
+            string actual = JsonSerializer.Serialize<BaseObject>(obj, options);
+            const string expected = @"{""Name"":""foo"",""Id"":12}";
+
+            Assert.Equal(expected, actual);
+        }
     }
 }
