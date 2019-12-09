@@ -12,6 +12,9 @@ The main purpose of this library is to bring missing features to the official .N
 * Conditional Property Serialization support based on the existence of a method ShouldSerialize\[PropertyName\]()
 * Support for interfaces and abstract classes
 * Support for numeric, enum and custom dictionary keys
+* Support for non default condtructors
+* Can ignore default values if null
+* Object mapping to programmatically configure features on a class
 
 ## Installation
 ### NuGet
