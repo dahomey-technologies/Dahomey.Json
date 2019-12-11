@@ -14,6 +14,7 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for numeric, enum and custom dictionary keys
 * Support for non default constructors
 * Can ignore default values if null
+* Can require properties or fields with different policies
 * Object mapping to programmatically configure features on a class
 
 ## Installation
