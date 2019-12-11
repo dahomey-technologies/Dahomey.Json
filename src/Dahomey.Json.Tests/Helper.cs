@@ -16,6 +16,8 @@ namespace Dahomey.Json.Tests
         {
             if (expectedExceptionType != null)
             {
+                bool exceptionCatched = false;
+
                 try
                 {
                     Read<T>(json, options);
@@ -23,7 +25,10 @@ namespace Dahomey.Json.Tests
                 catch (Exception ex)
                 {
                     Assert.IsType(expectedExceptionType, ex);
+                    exceptionCatched = true;
                 }
+
+                Assert.True(exceptionCatched, $"Expected exception {expectedExceptionType}");
             }
             else
             {
@@ -39,6 +44,30 @@ namespace Dahomey.Json.Tests
             }
         }
 
+        public static void TestRead<T>(string json, JsonSerializerOptions options, Type expectedExceptionType = null)
+        {
+            if (expectedExceptionType != null)
+            {
+                bool exceptionCatched = false;
+
+                try
+                {
+                    Read<T>(json, options);
+                }
+                catch (Exception ex)
+                {
+                    Assert.IsType(expectedExceptionType, ex);
+                    exceptionCatched = true;
+                }
+
+                Assert.True(exceptionCatched, $"Expected exception {expectedExceptionType}");
+            }
+            else
+            {
+                Read<T>(json, options);
+            }
+        }
+
         public static string Write<T>(T value, JsonSerializerOptions options)
         {
             return JsonSerializer.Serialize<T>(value, options);
@@ -48,6 +77,8 @@ namespace Dahomey.Json.Tests
         {
             if (expectedExceptionType != null)
             {
+                bool exceptionCatched = false;
+
                 try
                 {
                     Write(value, options);
@@ -55,11 +86,38 @@ namespace Dahomey.Json.Tests
                 catch (Exception ex)
                 {
                     Assert.IsType(expectedExceptionType, ex);
+                    exceptionCatched = true;
                 }
+
+                Assert.True(exceptionCatched, $"Expected exception {expectedExceptionType}");
             }
             else
             {
                 Assert.Equal(json, Write(value, options));
+            }
+        }
+
+        public static void TestWrite<T>(T value, JsonSerializerOptions options, Type expectedExceptionType = null)
+        {
+            if (expectedExceptionType != null)
+            {
+                bool exceptionCatched = false;
+
+                try
+                {
+                    Write(value, options);
+                }
+                catch (Exception ex)
+                {
+                    Assert.IsType(expectedExceptionType, ex);
+                    exceptionCatched = true;
+                }
+
+                Assert.True(exceptionCatched, $"Expected exception {expectedExceptionType}");
+            }
+            else
+            {
+                 Write(value, options);
             }
         }
     }

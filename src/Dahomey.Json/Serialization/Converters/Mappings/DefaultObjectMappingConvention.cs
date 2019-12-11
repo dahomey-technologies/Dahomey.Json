@@ -1,6 +1,4 @@
 ﻿using Dahomey.Json.Attributes;
-using Dahomey.Json.Serialization.Conventions;
-using Dahomey.Json.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,6 +59,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 MemberMapping<T> memberMapping = new MemberMapping<T>(options, objectMapping, propertyInfo, propertyInfo.PropertyType);
                 ProcessDefaultValue(propertyInfo, memberMapping);
                 ProcessShouldSerializeMethod(memberMapping);
+                ProcessRequired(propertyInfo, memberMapping);
                 memberMappings.Add(memberMapping);
             }
 
@@ -83,6 +82,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 MemberMapping<T> memberMapping = new MemberMapping<T>(options, objectMapping, fieldInfo, fieldInfo.FieldType);
                 ProcessDefaultValue(fieldInfo, memberMapping);
                 ProcessShouldSerializeMethod(memberMapping);
+                ProcessRequired(fieldInfo, memberMapping);
 
                 memberMappings.Add(memberMapping);
             }
@@ -180,6 +180,15 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                     objParameter);
 
                 memberMapping.SetShouldSerializeMethod(lambdaExpression.Compile());
+            }
+        }
+
+        private void ProcessRequired<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping) where T : class
+        {
+            JsonRequiredAttribute jsonRequiredAttribute = memberInfo.GetCustomAttribute<JsonRequiredAttribute>();
+            if (jsonRequiredAttribute != null)
+            {
+                memberMapping.SetRequired(jsonRequiredAttribute.Policy);
             }
         }
 

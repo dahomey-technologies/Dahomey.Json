@@ -7,14 +7,16 @@ using System.Text.Json;
 using System;
 using System.Text;
 using Dahomey.Json.Serialization.Converters.Mappings;
+using Dahomey.Json.Attributes;
 
 namespace Dahomey.Json.Serialization.Converters
 {
     public interface IObjectConverter
     {
-        void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options);
-        bool ReadValue(ref Utf8JsonReader reader, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, out object value);
+        void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers);
+        bool ReadValue(ref Utf8JsonReader reader, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers, out object value);
         IReadOnlyList<IMemberConverter> MemberConvertersForWrite { get; }
+        IReadOnlyList<IMemberConverter> RequiredMemberConvertersForRead { get; }
         object CreateInstance();
     }
 
@@ -25,6 +27,7 @@ namespace Dahomey.Json.Serialization.Converters
         {
             public ByteBufferDictionary<IMemberConverter> ForRead = new ByteBufferDictionary<IMemberConverter>();
             public Dictionary<string, IMemberConverter> ForReadAsString;
+            public List<IMemberConverter> RequiredForRead = new List<IMemberConverter>();
             public List<IMemberConverter> ForWrite = new List<IMemberConverter>();
             public IExtensionDataMemberConverter ExtensionData;
 
@@ -50,6 +53,12 @@ namespace Dahomey.Json.Serialization.Converters
                             converters.ForReadAsString.Add(memberConverter.MemberNameAsString, memberConverter);
                         }
                         converters.ForRead.Add(memberConverter.MemberName, memberConverter);
+
+                        if (memberConverter.RequirementPolicy == RequirementPolicy.AllowNull
+                            || memberConverter.RequirementPolicy == RequirementPolicy.Always)
+                        {
+                            converters.RequiredForRead.Add(memberConverter);
+                        }
                     }
 
                     if (memberMapping.CanBeSerialized)
@@ -69,6 +78,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly IDiscriminatorConvention _discriminatorConvention;
 
         public IReadOnlyList<IMemberConverter> MemberConvertersForWrite => _memberConverters.Value.ForWrite;
+        public IReadOnlyList<IMemberConverter> RequiredMemberConvertersForRead => _memberConverters.Value.RequiredForRead;
 
         public ObjectConverter(JsonSerializerOptions options)
         {
@@ -115,11 +125,17 @@ namespace Dahomey.Json.Serialization.Converters
 
             Dictionary<ReadOnlyMemory<byte>, object> creatorValues = null;
             Dictionary<ReadOnlyMemory<byte>, object> regularValues = null;
+            HashSet<IMemberConverter> readMembers = null;
 
             if (_objectMapping.CreatorMapping != null)
             {
                 creatorValues = new Dictionary<ReadOnlyMemory<byte>, object>(ReadOnlyMemoryEqualityComparer<byte>.Instance);
                 regularValues = new Dictionary<ReadOnlyMemory<byte>, object>(ReadOnlyMemoryEqualityComparer<byte>.Instance);
+            }
+
+            if (_memberConverters.Value.RequiredForRead.Count != 0)
+            {
+                readMembers = new HashSet<IMemberConverter>();
             }
 
             T obj = null;
@@ -137,7 +153,7 @@ namespace Dahomey.Json.Serialization.Converters
                     throw new JsonException();
                 }
 
-                ReadMember(ref reader, ref obj, ref converter, options, creatorValues, regularValues);
+                ReadMember(ref reader, ref obj, ref converter, options, creatorValues, regularValues, readMembers);
             }
 
             if (creatorValues != null)
@@ -156,7 +172,23 @@ namespace Dahomey.Json.Serialization.Converters
                         throw new JsonException("Unexpected error");
                     }
 
-                    memberConverter.Set(obj, value.Value);
+                    memberConverter.Set(obj, value.Value, options);
+                }
+            }
+
+            if (readMembers != null)
+            {
+                if (converter == null)
+                {
+                    converter = this;
+                }
+
+                foreach (IMemberConverter memberConverter in converter.RequiredMemberConvertersForRead)
+                {
+                    if (!readMembers.Contains(memberConverter))
+                    {
+                        throw new JsonException($"Required property '{memberConverter.MemberNameAsString}' not found in JSON.");
+                    }
                 }
             }
 
@@ -170,7 +202,8 @@ namespace Dahomey.Json.Serialization.Converters
 
         public void ReadMember(ref Utf8JsonReader reader, ref T obj, ref IObjectConverter converter, 
             JsonSerializerOptions options, Dictionary<ReadOnlyMemory<byte>, object> creatorValues,
-            Dictionary<ReadOnlyMemory<byte>, object> regularValues)
+            Dictionary<ReadOnlyMemory<byte>, object> regularValues,
+            HashSet<IMemberConverter> readMembers)
         {
             ReadOnlySpan<byte> memberName = reader.GetRawString();
             reader.Read();
@@ -214,9 +247,9 @@ namespace Dahomey.Json.Serialization.Converters
                         ((Action<T>)_objectMapping.OnDeserializingMethod)(obj);
                     }
 
-                    converter.ReadValue(ref reader, obj, memberName, options);
+                    converter.ReadValue(ref reader, obj, memberName, options, readMembers);
                 }
-                else if (converter.ReadValue(ref reader, memberName, options, out object value))
+                else if (converter.ReadValue(ref reader, memberName, options, readMembers, out object value))
                 {
                     bool isCreatorValue = false;
                     foreach (ReadOnlyMemory<byte> creatorMemberName in _objectMapping.CreatorMapping.MemberNames)
@@ -240,11 +273,11 @@ namespace Dahomey.Json.Serialization.Converters
             }
             else
             {
-                converter.ReadValue(ref reader, obj, memberName, options);
+                converter.ReadValue(ref reader, obj, memberName, options, readMembers);
             }
         }
 
-        public void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options)
+        public void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers)
         {
             var memberConverters = _memberConverters.Value;
 
@@ -253,6 +286,10 @@ namespace Dahomey.Json.Serialization.Converters
                 || !options.PropertyNameCaseInsensitive
                 && memberConverters.ForRead.TryGetValue(memberName, out memberConverter))
             {
+                if (readMembers != null)
+                {
+                    readMembers.Add(memberConverter);
+                }
                 memberConverter.Read(ref reader, obj, options);
             }
             else if (memberConverters.ExtensionData != null)
@@ -265,7 +302,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
         }
 
-        public bool ReadValue(ref Utf8JsonReader reader, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, out object value)
+        public bool ReadValue(ref Utf8JsonReader reader, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers, out object value)
         {
             var memberConverters = _memberConverters.Value;
 
@@ -274,6 +311,10 @@ namespace Dahomey.Json.Serialization.Converters
                 || !options.PropertyNameCaseInsensitive
                 && memberConverters.ForRead.TryGetValue(memberName, out memberConverter))
             {
+                if (readMembers != null)
+                {
+                    readMembers.Add(memberConverter);
+                }
                 value = memberConverter.Read(ref reader, options);
                 return true;
             }

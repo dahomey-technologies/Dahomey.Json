@@ -1,6 +1,5 @@
 ﻿using Dahomey.Json.Attributes;
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -21,6 +20,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public object DefaultValue { get; private set; }
         public bool IgnoreIfDefault { get; private set; }
         public Func<object, bool> ShouldSerializeMethod { get; private set; }
+        public RequirementPolicy RequirementPolicy { get; private set; }
 
         public MemberMapping(JsonSerializerOptions options,
             IObjectMapping objectMapping, MemberInfo memberInfo, Type memberType)
@@ -59,6 +59,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public MemberMapping<T> SetShouldSerializeMethod(Func<object, bool> shouldSerializeMethod)
         {
             ShouldSerializeMethod = shouldSerializeMethod;
+            return this;
+        }
+
+        public MemberMapping<T> SetRequired(RequirementPolicy requirementPolicy)
+        {
+            RequirementPolicy = requirementPolicy;
             return this;
         }
 

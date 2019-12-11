@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dahomey.Json.Attributes;
+using System;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -15,6 +16,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         object DefaultValue { get; }
         bool IgnoreIfDefault { get; }
         Func<object, bool> ShouldSerializeMethod { get; }
+        RequirementPolicy RequirementPolicy { get; }
         IMemberConverter GenerateMemberConverter();
     }
 }

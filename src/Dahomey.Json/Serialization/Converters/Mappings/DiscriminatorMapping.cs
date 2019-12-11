@@ -1,4 +1,5 @@
-﻿using Dahomey.Json.Serialization.Conventions;
+﻿using Dahomey.Json.Attributes;
+using Dahomey.Json.Serialization.Conventions;
 using System;
 using System.Reflection;
 using System.Text;
@@ -20,6 +21,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public object DefaultValue => null;
         public bool IgnoreIfDefault => false;
         public Func<object, bool> ShouldSerializeMethod => null;
+        public RequirementPolicy RequirementPolicy => RequirementPolicy.Never;
 
         public DiscriminatorMapping(DiscriminatorConventionRegistry discriminatorConventionRegistry, 
             IObjectMapping objectMapping)
