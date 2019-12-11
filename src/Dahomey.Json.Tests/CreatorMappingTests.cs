@@ -203,8 +203,6 @@ namespace Dahomey.Json.Tests
             Assert.IsType<Bar>(obj.Bar);
             Assert.Equal(12, obj.Bar.Id);
 
-            Helper.TestRead(json, (ObjectWithAbstractClass)null, options, typeof(JsonException));
-
             Helper.TestWrite(obj, json, options);
         }
     }
