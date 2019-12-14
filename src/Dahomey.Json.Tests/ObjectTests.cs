@@ -1,6 +1,7 @@
 ﻿using Dahomey.Json.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
@@ -619,7 +620,6 @@ namespace Dahomey.Json.Tests
             public Guid Guid { get; set; }
         }
 
-
         [Fact]
         public void ReadWithCustomConverterOnProperty()
         {
@@ -644,6 +644,46 @@ namespace Dahomey.Json.Tests
             {
                 Guid = Guid.Parse("67EBF45D-016C-4B48-8AE6-1E389127B717")
             };
+            Helper.TestWrite(obj, json, options);
+        }
+
+        public class JsonNodeObject
+        {
+            public JsonNode JsonNode { get; set; }
+        }
+
+        [Theory]
+        [InlineData(@"{""JsonNode"":1}", JsonValueKind.Number)]
+        [InlineData(@"{""JsonNode"":""foo""}", JsonValueKind.String)]
+        [InlineData(@"{""JsonNode"":true}", JsonValueKind.True)]
+        [InlineData(@"{""JsonNode"":false}", JsonValueKind.False)]
+        [InlineData(@"{""JsonNode"":null}", JsonValueKind.Null)]
+        [InlineData(@"{""JsonNode"":{""id"":1,""name"":""foo""}}", JsonValueKind.Object)]
+        [InlineData(@"{""JsonNode"":[1,true,null]}", JsonValueKind.Array)]
+        public void ReadWithJsonNode(string json, JsonValueKind expectedJsonValueKind)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            JsonNodeObject obj = Helper.Read<JsonNodeObject>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.Equal(expectedJsonValueKind, obj.JsonNode.ValueKind);
+        }
+
+        [Fact]
+        public void WriteWithJsonNode()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            const string json = @"{""JsonNode"":[1,true,null]}";
+
+            JsonNodeObject obj = new JsonNodeObject
+            {
+                JsonNode = new JsonArray(new JsonNode[] { 1, true, new JsonNull() })
+            };
+                
             Helper.TestWrite(obj, json, options);
         }
     }

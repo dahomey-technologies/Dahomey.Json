@@ -22,6 +22,7 @@ namespace Dahomey.Json
             options.Converters.Add(new DictionaryKeyConverterRegistry(options));
             options.Converters.Add(new DictionaryConverterFactory());
             options.Converters.Add(new CollectionConverterFactory());
+            options.Converters.Add(new JsonNodeConverterFactory());
             options.Converters.Add(new ObjectConverterFactory());
         }
 
