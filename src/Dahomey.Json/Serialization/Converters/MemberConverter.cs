@@ -85,7 +85,7 @@ namespace Dahomey.Json.Serialization.Converters
                 throw new JsonException($"Property '{MemberNameAsString}' cannot be null.");
             }
 
-            _jsonConverter.Write(writer, _memberGetter((T)obj), options);
+            _jsonConverter.Write(writer, value, options);
         }
 
         public object Read(ref Utf8JsonReader reader, JsonSerializerOptions options)
