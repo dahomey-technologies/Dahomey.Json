@@ -17,6 +17,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         {
             // order matters. It's in reverse order of how they'll get consumed
             RegisterProvider(new DefaultObjectMappingConventionProvider());
+            RegisterProvider(new AnonymousObjectMappingConventionProvider());
         }
 
         /// <summary>

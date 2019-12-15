@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using Dahomey.Json.Serialization.Converters.Mappings;
 using Dahomey.Json.Attributes;
+using System.Linq;
 
 namespace Dahomey.Json.Serialization.Converters
 {
@@ -46,7 +47,7 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     IMemberConverter memberConverter = memberMapping.GenerateMemberConverter();
 
-                    if (memberMapping.CanBeDeserialized)
+                    if (memberMapping.CanBeDeserialized || objectMapping.IsCreatorMember(memberConverter.MemberName))
                     {
                         if (options.PropertyNameCaseInsensitive)
                         {
@@ -214,8 +215,7 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     if (_discriminatorConvention != null)
                     {
-                        if (_discriminatorConvention != null &&
-                            memberName.SequenceEqual(_discriminatorConvention.MemberName))
+                        if (memberName.SequenceEqual(_discriminatorConvention.MemberName))
                         {
                             // discriminator value
                             Type actualType = _discriminatorConvention.ReadDiscriminator(ref reader);
@@ -251,17 +251,7 @@ namespace Dahomey.Json.Serialization.Converters
                 }
                 else if (converter.ReadValue(ref reader, memberName, options, readMembers, out object value))
                 {
-                    bool isCreatorValue = false;
-                    foreach (ReadOnlyMemory<byte> creatorMemberName in _objectMapping.CreatorMapping.MemberNames)
-                    {
-                        if (creatorMemberName.Span.SequenceEqual(memberName))
-                        {
-                            isCreatorValue = true;
-                            break;
-                        }
-                    }
-
-                    if (isCreatorValue)
+                    if (_objectMapping.IsCreatorMember(memberName))
                     {
                         creatorValues.Add(memberName.ToArray(), value);
                     }

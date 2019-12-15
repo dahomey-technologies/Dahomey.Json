@@ -44,7 +44,7 @@ namespace Dahomey.Json.Tests
             }
         }
 
-        public static void TestRead<T>(string json, JsonSerializerOptions options, Type expectedExceptionType = null)
+        public static void TestRead<T>(string json, JsonSerializerOptions options, Type expectedExceptionType)
         {
             if (expectedExceptionType != null)
             {
@@ -97,7 +97,7 @@ namespace Dahomey.Json.Tests
             }
         }
 
-        public static void TestWrite<T>(T value, JsonSerializerOptions options, Type expectedExceptionType = null)
+        public static void TestWrite<T>(T value, JsonSerializerOptions options, Type expectedExceptionType)
         {
             if (expectedExceptionType != null)
             {

@@ -241,6 +241,24 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             };
         }
 
+        public bool IsCreatorMember(ReadOnlySpan<byte> memberName)
+        {
+            if (CreatorMapping == null)
+            {
+                return false;
+            }
+
+            foreach (ReadOnlyMemory<byte> creatorMemberName in CreatorMapping.MemberNames)
+            {
+                if (creatorMemberName.Span.SequenceEqual(memberName))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public void Initialize()
         {
             foreach(IMemberMapping mapping in _memberMappings)

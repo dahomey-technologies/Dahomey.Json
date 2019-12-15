@@ -20,5 +20,6 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         IExtensionDataMemberConverter ExtensionData { get; }
 
         void AutoMap();
+        bool IsCreatorMember(ReadOnlySpan<byte> memberName);
     }
 }
