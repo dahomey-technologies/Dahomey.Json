@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Xunit;
@@ -367,6 +367,49 @@ namespace Dahomey.Json.Tests
                 new JsonObject { { "id", 1 } }
             };
             Helper.TestWrite(array, json, options);
+        }
+
+        public class IdObject
+        {
+            public int Id { get; set; }
+        }
+
+        public class MyObject
+        {
+            public string String { get; set; }
+            public double Number { get; set; }
+            public bool Bool { get; set; }
+            public object Null { get; set; }
+            public List<int> Array { get; set; }
+            public IdObject Object { get; set; }
+        }
+
+        [Fact]
+        public void ToObjectTest()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            JsonObject obj = new JsonObject
+            {
+                ["String"] = "foo",
+                ["Number"] = 12.12,
+                ["Bool"] = true,
+                ["Null"] = null,
+                ["Array"] = new JsonArray { 1, 2 },
+                ["Object"] = new JsonObject { ["Id"] = 1 },
+            };
+
+            MyObject myObject = obj.ToObject<MyObject>(options);
+
+            Assert.NotNull(myObject);
+            Assert.Equal("foo", myObject.String);
+            Assert.Equal(12.12, myObject.Number, 3);
+            Assert.True(myObject.Bool);
+            Assert.Null(myObject.Null);
+            Assert.Equal(new[] { 1, 2 }, myObject.Array);
+            Assert.NotNull(myObject.Object);
+            Assert.Equal(1, myObject.Object.Id);
         }
     }
 }
