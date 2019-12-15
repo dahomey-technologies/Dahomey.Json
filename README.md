@@ -13,7 +13,7 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for interfaces and abstract classes
 * Support for numeric, enum and custom dictionary keys
 * Support for non default constructors
-* Can ignore default values if null
+* Can ignore default values
 * Can require properties or fields with different policies
 * Object mapping to programmatically configure features on a class
 * Support for Writable JSON Document Object Model (cf. [Spec](https://github.com/dotnet/corefx/blob/master/src/System.Text.Json/docs/writable_json_dom_spec.md))
