@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using Dahomey.Json.Attributes;
 using Dahomey.Json.Serialization.Conventions;
@@ -198,7 +197,7 @@ namespace Dahomey.Json.Tests
         }
 
         [Fact]
-        public void WriteWithNoDiscriminator()
+        public void WriteWithNoDiscriminatorConvention()
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
