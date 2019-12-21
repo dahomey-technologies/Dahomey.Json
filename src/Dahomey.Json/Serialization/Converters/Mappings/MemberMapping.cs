@@ -1,6 +1,7 @@
 ﻿using Dahomey.Json.Attributes;
 using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -95,9 +96,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             if (string.IsNullOrEmpty(MemberName))
             {
                 JsonPropertyNameAttribute nameAttribute = MemberInfo.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: false);
+                DataMemberAttribute dataMemberAttribute = MemberInfo.GetCustomAttribute<DataMemberAttribute>(inherit: false);
                 if (nameAttribute != null)
                 {
                     MemberName = nameAttribute.Name ?? throw new JsonException();
+                }
+                else if (dataMemberAttribute != null)
+                {
+                    MemberName = dataMemberAttribute.Name;
                 }
                 else if (_objectMapping.PropertyNamingPolicy != null)
                 {
