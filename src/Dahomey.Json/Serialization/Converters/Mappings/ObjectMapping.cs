@@ -13,7 +13,6 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     /// </summary>
     /// <typeparam name="T">The class.</typeparam>
     public class ObjectMapping<T> : IObjectMapping
-        where T : class
     {
         private readonly JsonSerializerOptions _options;
         private List<IMemberMapping> _memberMappings = new List<IMemberMapping>();

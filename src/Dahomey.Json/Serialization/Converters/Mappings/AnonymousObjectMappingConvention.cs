@@ -10,7 +10,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     {
         private static DefaultObjectMappingConvention _defaultObjectMappingConvention = new DefaultObjectMappingConvention();
 
-        public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping) where T : class
+        public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping)
         {
             Debug.Assert(typeof(T).IsAnonymous());
 

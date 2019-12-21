@@ -280,7 +280,7 @@ namespace Dahomey.Json.Tests
         {
             private readonly DefaultObjectMappingConvention _defaultConvention = new DefaultObjectMappingConvention();
 
-            public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping) where T : class
+            public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping)
             {
                 _defaultConvention.Apply(options, objectMapping);
 

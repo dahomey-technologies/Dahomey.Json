@@ -22,7 +22,6 @@ namespace Dahomey.Json.Serialization.Converters
     }
 
     public class ObjectConverter<T> : JsonConverter<T>, IObjectConverter
-        where T : class
     {
         private class MemberConverters
         {
@@ -121,7 +120,7 @@ namespace Dahomey.Json.Serialization.Converters
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
-                return null;
+                return default;
             }
 
             Dictionary<ReadOnlyMemory<byte>, object> creatorValues = null;
@@ -139,7 +138,7 @@ namespace Dahomey.Json.Serialization.Converters
                 readMembers = new HashSet<IMemberConverter>();
             }
 
-            T obj = null;
+            T obj = default;
             IObjectConverter converter = null;
 
             if (reader.TokenType != JsonTokenType.StartObject)
@@ -246,24 +245,27 @@ namespace Dahomey.Json.Serialization.Converters
                     {
                         ((Action<T>)_objectMapping.OnDeserializingMethod)(obj);
                     }
-
-                    converter.ReadValue(ref reader, obj, memberName, options, readMembers);
-                }
-                else if (converter.ReadValue(ref reader, memberName, options, readMembers, out object value))
-                {
-                    if (_objectMapping.IsCreatorMember(memberName))
-                    {
-                        creatorValues.Add(memberName.ToArray(), value);
-                    }
-                    else
-                    {
-                        regularValues.Add(memberName.ToArray(), value);
-                    }
                 }
             }
-            else
+            else if (converter == null)
+            {
+                converter = this;
+            }
+
+            if (creatorValues == null)
             {
                 converter.ReadValue(ref reader, obj, memberName, options, readMembers);
+            }
+            else if (converter.ReadValue(ref reader, memberName, options, readMembers, out object value))
+            {
+                if (_objectMapping.IsCreatorMember(memberName))
+                {
+                    creatorValues.Add(memberName.ToArray(), value);
+                }
+                else
+                {
+                    regularValues.Add(memberName.ToArray(), value);
+                }
             }
         }
 

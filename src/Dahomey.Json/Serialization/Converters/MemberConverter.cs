@@ -27,7 +27,6 @@ namespace Dahomey.Json.Serialization.Converters
     }
 
     public class MemberConverter<T, TM> : IMemberConverter
-        where T : class
     {
         private readonly Func<T, TM> _memberGetter;
         private readonly Action<T, TM> _memberSetter;
@@ -187,7 +186,6 @@ namespace Dahomey.Json.Serialization.Converters
     }
 
     public class DiscriminatorMemberConverter<T> : IMemberConverter
-        where T : class
     {
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly DiscriminatorPolicy _discriminatorPolicy;

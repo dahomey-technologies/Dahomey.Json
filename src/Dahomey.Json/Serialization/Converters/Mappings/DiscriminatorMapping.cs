@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Converters.Mappings
 {
-    public class DiscriminatorMapping<T> : IMemberMapping where T : class
+    public class DiscriminatorMapping<T> : IMemberMapping
     {
         private readonly DiscriminatorConventionRegistry _discriminatorConventionRegistry;
         private readonly IObjectMapping _objectMapping;

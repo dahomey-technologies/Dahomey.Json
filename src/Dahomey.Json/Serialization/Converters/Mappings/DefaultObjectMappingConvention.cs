@@ -14,7 +14,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 {
     public class DefaultObjectMappingConvention : IObjectMappingConvention
     {
-        public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping) where T : class
+        public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping)
         {
             Type type = objectMapping.ObjectType;
             List<MemberMapping<T>> memberMappings = new List<MemberMapping<T>>();
@@ -147,7 +147,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
         }
 
-        private void ProcessDefaultValue<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping) where T : class
+        private void ProcessDefaultValue<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
             DefaultValueAttribute defaultValueAttribute = memberInfo.GetCustomAttribute<DefaultValueAttribute>();
             if (defaultValueAttribute != null)
@@ -161,7 +161,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
         }
 
-        private void ProcessShouldSerializeMethod<T>(MemberMapping<T> memberMapping) where T : class
+        private void ProcessShouldSerializeMethod<T>(MemberMapping<T> memberMapping)
         {
             string shouldSerializeMethodName = "ShouldSerialize" + memberMapping.MemberInfo.Name;
             Type objectType = memberMapping.MemberInfo.DeclaringType;
@@ -183,7 +183,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
         }
 
-        private void ProcessRequired<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping) where T : class
+        private void ProcessRequired<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
             JsonRequiredAttribute jsonRequiredAttribute = memberInfo.GetCustomAttribute<JsonRequiredAttribute>();
             if (jsonRequiredAttribute != null)

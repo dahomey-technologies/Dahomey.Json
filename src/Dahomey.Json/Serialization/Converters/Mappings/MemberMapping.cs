@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Converters.Mappings
 {
-    public class MemberMapping<T> : IMemberMapping where T : class
+    public class MemberMapping<T> : IMemberMapping
     {
         private readonly IObjectMapping _objectMapping;
         private readonly JsonSerializerOptions _options;

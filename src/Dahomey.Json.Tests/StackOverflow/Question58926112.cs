@@ -24,7 +24,7 @@ namespace Dahomey.Json.Tests.StackOverflow
                     .ToArray();
             }
 
-            public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping) where T : class
+            public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping)
             {
                 defaultObjectMappingConvention.Apply<T>(options, objectMapping);
                 foreach (IMemberMapping memberMapping in objectMapping.MemberMappings)

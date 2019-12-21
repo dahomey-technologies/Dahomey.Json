@@ -38,20 +38,20 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
         }
 
-        public void Register<T>() where T : class
+        public void Register<T>()
         {
             ObjectMapping<T> objectMapping = new ObjectMapping<T>(_options);
             Register(objectMapping);
         }
 
-        public void Register<T>(Action<ObjectMapping<T>> initializer) where T : class
+        public void Register<T>(Action<ObjectMapping<T>> initializer)
         {
             ObjectMapping<T> objectMapping = new ObjectMapping<T>(_options);
             initializer(objectMapping);
             Register(objectMapping);
         }
 
-        public IObjectMapping Lookup<T>() where T : class
+        public IObjectMapping Lookup<T>()
         {
             return Lookup(typeof(T));
         }
