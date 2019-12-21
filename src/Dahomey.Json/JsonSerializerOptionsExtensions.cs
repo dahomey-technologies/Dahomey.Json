@@ -14,7 +14,7 @@ namespace Dahomey.Json
             return (JsonConverter<T>)options.GetConverter(typeof(T));
         }
 
-        public static void SetupExtensions(this JsonSerializerOptions options)
+        public static JsonSerializerOptions SetupExtensions(this JsonSerializerOptions options)
         {
             options.Converters.Add(new ObjectMappingRegistry(options));
             options.Converters.Add(new ObjectMappingConventionRegistry());
@@ -24,6 +24,8 @@ namespace Dahomey.Json
             options.Converters.Add(new CollectionConverterFactory());
             options.Converters.Add(new JsonNodeConverterFactory());
             options.Converters.Add(new ObjectConverterFactory());
+
+            return options;
         }
 
         public static ObjectMappingRegistry GetObjectMappingRegistry(this JsonSerializerOptions options)
