@@ -19,6 +19,8 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for Writable JSON Document Object Model (cf. [Spec](https://github.com/dotnet/corefx/blob/master/src/System.Text.Json/docs/writable_json_dom_spec.md))
 * Support for serialization callbacks (before/after serialization/deserialization)
 * Support for anonymous types
+* Support for DataMemberAttribute
+* Extended support for structs
 
 ## Installation
 ### NuGet
