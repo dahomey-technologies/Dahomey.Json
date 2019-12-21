@@ -41,6 +41,14 @@ JsonSerializerOptions options = new JsonSerializerOptions();
 options.SetupExtensions();
 ```
 
+You can also instantiate options and setup extensions in one line:
+```csharp
+using Dahomey.Json;
+using System.Text.Json;
+
+JsonSerializerOptions options = new JsonSerializerOptions().SetupExtensions();
+```
+
 ### Polymorphism
 
 In order to distinguish inherited classes from a reference to a base class or a collection of references to a base class, a special property called **discriminator** can be added to the serialized json.
