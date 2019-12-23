@@ -2,21 +2,21 @@ version: 2
 jobs:
   build:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
     steps:
       - checkout
       - run: dotnet build -c Release src/Dahomey.Json
       
   test:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
     steps:
       - checkout
       - run: dotnet test -c Release src/Dahomey.Json.Tests
       
   deploy:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
     steps:
       - checkout
       - run: dotnet pack -p:Version=${CIRCLE_TAG} -p:FileVersion=${CIRCLE_TAG} -p:AssemblyVersion=${CIRCLE_TAG} -c Release src/Dahomey.Json
