@@ -33,15 +33,13 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly JsonConverter<TM> _jsonConverter;
         private readonly ReadOnlyMemory<byte> _memberName;
         private readonly TM _defaultValue;
-        private readonly bool _ignoreIfDefault;
         private readonly Func<object, bool> _shouldSerializeMethod;
-        private readonly RequirementPolicy _requirementPolicy;
         private readonly bool _isClass = typeof(TM).IsClass;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
         public string MemberNameAsString { get; }
-        public bool IgnoreIfDefault => _ignoreIfDefault;
-        public RequirementPolicy RequirementPolicy => _requirementPolicy;
+        public bool IgnoreIfDefault { get; private set; }
+        public RequirementPolicy RequirementPolicy { get; private set; }
 
         public MemberConverter(JsonSerializerOptions options, IMemberMapping memberMapping)
         {
@@ -51,9 +49,9 @@ namespace Dahomey.Json.Serialization.Converters
             _memberSetter = GenerateSetter(memberMapping.MemberInfo);
             _jsonConverter = (JsonConverter<TM>)memberMapping.Converter;
             _defaultValue = (TM)memberMapping.DefaultValue;
-            _ignoreIfDefault = memberMapping.IgnoreIfDefault;
+            IgnoreIfDefault = memberMapping.IgnoreIfDefault;
             _shouldSerializeMethod = memberMapping.ShouldSerializeMethod;
-            _requirementPolicy = memberMapping.RequirementPolicy;
+            RequirementPolicy = memberMapping.RequirementPolicy;
         }
 
         public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
@@ -65,7 +63,7 @@ namespace Dahomey.Json.Serialization.Converters
                     return;
                 }
 
-                if (_requirementPolicy == RequirementPolicy.DisallowNull || _requirementPolicy == RequirementPolicy.Always)
+                if (RequirementPolicy == RequirementPolicy.DisallowNull || RequirementPolicy == RequirementPolicy.Always)
                 {
                     throw new JsonException($"Property '{MemberNameAsString}' cannot be null.");
                 }
@@ -78,8 +76,8 @@ namespace Dahomey.Json.Serialization.Converters
         {
             TM value = _memberGetter((T)obj);
 
-            if (_isClass && value == null && (_requirementPolicy == RequirementPolicy.DisallowNull
-                || _requirementPolicy == RequirementPolicy.Always))
+            if (_isClass && value == null && (RequirementPolicy == RequirementPolicy.DisallowNull
+                || RequirementPolicy == RequirementPolicy.Always))
             {
                 throw new JsonException($"Property '{MemberNameAsString}' cannot be null.");
             }
@@ -100,7 +98,7 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     return;
                 }
-                if (_requirementPolicy == RequirementPolicy.DisallowNull || _requirementPolicy == RequirementPolicy.Always)
+                if (RequirementPolicy == RequirementPolicy.DisallowNull || RequirementPolicy == RequirementPolicy.Always)
                 {
                     throw new JsonException($"Required property '{MemberNameAsString}' cannot be null.");
                 }

@@ -72,7 +72,7 @@ namespace Dahomey.Json.Util
                 return true;
             }
 
-            private unsafe int BinarySearch(ulong key)
+            private int BinarySearch(ulong key)
             {
                 int lo = 0;
                 int hi = _nodes.Length - 1;
@@ -103,7 +103,7 @@ namespace Dahomey.Json.Util
             }
         }
 
-        private Node _root = new Node
+        private readonly Node _root = new Node
         {
             next = new NodeCollection()
         };
@@ -141,6 +141,12 @@ namespace Dahomey.Json.Util
         {
             Node node;
             int len = key.Length;
+
+            if (len == 0)
+            {
+                value = default;
+                return false;
+            }
 
             if (len <= 8)
             {

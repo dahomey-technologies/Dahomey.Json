@@ -20,17 +20,17 @@ namespace System.Text.Json
         /// <summary>
         ///   Initializes a new instance of the <see cref="JsonObject"/> class representing the empty object.
         /// </summary>
-        public JsonObject()
+        public JsonObject(int capacity = 0)
         {
-            _dictionary = new Dictionary<string, JsonObjectProperty>();
+            _dictionary = new Dictionary<string, JsonObjectProperty>(capacity);
             _version = 0;
         }
         /// <summary>
         ///   Initializes a new instance of the <see cref="JsonObject"/> class representing provided set of JSON properties.
         /// </summary>
         /// <param name="jsonProperties">>Properties to represent as a JSON object.</param>
-        public JsonObject(IEnumerable<KeyValuePair<string, JsonNode>> jsonProperties)
-            : this()
+        public JsonObject(IReadOnlyCollection<KeyValuePair<string, JsonNode>> jsonProperties, int? capacity = null)
+            : this(capacity ?? jsonProperties.Count)
             => AddRange(jsonProperties);
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace System.Text.Json
         /// </exception>
         public JsonNode this[string propertyName]
         {
-            get => propertyName != null ? GetPropertyValue(propertyName) : throw new ArgumentNullException(nameof(propertyName));
+            get => GetPropertyValue(propertyName ?? throw new ArgumentNullException(nameof(propertyName)));
             set
             {
                 if (propertyName == null)
@@ -253,7 +253,7 @@ namespace System.Text.Json
         /// <exception cref="ArgumentNullException">
         ///   Provided property name is null.
         /// </exception>
-        public bool ContainsProperty(string propertyName) => propertyName != null ? _dictionary.ContainsKey(propertyName) : throw new ArgumentNullException(nameof(propertyName));
+        public bool ContainsProperty(string propertyName) => _dictionary.ContainsKey(propertyName ?? throw new ArgumentNullException(nameof(propertyName)));
 
         /// <summary>
         ///   Determines whether a property is in this JSON object.
@@ -614,7 +614,7 @@ namespace System.Text.Json
         /// <returns>A new JSON object that is a copy of this instance.</returns>
         public override JsonNode Clone()
         {
-            var jsonObject = new JsonObject();
+            var jsonObject = new JsonObject(_dictionary.Count);
 
             foreach (KeyValuePair<string, JsonNode> property in this)
             {

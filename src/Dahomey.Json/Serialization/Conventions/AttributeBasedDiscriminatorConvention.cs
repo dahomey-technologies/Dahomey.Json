@@ -33,7 +33,7 @@ namespace Dahomey.Json.Serialization.Conventions
         {
             IObjectMapping objectMapping = _options.GetObjectMappingRegistry().Lookup(type);
 
-            if (objectMapping.Discriminator == null || !(objectMapping.Discriminator is T discriminator))
+            if (!(objectMapping?.Discriminator is T discriminator))
             {
                 return false;
             }

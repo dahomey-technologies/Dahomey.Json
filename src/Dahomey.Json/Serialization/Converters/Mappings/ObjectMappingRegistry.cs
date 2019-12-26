@@ -19,10 +19,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public void Register(IObjectMapping objectMapping)
         {
             IMappingInitialization mappingInitialization = objectMapping as IMappingInitialization;
-            if (mappingInitialization != null)
-            {
-                mappingInitialization.Initialize();
-            }
+            mappingInitialization?.Initialize();
 
             _objectMappings.AddOrUpdate(objectMapping.ObjectType, objectMapping,
                 (type, existingObjectMapping) => objectMapping);
@@ -32,10 +29,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 _options.GetDiscriminatorConventionRegistry().RegisterType(objectMapping.ObjectType);
             }
 
-            if (mappingInitialization != null)
-            {
-                mappingInitialization.PostInitialize();
-            }
+            mappingInitialization?.PostInitialize();
         }
 
         public void Register<T>()

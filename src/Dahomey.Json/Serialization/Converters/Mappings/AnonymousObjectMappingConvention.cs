@@ -1,5 +1,4 @@
 ﻿using Dahomey.Json.Util;
-using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
@@ -8,7 +7,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 {
     public class AnonymousObjectMappingConvention : IObjectMappingConvention
     {
-        private static DefaultObjectMappingConvention _defaultObjectMappingConvention = new DefaultObjectMappingConvention();
+        private static readonly DefaultObjectMappingConvention _defaultObjectMappingConvention = new DefaultObjectMappingConvention();
 
         public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping)
         {

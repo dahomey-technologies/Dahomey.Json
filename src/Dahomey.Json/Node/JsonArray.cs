@@ -18,9 +18,9 @@ namespace System.Text.Json
         /// <summary>
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the empty array.
         /// </summary>
-        public JsonArray()
+        public JsonArray(int capacity = 0)
         {
-            _list = new List<JsonNode>();
+            _list = new List<JsonNode>(capacity);
             _version = 0;
         }
 
@@ -28,9 +28,10 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<JsonNode> values)
+        public JsonArray(IReadOnlyCollection<JsonNode> values, int? capacity = null)
         {
-            _list = new List<JsonNode>(values);
+            _list = new List<JsonNode>(capacity ?? values.Count);
+            _list.AddRange(values);
             _version = 0;
         }
 
@@ -38,7 +39,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="string"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<string> values) : this()
+        public JsonArray(IReadOnlyCollection<string> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (string value in values)
             {
@@ -50,7 +51,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="byte"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<bool> values) : this()
+        public JsonArray(IReadOnlyCollection<bool> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (bool value in values)
             {
@@ -62,7 +63,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="byte"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<byte> values) : this()
+        public JsonArray(IReadOnlyCollection<byte> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (byte value in values)
             {
@@ -74,7 +75,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="short"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<short> values) : this()
+        public JsonArray(IReadOnlyCollection<short> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (short value in values)
             {
@@ -86,7 +87,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="int"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<int> values) : this()
+        public JsonArray(IReadOnlyCollection<int> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (int value in values)
             {
@@ -98,7 +99,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="long"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<long> values) : this()
+        public JsonArray(IReadOnlyCollection<long> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (long value in values)
             {
@@ -113,7 +114,7 @@ namespace System.Text.Json
         /// <exception cref="ArgumentException">
         ///   Some of provided values are not in a legal JSON number format.
         /// </exception>
-        public JsonArray(IEnumerable<float> values) : this()
+        public JsonArray(IReadOnlyCollection<float> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (float value in values)
             {
@@ -128,7 +129,7 @@ namespace System.Text.Json
         /// <exception cref="ArgumentException">
         ///   Some of provided values are not in a legal JSON number format.
         /// </exception>
-        public JsonArray(IEnumerable<double> values) : this()
+        public JsonArray(IReadOnlyCollection<double> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (double value in values)
             {
@@ -140,7 +141,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="sbyte"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<sbyte> values) : this()
+        public JsonArray(IReadOnlyCollection<sbyte> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (sbyte value in values)
             {
@@ -152,7 +153,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="ushort"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<ushort> values) : this()
+        public JsonArray(IReadOnlyCollection<ushort> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (ushort value in values)
             {
@@ -164,7 +165,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="uint"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<uint> values) : this()
+        public JsonArray(IReadOnlyCollection<uint> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (uint value in values)
             {
@@ -176,7 +177,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="ulong"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<ulong> values) : this()
+        public JsonArray(IReadOnlyCollection<ulong> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (ulong value in values)
             {
@@ -188,7 +189,7 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonArray"/> class representing the specified collection of <see cref="decimal"/>s.
         /// </summary>
         /// <param name="values">Collection to represent.</param>
-        public JsonArray(IEnumerable<decimal> values) : this()
+        public JsonArray(IReadOnlyCollection<decimal> values, int? capacity = null) : this(capacity ?? values.Count)
         {
             foreach (decimal value in values)
             {
@@ -344,7 +345,7 @@ namespace System.Text.Json
         ///   Returns an enumerator that iterates through the collection values.
         /// </summary>
         /// <returns>An enumerator structure for the <see cref="JsonArray"/>.</returns>
-        IEnumerator<JsonNode> IEnumerable<JsonNode>.GetEnumerator() => new JsonArrayEnumerator(this);
+        IEnumerator<JsonNode> IEnumerable<JsonNode>.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         ///   Returns an enumerator that iterates through the collection values.
@@ -358,7 +359,7 @@ namespace System.Text.Json
         /// <returns>A new collection that is a copy of this instance.</returns>
         public override JsonNode Clone()
         {
-            var jsonArray = new JsonArray();
+            var jsonArray = new JsonArray(_list.Capacity);
 
             foreach (JsonNode jsonNode in _list)
             {
@@ -371,6 +372,6 @@ namespace System.Text.Json
         /// <summary>
         ///   Returns <see cref="JsonValueKind.Array"/>
         /// </summary>
-        public override JsonValueKind ValueKind { get => JsonValueKind.Array;}
+        public override JsonValueKind ValueKind => JsonValueKind.Array;
     }
 }

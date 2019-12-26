@@ -16,14 +16,13 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     {
         private readonly JsonSerializerOptions _options;
         private List<IMemberMapping> _memberMappings = new List<IMemberMapping>();
-        private ICreatorMapping _creatorMapping = null;
         private Action _orderByAction = null; 
 
         public Type ObjectType { get; private set; }
 
         public JsonNamingPolicy PropertyNamingPolicy { get; private set; }
         public IReadOnlyCollection<IMemberMapping> MemberMappings => _memberMappings;
-        public ICreatorMapping CreatorMapping => _creatorMapping;
+        public ICreatorMapping CreatorMapping { get; private set; }
         public Delegate OnSerializingMethod { get; private set; }
         public Delegate OnSerializedMethod { get; private set; }
         public Delegate OnDeserializingMethod { get; private set; }
@@ -99,7 +98,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public ObjectMapping<T> MapExtensionData<TM>(Expression<Func<T, TM>> memberLambda)
         {
-            (MemberInfo memberInfo, Type memberType) = GetMemberInfoFromLambda(memberLambda);
+            (MemberInfo memberInfo, _) = GetMemberInfoFromLambda(memberLambda);
             return MapExtensionData((PropertyInfo)memberInfo);
         }
 
@@ -146,7 +145,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
 
             CreatorMapping creatorMapping = new CreatorMapping(this, constructorInfo);
-            _creatorMapping = creatorMapping;
+            CreatorMapping = creatorMapping;
             return creatorMapping;
         }
 
@@ -159,7 +158,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
 
             CreatorMapping creatorMapping = new CreatorMapping(this, method);
-            _creatorMapping = creatorMapping;
+            CreatorMapping = creatorMapping;
             return creatorMapping;
         }
 
@@ -171,7 +170,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
 
             CreatorMapping creatorMapping = new CreatorMapping(this, creatorFunc);
-            _creatorMapping = creatorMapping;
+            CreatorMapping = creatorMapping;
             return creatorMapping;
         }
 
@@ -196,7 +195,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public ObjectMapping<T> SetCreatorMapping(ICreatorMapping creatorMapping)
         {
-            _creatorMapping = creatorMapping;
+            CreatorMapping = creatorMapping;
             return this;
         }
 
@@ -268,7 +267,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
             }
 
-            if (CreatorMapping != null && CreatorMapping is IMappingInitialization creatorInitialization)
+            if (CreatorMapping is IMappingInitialization creatorInitialization)
             {
                 creatorInitialization.Initialize();
             }
@@ -284,7 +283,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
             }
 
-            if (CreatorMapping != null && CreatorMapping is IMappingInitialization creatorInitialization)
+            if (CreatorMapping is IMappingInitialization creatorInitialization)
             {
                 creatorInitialization.PostInitialize();
             }

@@ -108,12 +108,8 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 else
                 {
                     memberMapping = memberMappings
-                        .FirstOrDefault(m => string.Compare(m.MemberName, _memberNames[i].ToString(), ignoreCase: true) == 0);
-
-                    if (memberMapping == null)
-                    {
-                        throw new JsonException($"Cannot find a field or property named {_memberNames[i]} on type {_objectMapping.ObjectType.FullName}");
-                    }
+                        .FirstOrDefault(m => string.Compare(m.MemberName, _memberNames[i].ToString(), ignoreCase: true) == 0)
+                        ?? throw new JsonException($"Cannot find a field or property named {_memberNames[i]} on type {_objectMapping.ObjectType.FullName}");
                 }
 
                 if (memberMapping != null)

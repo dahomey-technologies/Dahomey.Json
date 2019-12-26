@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Globalization;
-using System.Buffers;
 using System.Diagnostics;
 
 namespace System.Text.Json
@@ -183,7 +181,7 @@ namespace System.Text.Json
             if (right is null)
             {
                 // return true/false not the test result https://github.com/dotnet/coreclr/issues/914
-                return (left is null) ? true : false;
+                return left is null;
             }
 
             return right.Equals(left);
@@ -209,7 +207,7 @@ namespace System.Text.Json
         /// <summary>
         ///   Returns <see cref="JsonValueKind.String"/>
         /// </summary>
-        public override JsonValueKind ValueKind { get => JsonValueKind.String; }
+        public override JsonValueKind ValueKind => JsonValueKind.String;
 
         /// <summary>
         ///   Converts the text value of this instance, which should encode binary data as base-64 digits, to an equivalent 8-bit unsigned <see cref="byte"/> array.

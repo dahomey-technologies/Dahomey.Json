@@ -27,7 +27,7 @@ namespace System.Text.Json
         object IEnumerator.Current => _enumerator.Current;
 
         /// <summary>
-        ///   Releases all resources used by the <see cref="JsonObjectEnumerator"/>.
+        ///   Releases all resources used by the <see cref="JsonArrayEnumerator"/>.
         /// </summary>
         public void Dispose() => _enumerator.Dispose();
 

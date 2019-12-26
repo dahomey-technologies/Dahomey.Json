@@ -8,7 +8,7 @@ namespace System.Text.Json
     /// </summary>
     public struct JsonObjectEnumerator : IEnumerator<KeyValuePair<string, JsonNode>>
     {
-        private JsonObjectProperty _first;
+        private readonly JsonObjectProperty _first;
         private JsonObjectProperty _current;
 
         /// <summary>

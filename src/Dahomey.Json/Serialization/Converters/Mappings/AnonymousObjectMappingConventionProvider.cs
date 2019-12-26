@@ -10,12 +10,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public IObjectMappingConvention GetConvention(Type type)
         {
-            if (type.IsAnonymous())
-            {
-                return _anonymousObjectMappingConvention;
-            }
-
-            return null;
+            return type.IsAnonymous() ? _anonymousObjectMappingConvention : null;
         }
     }
 }
