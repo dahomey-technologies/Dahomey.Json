@@ -4,8 +4,8 @@ using System.Text.Json;
 namespace Dahomey.Json.Serialization.Converters
 {
     public class InterfaceCollectionConverter<TC, TF, TI> : AbstractCollectionConverter<TF, TI>
-        where TF : ICollection<TI>
-        where TC : class, TF, new()
+        where TF : IEnumerable<TI>
+        where TC : class, ICollection<TI>, new()
     {
         public InterfaceCollectionConverter(JsonSerializerOptions options)
             : base(options)
