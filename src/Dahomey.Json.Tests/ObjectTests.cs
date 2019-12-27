@@ -87,7 +87,7 @@ namespace Dahomey.Json.Tests
                 Enum = EnumTest.Value1
             };
 
-            const string expected = @"{""Boolean"":true,""SByte"":13,""Byte"":12,""Int16"":14,""UInt16"":15,""Int32"":16,""UInt32"":17,""Int64"":18,""UInt64"":19,""String"":""string"",""Single"":20.2099991,""Double"":22.23,""DateTime"":""2014-02-21T19:00:00Z"",""Enum"":""Value1""}";
+            const string expected = @"{""Boolean"":true,""SByte"":13,""Byte"":12,""Int16"":14,""UInt16"":15,""Int32"":16,""UInt32"":17,""Int64"":18,""UInt64"":19,""String"":""string"",""Single"":20.21,""Double"":22.23,""DateTime"":""2014-02-21T19:00:00Z"",""Enum"":""Value1""}";
             string actual = JsonSerializer.Serialize(obj, options);
 
             Assert.Equal(expected, actual);
@@ -163,7 +163,7 @@ namespace Dahomey.Json.Tests
                 Enum = EnumTest.Value1
             };
 
-            const string expected = @"{""Boolean"":true,""SByte"":13,""Byte"":12,""Int16"":14,""UInt16"":15,""Int32"":16,""UInt32"":17,""Int64"":18,""UInt64"":19,""String"":""string"",""Single"":20.2099991,""Double"":22.23,""DateTime"":""2014-02-21T19:00:00Z"",""Enum"":""Value1""}";
+            const string expected = @"{""Boolean"":true,""SByte"":13,""Byte"":12,""Int16"":14,""UInt16"":15,""Int32"":16,""UInt32"":17,""Int64"":18,""UInt64"":19,""String"":""string"",""Single"":20.21,""Double"":22.23,""DateTime"":""2014-02-21T19:00:00Z"",""Enum"":""Value1""}";
             string actual = JsonSerializer.Serialize(obj, options);
 
             Assert.Equal(expected, actual);
