@@ -26,7 +26,15 @@ namespace Dahomey.Json.Serialization.Converters
         bool ShouldSerialize(object obj, Type declaredType, JsonSerializerOptions options);
     }
 
-    public class MemberConverter<T, TM> : IMemberConverter
+    public interface IMemberConverter<T>
+    {
+        void Read(ref Utf8JsonReader reader, ref T instance, JsonSerializerOptions options);
+        void Write(Utf8JsonWriter writer, ref T instance, JsonSerializerOptions options);
+        bool ShouldSerialize(ref T instance, Type declaredType, JsonSerializerOptions options);
+    }
+
+    public class MemberConverter<T, TM> : IMemberConverter 
+        where T : class
     {
         private readonly Func<T, TM> _memberGetter;
         private readonly Action<T, TM> _memberSetter;
@@ -178,6 +186,162 @@ namespace Dahomey.Json.Serialization.Converters
                     }
 
                     return fieldInfo.GenerateSetter<T, TM>();
+
+                default:
+                    return null;
+            }
+        }
+    }
+
+    public class StructMemberConverter<T, TM> : IMemberConverter, IMemberConverter<T>
+        where T : struct
+    {
+        private readonly StructMemberGetterDelegate<T, TM> _memberGetter;
+        private readonly StructMemberSetterDelegate<T, TM> _memberSetter;
+        private readonly JsonConverter<TM> _jsonConverter;
+        private readonly ReadOnlyMemory<byte> _memberName;
+        private readonly TM _defaultValue;
+        private readonly bool _ignoreIfDefault;
+        private readonly RequirementPolicy _requirementPolicy;
+        private readonly bool _isClass = typeof(TM).IsClass;
+
+        public ReadOnlySpan<byte> MemberName => _memberName.Span;
+        public string MemberNameAsString { get; }
+        public bool IgnoreIfDefault => _ignoreIfDefault;
+        public RequirementPolicy RequirementPolicy => _requirementPolicy;
+
+        public StructMemberConverter(JsonSerializerOptions options, IMemberMapping memberMapping)
+        {
+            MemberNameAsString = memberMapping.MemberName;
+            _memberName = Encoding.UTF8.GetBytes(MemberNameAsString);
+            _memberGetter = GenerateGetter(memberMapping.MemberInfo);
+            _memberSetter = GenerateSetter(memberMapping.MemberInfo);
+            _jsonConverter = (JsonConverter<TM>)memberMapping.Converter;
+            _defaultValue = (TM)memberMapping.DefaultValue;
+            _ignoreIfDefault = memberMapping.IgnoreIfDefault;
+            _requirementPolicy = memberMapping.RequirementPolicy;
+        }
+
+        public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Write(Utf8JsonWriter writer, object obj, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException();
+        }
+
+        public object Read(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        {
+            return _jsonConverter.Read(ref reader, typeof(TM), options);
+        }
+
+        public void Set(object obj, object value, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException();
+        }
+
+        public bool ShouldSerialize(object obj, Type declaredType, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Read(ref Utf8JsonReader reader, ref T instance, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                if (options.IgnoreNullValues)
+                {
+                    return;
+                }
+
+                if (_requirementPolicy == RequirementPolicy.DisallowNull || _requirementPolicy == RequirementPolicy.Always)
+                {
+                    throw new JsonException($"Property '{MemberNameAsString}' cannot be null.");
+                }
+            }
+
+            _memberSetter(ref instance, _jsonConverter.Read(ref reader, typeof(TM), options));
+        }
+
+        public void Write(Utf8JsonWriter writer, ref T instance, JsonSerializerOptions options)
+        {
+            TM value = _memberGetter(ref instance);
+
+            if (_isClass && value == null && (_requirementPolicy == RequirementPolicy.DisallowNull
+                || _requirementPolicy == RequirementPolicy.Always))
+            {
+                throw new JsonException($"Property '{MemberNameAsString}' cannot be null.");
+            }
+
+            _jsonConverter.Write(writer, value, options);
+        }
+
+        public bool ShouldSerialize(ref T instance, Type declaredType, JsonSerializerOptions options)
+        {
+            if (options.IgnoreNullValues && typeof(TM).IsClass && _memberGetter(ref instance) == null)
+            {
+                return false;
+            }
+
+            if (IgnoreIfDefault && EqualityComparer<TM>.Default.Equals(_memberGetter(ref instance), _defaultValue))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private StructMemberGetterDelegate<T, TM> GenerateGetter(MemberInfo memberInfo)
+        {
+            switch (memberInfo)
+            {
+                case PropertyInfo propertyInfo:
+                    if (propertyInfo.GetMethod.IsStatic)
+                    {
+                        if (!propertyInfo.CanRead)
+                        {
+                            return null;
+                        }
+
+                        ParameterExpression instanceParam = Expression.Parameter(typeof(T), "instance");
+                        return Expression.Lambda<StructMemberGetterDelegate<T, TM>>(
+                            Expression.Property(null, propertyInfo),
+                            instanceParam).Compile();
+                    }
+
+                    return propertyInfo.CanRead
+                       ? propertyInfo.GenerateStructGetter<T, TM>()
+                       : null;
+
+                case FieldInfo fieldInfo:
+                    return fieldInfo.GenerateStructGetter<T, TM>();
+
+                default:
+                    return null;
+            }
+        }
+
+        private StructMemberSetterDelegate<T, TM> GenerateSetter(MemberInfo memberInfo)
+        {
+            switch (memberInfo)
+            {
+                case PropertyInfo propertyInfo:
+                    if (!propertyInfo.CanWrite || propertyInfo.SetMethod.IsStatic)
+                    {
+                        return null;
+                    }
+
+                    return propertyInfo.GenerateStructSetter<T, TM>();
+
+                case FieldInfo fieldInfo:
+                    if (fieldInfo.IsStatic || fieldInfo.IsInitOnly)
+                    {
+                        return null;
+                    }
+
+                    return fieldInfo.GenerateStructSetter<T, TM>();
 
                 default:
                     return null;

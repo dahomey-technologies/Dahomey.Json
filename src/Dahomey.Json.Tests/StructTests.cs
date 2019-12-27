@@ -73,5 +73,21 @@ namespace Dahomey.Json.Tests
 
             Helper.TestWrite(strct, json, options);
         }
+
+        public struct FieldSerializationStructNoConstructor
+        {
+            public int id;
+        }
+
+        [Fact]
+        public void ReadStructWithNoConstructor()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions().SetupExtensions();
+
+            const string json = @"{""id"":12}";
+            var strct = JsonSerializer.Deserialize<FieldSerializationStructNoConstructor>(json, options);
+
+            Assert.Equal(12, strct.id);
+        }
     }
 }

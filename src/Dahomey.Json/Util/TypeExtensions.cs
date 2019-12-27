@@ -23,5 +23,10 @@ namespace Dahomey.Json.Util
                 && !type.IsPublic
                 && type.IsDefined(typeof(CompilerGeneratedAttribute), false);
         }
+
+        public static bool IsStruct(this Type type)
+        {
+            return type.IsValueType && !type.IsPrimitive && !type.IsEnum;
+        }
     }
 }
