@@ -1,4 +1,5 @@
 ﻿using Dahomey.Json.Attributes;
+using Dahomey.Json.Util;
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -84,11 +85,16 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public IMemberConverter GenerateMemberConverter()
         {
-            IMemberConverter memberConverter = (IMemberConverter)Activator.CreateInstance(
-                typeof(MemberConverter<,>).MakeGenericType(typeof(T), MemberType),
-                _options, this);
+            if (typeof(T).IsStruct())
+            {
+                return (IMemberConverter)Activator.CreateInstance(
+                    typeof(StructMemberConverter<,>).MakeGenericType(typeof(T), MemberType),
+                    _options, this);
+            }
 
-            return memberConverter;
+            return (IMemberConverter)Activator.CreateInstance(
+            typeof(MemberConverter<,>).MakeGenericType(typeof(T), MemberType),
+            _options, this);
         }
 
         private void InitializeMemberName()

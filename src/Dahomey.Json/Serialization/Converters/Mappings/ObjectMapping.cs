@@ -1,4 +1,5 @@
 ﻿using Dahomey.Json.Serialization.Conventions;
+using Dahomey.Json.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             _options = options;
             ObjectType = typeof(T);
 
-            if (!ObjectType.IsAbstract && !ObjectType.IsInterface)
+            if (!ObjectType.IsAbstract && !ObjectType.IsInterface && !ObjectType.IsStruct())
             {
                 DiscriminatorMapping<T> memberMapping = new DiscriminatorMapping<T>(_options.GetDiscriminatorConventionRegistry(), this);
                 _memberMappings.Add(memberMapping);

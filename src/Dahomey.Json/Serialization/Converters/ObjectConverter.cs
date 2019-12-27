@@ -75,6 +75,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly IObjectMapping _objectMapping;
         private readonly Func<T> _constructor;
         private readonly bool _isInterfaceOrAbstract;
+        private readonly bool _isStruct;
         private readonly IDiscriminatorConvention _discriminatorConvention;
 
         public IReadOnlyList<IMemberConverter> MemberConvertersForWrite => _memberConverters.Value.ForWrite;
@@ -86,8 +87,9 @@ namespace Dahomey.Json.Serialization.Converters
             _memberConverters = new Lazy<MemberConverters>(() => MemberConverters.Create(options, _objectMapping));
 
             _isInterfaceOrAbstract = typeof(T).IsInterface || typeof(T).IsAbstract;
+            _isStruct = typeof(T).IsStruct();
 
-            if (!_isInterfaceOrAbstract && _objectMapping.CreatorMapping == null)
+            if (!_isInterfaceOrAbstract && _objectMapping.CreatorMapping == null && !_isStruct)
             {
                 ConstructorInfo defaultConstructorInfo = typeof(T).GetConstructor(
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
@@ -239,7 +241,10 @@ namespace Dahomey.Json.Serialization.Converters
 
                 if (creatorValues == null)
                 {
-                    obj = (T)converter.CreateInstance();
+                    if (!_isStruct)
+                    {
+                        obj = (T)converter.CreateInstance();
+                    }
 
                     if (_objectMapping.OnDeserializingMethod != null)
                     {
@@ -254,7 +259,14 @@ namespace Dahomey.Json.Serialization.Converters
 
             if (creatorValues == null)
             {
-                converter.ReadValue(ref reader, obj, memberName, options, readMembers);
+                if (_isStruct)
+                {
+                    ReadValueForStruct(ref reader, ref obj, memberName, options, readMembers);
+                }
+                else
+                {
+                    converter.ReadValue(ref reader, obj, memberName, options, readMembers);
+                }
             }
             else if (converter.ReadValue(ref reader, memberName, options, readMembers, out object value))
             {
@@ -269,11 +281,11 @@ namespace Dahomey.Json.Serialization.Converters
             }
         }
 
-        public void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers)
+        public void ReadValueForStruct(ref Utf8JsonReader reader, ref T instance, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers)
         {
             var memberConverters = _memberConverters.Value;
 
-            if (options.PropertyNameCaseInsensitive 
+            if (options.PropertyNameCaseInsensitive
                 && memberConverters.ForReadAsString.TryGetValue(Encoding.UTF8.GetString(memberName), out IMemberConverter memberConverter)
                 || !options.PropertyNameCaseInsensitive
                 && memberConverters.ForRead.TryGetValue(memberName, out memberConverter))
@@ -282,6 +294,33 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     readMembers.Add(memberConverter);
                 }
+
+                ((IMemberConverter<T>)memberConverter).Read(ref reader, ref instance, options);
+            }
+            else if (memberConverters.ExtensionData != null)
+            {
+                memberConverters.ExtensionData.Read(ref reader, instance, memberName, options);
+            }
+            else
+            {
+                reader.Skip();
+            }
+        }
+
+        public void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers)
+        {
+            var memberConverters = _memberConverters.Value;
+
+            if (options.PropertyNameCaseInsensitive
+                && memberConverters.ForReadAsString.TryGetValue(Encoding.UTF8.GetString(memberName), out IMemberConverter memberConverter)
+                || !options.PropertyNameCaseInsensitive
+                && memberConverters.ForRead.TryGetValue(memberName, out memberConverter))
+            {
+                if (readMembers != null)
+                {
+                    readMembers.Add(memberConverter);
+                }
+
                 memberConverter.Read(ref reader, obj, options);
             }
             else if (memberConverters.ExtensionData != null)
@@ -350,10 +389,23 @@ namespace Dahomey.Json.Serialization.Converters
 
             foreach (IMemberConverter memberConverter in memberConvertersForWrite)
             {
-                if (memberConverter.ShouldSerialize(value, typeof(T), options))
+                if (_isStruct)
                 {
-                    writer.WritePropertyName(memberConverter.MemberName);
-                    memberConverter.Write(writer, value, options);
+                    IMemberConverter<T> typedMemberConverter = (IMemberConverter<T>)memberConverter;
+
+                    if (typedMemberConverter.ShouldSerialize(ref value, typeof(T), options))
+                    {
+                        writer.WritePropertyName(memberConverter.MemberName);
+                        typedMemberConverter.Write(writer, ref value, options);
+                    }
+                }
+                else
+                {
+                    if (memberConverter.ShouldSerialize(value, typeof(T), options))
+                    {
+                        writer.WritePropertyName(memberConverter.MemberName);
+                        memberConverter.Write(writer, value, options);
+                    }
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dahomey.Json.Util;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,7 +11,7 @@ namespace Dahomey.Json.Serialization.Converters.Factories
         {
             return typeToConvert.IsClass && typeToConvert != typeof(string)
                 || typeToConvert.IsInterface
-                || typeToConvert.IsValueType && !typeToConvert.IsPrimitive && !typeToConvert.IsEnum
+                || typeToConvert.IsStruct()
                     && typeToConvert != typeof(DateTime)
                     && typeToConvert != typeof(DateTimeOffset)
                     && typeToConvert != typeof(Guid)
