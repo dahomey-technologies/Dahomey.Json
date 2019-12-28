@@ -21,6 +21,8 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for anonymous types
 * Support for DataMemberAttribute
 * Extended support for structs
+* Support for Nullables
+* Support for collection interfaces: IList<>, ICollection<>, IEnumerable<>, IReadOnlyList<>, IReadOnlyCollection<>
 
 ## Installation
 ### NuGet
