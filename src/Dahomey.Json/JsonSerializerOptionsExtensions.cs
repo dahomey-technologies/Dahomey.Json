@@ -45,6 +45,16 @@ namespace Dahomey.Json
             return options.GetState().DictionaryKeyConverterRegistry;
         }
 
+        public static ReferenceHandling GetReferenceHandling(this JsonSerializerOptions options)
+        {
+            return options.GetState().ReferenceHandling;
+        }
+
+        public static void SetReferenceHandling(this JsonSerializerOptions options, ReferenceHandling referenceHandling)
+        {
+            options.GetState().ReferenceHandling = referenceHandling;
+        }
+
         private static JsonSerializerOptionsState GetState(this JsonSerializerOptions options)
         {
             return (JsonSerializerOptionsState)options.GetConverter<JsonSerializerOptionsState>();

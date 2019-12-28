@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace Dahomey.Json.Serialization
 {
@@ -6,6 +7,8 @@ namespace Dahomey.Json.Serialization
     {
         private readonly static AsyncLocal<SerializationContext> _current
             = new AsyncLocal<SerializationContext>();
+
+        private Lazy<ReferenceResolver> _referenceResolver = new Lazy<ReferenceResolver>(() => new ReferenceResolver());
 
         public static SerializationContext Current
         {
@@ -23,10 +26,15 @@ namespace Dahomey.Json.Serialization
         }
 
         public int Depth { get; set; }
+        public ReferenceResolver ReferenceResolver => _referenceResolver.Value;
 
         public void Reset()
         {
             Depth = 0;
+            if (_referenceResolver.IsValueCreated)
+            {
+                _referenceResolver.Value.Reset();
+            }
         }
     }
 }

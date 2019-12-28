@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dahomey.Json.Util;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,10 +10,12 @@ namespace Dahomey.Json.Serialization.Converters
         where TC : IEnumerable<TI>
     {
         private readonly JsonConverter<TI> _itemConverter;
+        private readonly ReferenceHandling _referenceHandling;
 
         public AbstractCollectionConverter(JsonSerializerOptions options)
         {
             _itemConverter = options.GetConverter<TI>();
+            _referenceHandling = typeof(TI).IsStruct() ? ReferenceHandling.Default : options.GetReferenceHandling();
         }
 
         protected abstract ICollection<TI> InstantiateWorkingCollection();
@@ -63,6 +66,20 @@ namespace Dahomey.Json.Serialization.Converters
 
                 foreach (TI item in value)
                 {
+                    if (_referenceHandling == ReferenceHandling.Ignore)
+                    {
+                        ReferenceResolver referenceResolver = SerializationContext.Current.ReferenceResolver;
+
+                        if (referenceResolver.IsReferenced(item))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            referenceResolver.AddReference(item);
+                        }
+                    }
+
                     _itemConverter.Write(writer, item, options);
                 }
 

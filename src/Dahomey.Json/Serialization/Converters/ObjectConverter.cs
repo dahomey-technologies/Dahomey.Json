@@ -77,6 +77,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly bool _isInterfaceOrAbstract;
         private readonly bool _isStruct;
         private readonly IDiscriminatorConvention _discriminatorConvention;
+        private readonly ReferenceHandling _referenceHandling;
 
         public IReadOnlyList<IMemberConverter> MemberConvertersForWrite => _memberConverters.Value.ForWrite;
         public IReadOnlyList<IMemberConverter> RequiredMemberConvertersForRead => _memberConverters.Value.RequiredForRead;
@@ -106,6 +107,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
 
             _discriminatorConvention = options.GetDiscriminatorConventionRegistry().GetConvention(typeof(T));
+            _referenceHandling = _isStruct ? ReferenceHandling.Default : options.GetReferenceHandling();
         }
 
         public object CreateInstance()
@@ -380,6 +382,21 @@ namespace Dahomey.Json.Serialization.Converters
 
             using (new DepthHandler(options))
             {
+                if (_referenceHandling == ReferenceHandling.Ignore)
+                {
+                    ReferenceResolver referenceResolver = SerializationContext.Current.ReferenceResolver;
+
+                    if (referenceResolver.IsReferenced(value))
+                    {
+                        writer.WriteNullValue();
+                        return;
+                    }
+                    else
+                    {
+                        referenceResolver.AddReference(value);
+                    }
+                }
+
                 if (_objectMapping.OnSerializingMethod != null)
                 {
                     ((Action<T>)_objectMapping.OnSerializingMethod)(value);
