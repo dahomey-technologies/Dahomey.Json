@@ -197,7 +197,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ValidateDefaultValue()
         {
-            if ((DefaultValue == null && MemberType.IsValueType)
+            if ((DefaultValue == null && MemberType.IsValueType && Nullable.GetUnderlyingType(MemberType) == null)
                 || (DefaultValue != null && DefaultValue.GetType() != MemberType))
             {
                 throw new JsonException($"Default value type mismatch");

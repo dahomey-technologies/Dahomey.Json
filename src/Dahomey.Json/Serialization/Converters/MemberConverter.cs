@@ -45,6 +45,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly Func<object, bool> _shouldSerializeMethod;
         private readonly RequirementPolicy _requirementPolicy;
         private readonly bool _isClass = typeof(TM).IsClass;
+        private readonly bool _canBeNull = typeof(TM).IsClass || Nullable.GetUnderlyingType(typeof(TM)) != null;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
         public string MemberNameAsString { get; }
@@ -119,7 +120,7 @@ namespace Dahomey.Json.Serialization.Converters
 
         public bool ShouldSerialize(object obj, Type declaredType, JsonSerializerOptions options)
         {
-            if (options.IgnoreNullValues && typeof(TM).IsClass && _memberGetter((T)obj) == null)
+            if (options.IgnoreNullValues && _canBeNull && _memberGetter((T)obj) == null)
             {
                 return false;
             }
@@ -204,6 +205,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly bool _ignoreIfDefault;
         private readonly RequirementPolicy _requirementPolicy;
         private readonly bool _isClass = typeof(TM).IsClass;
+        private readonly bool _canBeNull = typeof(TM).IsClass || Nullable.GetUnderlyingType(typeof(TM)) != null;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
         public string MemberNameAsString { get; }
@@ -280,7 +282,7 @@ namespace Dahomey.Json.Serialization.Converters
 
         public bool ShouldSerialize(ref T instance, Type declaredType, JsonSerializerOptions options)
         {
-            if (options.IgnoreNullValues && typeof(TM).IsClass && _memberGetter(ref instance) == null)
+            if (options.IgnoreNullValues && _canBeNull && _memberGetter(ref instance) == null)
             {
                 return false;
             }
