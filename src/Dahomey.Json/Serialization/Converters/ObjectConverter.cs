@@ -127,7 +127,16 @@ namespace Dahomey.Json.Serialization.Converters
                 return default;
             }
 
-            using(new DepthHandler(options))
+            T obj = default;
+
+            Read(ref reader, ref obj, options);
+
+            return obj;
+        }
+
+        public void Read(ref Utf8JsonReader reader, ref T obj, JsonSerializerOptions options)
+        {
+            using (new DepthHandler(options))
             {
                 if (reader.TokenType != JsonTokenType.StartObject)
                 {
@@ -164,7 +173,8 @@ namespace Dahomey.Json.Serialization.Converters
                             throw new JsonException("Expected end of object");
                         }
 
-                        return (T)@object;
+                        obj = (T)@object;
+                        return;
                     }
                     else
                     {
@@ -187,7 +197,6 @@ namespace Dahomey.Json.Serialization.Converters
                     readMembers = new HashSet<IMemberConverter>();
                 }
 
-                T obj = default;
                 IObjectConverter converter = null;
 
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
@@ -261,8 +270,6 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     ((Action<T>)_objectMapping.OnDeserializedMethod)(obj);
                 }
-
-                return obj;
             }
         }
 

@@ -46,6 +46,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly RequirementPolicy _requirementPolicy;
         private readonly bool _isClass = typeof(TM).IsClass;
         private readonly bool _canBeNull = typeof(TM).IsClass || Nullable.GetUnderlyingType(typeof(TM)) != null;
+        private readonly bool _deserializableReadOnlyProperty;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
         public string MemberNameAsString { get; }
@@ -63,6 +64,7 @@ namespace Dahomey.Json.Serialization.Converters
             _ignoreIfDefault = memberMapping.IgnoreIfDefault;
             _shouldSerializeMethod = memberMapping.ShouldSerializeMethod;
             _requirementPolicy = memberMapping.RequirementPolicy;
+            _deserializableReadOnlyProperty = memberMapping.MemberInfo.IsDefined(typeof(JsonDeserializeAttribute));
         }
 
         public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
@@ -80,7 +82,21 @@ namespace Dahomey.Json.Serialization.Converters
                 }
             }
 
-            _memberSetter((T)obj, _jsonConverter.Read(ref reader, typeof(TM), options));
+            if (_deserializableReadOnlyProperty)
+            {
+                TM value = _memberGetter((T)obj);
+
+                if (value == null)
+                {
+                    throw new JsonException($"Property '{MemberNameAsString}' decorated by JsonDeserializeAttribute should be instantiated");
+                }
+
+                ((ObjectConverter<TM>)_jsonConverter).Read(ref reader, ref value, options);
+            }
+            else
+            {
+                _memberSetter((T)obj, _jsonConverter.Read(ref reader, typeof(TM), options));
+            }
         }
 
         public void Write(Utf8JsonWriter writer, object obj, JsonSerializerOptions options)

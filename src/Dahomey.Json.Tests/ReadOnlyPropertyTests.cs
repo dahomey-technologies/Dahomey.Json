@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dahomey.Json.Attributes;
+using System;
 using System.Text.Json;
 using Xunit;
 
@@ -47,6 +48,31 @@ namespace Dahomey.Json.Tests
             string actual = JsonSerializer.Serialize(weatherForecast, options);
 
             Assert.Equal(expected, actual);
+        }
+
+        public class SimpleTestClass
+        {
+            public int MyInt32 { get; set; }
+        }
+
+        public class SimpleTestClassUsingJsonDeserialize
+        {
+            [JsonDeserialize]
+            public SimpleTestClass MyClass { get; } = new SimpleTestClass();
+        }
+
+        [Fact]
+        public void TestReadUsingJsonDeserialize()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            const string json = @"{""MyClass"":{""MyInt32"":12}}";
+            var obj = JsonSerializer.Deserialize<SimpleTestClassUsingJsonDeserialize>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.NotNull(obj.MyClass);
+            Assert.Equal(12, obj.MyClass.MyInt32);
         }
     }
 }
