@@ -1,6 +1,7 @@
 ﻿using Dahomey.Json.Util;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -35,9 +36,59 @@ namespace Dahomey.Json.Serialization.Converters
 
             using (new DepthHandler(options))
             {
+                string id = null;
+
+                if (_referenceHandling == ReferenceHandling.Preserve)
+                {
+                    if (reader.TokenType != JsonTokenType.StartObject)
+                    {
+                        throw new JsonException("Expected start of object");
+                    }
+
+                    reader.Read();
+                    ReadOnlySpan<byte> memberName = reader.GetRawString();
+
+                    if (memberName.SequenceEqual(ReferenceHandler.ID_MEMBER_NAME))
+                    {
+                        reader.Read();
+                        id = reader.GetString();
+
+                        reader.Read();
+                        memberName = reader.GetRawString();
+                        if (!memberName.SequenceEqual(ReferenceHandler.VALUES_MEMBER_NAME))
+                        {
+                            throw new JsonException("Expected $values member name");
+                        }
+                        reader.Read();
+                    }
+                    else if (memberName.SequenceEqual(ReferenceHandler.REF_MEMBER_NAME))
+                    {
+                        reader.Read();
+                        string @ref = reader.GetString();
+
+                        object @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
+
+                        if (@object == null)
+                        {
+                            throw new JsonException($"Cannot resolve reference {@ref}");
+                        }
+
+                        if (reader.TokenType != JsonTokenType.EndObject)
+                        {
+                            throw new JsonException("Expected end of object");
+                        }
+
+                        return InstantiateCollection((ICollection<TI>)@object);
+                    }
+                    else
+                    {
+                        throw new JsonException($"Unexpected member name {Encoding.UTF8.GetString(memberName)}");
+                    }
+                }
+
                 if (reader.TokenType != JsonTokenType.StartArray)
                 {
-                    throw new JsonException();
+                    throw new JsonException("Expected start of array");
                 }
 
                 ICollection<TI> workingCollection = InstantiateWorkingCollection();
@@ -48,7 +99,23 @@ namespace Dahomey.Json.Serialization.Converters
                     workingCollection.Add(item);
                 }
 
-                return InstantiateCollection(workingCollection);
+                if (_referenceHandling == ReferenceHandling.Preserve)
+                {
+                    reader.Read();
+                    if (reader.TokenType != JsonTokenType.EndObject)
+                    {
+                        throw new JsonException("Expected end of object");
+                    }
+                }
+
+                TC collection = InstantiateCollection(workingCollection);
+
+                if (!string.IsNullOrEmpty(id))
+                {
+                    SerializationContext.Current.ReferenceHandler.AddReference(collection, id);
+                }
+
+                return collection;
             }
         }
 
@@ -62,14 +129,37 @@ namespace Dahomey.Json.Serialization.Converters
 
             using (new DepthHandler(options))
             {
+                ReferenceHandler referenceResolver = null;
+                if (_referenceHandling == ReferenceHandling.Ignore)
+                {
+                    referenceResolver = SerializationContext.Current.ReferenceHandler;
+                }
+                else if (_referenceHandling == ReferenceHandling.Preserve)
+                {
+                    writer.WriteStartObject();
+
+                    referenceResolver = SerializationContext.Current.ReferenceHandler;
+                    string reference = referenceResolver.GetReference(value, out bool firstReference);
+
+                    if (firstReference)
+                    {
+                        writer.WriteString(ReferenceHandler.ID_MEMBER_NAME, reference);
+                        writer.WritePropertyName(ReferenceHandler.VALUES_MEMBER_NAME);
+                    }
+                    else
+                    {
+                        writer.WriteString(ReferenceHandler.REF_MEMBER_NAME, reference);
+                        writer.WriteEndObject();
+                        return;
+                    }
+                }
+
                 writer.WriteStartArray();
 
                 foreach (TI item in value)
                 {
                     if (_referenceHandling == ReferenceHandling.Ignore)
                     {
-                        ReferenceResolver referenceResolver = SerializationContext.Current.ReferenceResolver;
-
                         if (referenceResolver.IsReferenced(item))
                         {
                             continue;
@@ -84,6 +174,11 @@ namespace Dahomey.Json.Serialization.Converters
                 }
 
                 writer.WriteEndArray();
+
+                if (_referenceHandling == ReferenceHandling.Preserve)
+                {
+                    writer.WriteEndObject();
+                }
             }
         }
     }

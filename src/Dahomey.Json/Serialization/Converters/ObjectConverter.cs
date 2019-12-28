@@ -129,6 +129,49 @@ namespace Dahomey.Json.Serialization.Converters
 
             using(new DepthHandler(options))
             {
+                if (reader.TokenType != JsonTokenType.StartObject)
+                {
+                    throw new JsonException("Expected start of object");
+                }
+
+                string id = null;
+
+                if (_referenceHandling == ReferenceHandling.Preserve)
+                {
+                    reader.Read();
+                    ReadOnlySpan<byte> memberName = reader.GetRawString();
+
+                    if (memberName.SequenceEqual(ReferenceHandler.ID_MEMBER_NAME))
+                    {
+                        reader.Read();
+                        id = reader.GetString();
+                    }
+                    else if (memberName.SequenceEqual(ReferenceHandler.REF_MEMBER_NAME))
+                    {
+                        reader.Read();
+                        string @ref = reader.GetString();
+
+                        object @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
+
+                        if (@object == null)
+                        {
+                            throw new JsonException($"Cannot resolve reference {@ref}");
+                        }
+
+                        reader.Read();
+                        if (reader.TokenType != JsonTokenType.EndObject)
+                        {
+                            throw new JsonException("Expected end of object");
+                        }
+
+                        return (T)@object;
+                    }
+                    else
+                    {
+                        throw new JsonException($"Unexpected member name {Encoding.UTF8.GetString(memberName)}");
+                    }
+                }
+
                 Dictionary<ReadOnlyMemory<byte>, object> creatorValues = null;
                 Dictionary<ReadOnlyMemory<byte>, object> regularValues = null;
                 HashSet<IMemberConverter> readMembers = null;
@@ -147,11 +190,6 @@ namespace Dahomey.Json.Serialization.Converters
                 T obj = default;
                 IObjectConverter converter = null;
 
-                if (reader.TokenType != JsonTokenType.StartObject)
-                {
-                    throw new JsonException();
-                }
-
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
                 {
                     if (reader.TokenType != JsonTokenType.PropertyName)
@@ -159,12 +197,18 @@ namespace Dahomey.Json.Serialization.Converters
                         throw new JsonException();
                     }
 
-                    ReadMember(ref reader, ref obj, ref converter, options, creatorValues, regularValues, readMembers);
+                    ReadMember(ref reader, ref obj, ref converter, options, creatorValues, regularValues, readMembers, id);
                 }
 
                 if (creatorValues != null)
                 {
                     obj = (T)_objectMapping.CreatorMapping.CreateInstance(creatorValues);
+
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        SerializationContext.Current.ReferenceHandler.AddReference(obj, id);
+                    }
+
                     if (_objectMapping.OnDeserializingMethod != null)
                     {
                         ((Action<T>)_objectMapping.OnDeserializingMethod)(obj);
@@ -206,6 +250,11 @@ namespace Dahomey.Json.Serialization.Converters
                     }
 
                     obj = (T)converter.CreateInstance();
+
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        SerializationContext.Current.ReferenceHandler.AddReference(obj, id);
+                    }
                 }
 
                 if (_objectMapping.OnDeserializedMethod != null)
@@ -220,7 +269,7 @@ namespace Dahomey.Json.Serialization.Converters
         public void ReadMember(ref Utf8JsonReader reader, ref T obj, ref IObjectConverter converter, 
             JsonSerializerOptions options, Dictionary<ReadOnlyMemory<byte>, object> creatorValues,
             Dictionary<ReadOnlyMemory<byte>, object> regularValues,
-            HashSet<IMemberConverter> readMembers)
+            HashSet<IMemberConverter> readMembers, string id)
         {
             ReadOnlySpan<byte> memberName = reader.GetRawString();
             reader.Read();
@@ -259,6 +308,11 @@ namespace Dahomey.Json.Serialization.Converters
                     if (!_isStruct)
                     {
                         obj = (T)converter.CreateInstance();
+
+                        if (!string.IsNullOrEmpty(id))
+                        {
+                            SerializationContext.Current.ReferenceHandler.AddReference(obj, id);
+                        }
                     }
 
                     if (_objectMapping.OnDeserializingMethod != null)
@@ -382,9 +436,16 @@ namespace Dahomey.Json.Serialization.Converters
 
             using (new DepthHandler(options))
             {
+                if (_objectMapping.OnSerializingMethod != null)
+                {
+                    ((Action<T>)_objectMapping.OnSerializingMethod)(value);
+                }
+
+                writer.WriteStartObject();
+
                 if (_referenceHandling == ReferenceHandling.Ignore)
                 {
-                    ReferenceResolver referenceResolver = SerializationContext.Current.ReferenceResolver;
+                    ReferenceHandler referenceResolver = SerializationContext.Current.ReferenceHandler;
 
                     if (referenceResolver.IsReferenced(value))
                     {
@@ -396,13 +457,22 @@ namespace Dahomey.Json.Serialization.Converters
                         referenceResolver.AddReference(value);
                     }
                 }
-
-                if (_objectMapping.OnSerializingMethod != null)
+                else if (_referenceHandling == ReferenceHandling.Preserve)
                 {
-                    ((Action<T>)_objectMapping.OnSerializingMethod)(value);
-                }
+                    ReferenceHandler referenceResolver = SerializationContext.Current.ReferenceHandler;
+                    string reference = referenceResolver.GetReference(value, out bool firstReference);
 
-                writer.WriteStartObject();
+                    if (firstReference)
+                    {
+                        writer.WriteString(ReferenceHandler.ID_MEMBER_NAME, reference);
+                    }
+                    else
+                    {
+                        writer.WriteString(ReferenceHandler.REF_MEMBER_NAME, reference);
+                        writer.WriteEndObject();
+                        return;
+                    }
+                }
 
                 Type declaredType = typeof(T);
                 Type actualType = value.GetType();

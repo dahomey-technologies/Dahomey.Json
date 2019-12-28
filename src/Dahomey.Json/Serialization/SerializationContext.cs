@@ -8,7 +8,7 @@ namespace Dahomey.Json.Serialization
         private readonly static AsyncLocal<SerializationContext> _current
             = new AsyncLocal<SerializationContext>();
 
-        private Lazy<ReferenceResolver> _referenceResolver = new Lazy<ReferenceResolver>(() => new ReferenceResolver());
+        private Lazy<ReferenceHandler> _referenceHandler = new Lazy<ReferenceHandler>(() => new ReferenceHandler());
 
         public static SerializationContext Current
         {
@@ -26,14 +26,14 @@ namespace Dahomey.Json.Serialization
         }
 
         public int Depth { get; set; }
-        public ReferenceResolver ReferenceResolver => _referenceResolver.Value;
+        public ReferenceHandler ReferenceHandler => _referenceHandler.Value;
 
         public void Reset()
         {
             Depth = 0;
-            if (_referenceResolver.IsValueCreated)
+            if (_referenceHandler.IsValueCreated)
             {
-                _referenceResolver.Value.Reset();
+                _referenceHandler.Value.Reset();
             }
         }
     }
