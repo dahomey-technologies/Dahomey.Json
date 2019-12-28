@@ -12,7 +12,7 @@
     <PackageTags>serialization;json</PackageTags>
     <RepositoryUrl>https://github.com/dahomey-technologies/Dahomey.Json.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageIcon>https://avatars3.githubusercontent.com/u/29336625?s=200&amp;v=4</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
     <Copyright>Copyright © Dahomey Technologies 2019</Copyright>
   </PropertyGroup>
 
@@ -25,4 +25,8 @@
     <PackageReference Include="System.Text.Json" Version="4.7.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Images\icon.png" Pack="true" PackagePath=""/>
+  </ItemGroup>
+    
 </Project>
