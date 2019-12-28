@@ -23,6 +23,7 @@ The main purpose of this library is to bring missing features to the official .N
 * Extended support for structs
 * Support for Nullables
 * Support for collection interfaces: IList<>, ICollection<>, IEnumerable<>, IReadOnlyList<>, IReadOnlyCollection<>
+* Support for reference loop handling (cf. https://github.com/dotnet/corefx/issues/41002)
 
 ## Installation
 ### NuGet
