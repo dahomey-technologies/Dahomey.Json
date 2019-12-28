@@ -16,10 +16,7 @@ namespace Dahomey.Json
 
         public static JsonSerializerOptions SetupExtensions(this JsonSerializerOptions options)
         {
-            options.Converters.Add(new ObjectMappingRegistry(options));
-            options.Converters.Add(new ObjectMappingConventionRegistry());
-            options.Converters.Add(new DiscriminatorConventionRegistry(options));
-            options.Converters.Add(new DictionaryKeyConverterRegistry(options));
+            options.Converters.Add(new JsonSerializerOptionsState(options));
             options.Converters.Add(new DictionaryConverterFactory());
             options.Converters.Add(new CollectionConverterFactory());
             options.Converters.Add(new JsonNodeConverterFactory());
@@ -30,22 +27,27 @@ namespace Dahomey.Json
 
         public static ObjectMappingRegistry GetObjectMappingRegistry(this JsonSerializerOptions options)
         {
-            return (ObjectMappingRegistry)options.GetConverter<ObjectMappingRegistry>();
+            return options.GetState().ObjectMappingRegistry;
         }
 
         public static ObjectMappingConventionRegistry GetObjectMappingConventionRegistry(this JsonSerializerOptions options)
         {
-            return (ObjectMappingConventionRegistry)options.GetConverter<ObjectMappingConventionRegistry>();
+            return options.GetState().ObjectMappingConventionRegistry;
         }
 
         public static DiscriminatorConventionRegistry GetDiscriminatorConventionRegistry(this JsonSerializerOptions options)
         {
-            return (DiscriminatorConventionRegistry)options.GetConverter<DiscriminatorConventionRegistry>();
+            return options.GetState().DiscriminatorConventionRegistry;
         }
 
         public static DictionaryKeyConverterRegistry GetDictionaryKeyConverterRegistry(this JsonSerializerOptions options)
         {
-            return (DictionaryKeyConverterRegistry)options.GetConverter<DictionaryKeyConverterRegistry>();
+            return options.GetState().DictionaryKeyConverterRegistry;
+        }
+
+        private static JsonSerializerOptionsState GetState(this JsonSerializerOptions options)
+        {
+            return (JsonSerializerOptionsState)options.GetConverter<JsonSerializerOptionsState>();
         }
     }
 }

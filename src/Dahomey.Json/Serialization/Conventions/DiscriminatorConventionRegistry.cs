@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Dahomey.Json.Serialization.Conventions
 {
-    public class DiscriminatorConventionRegistry : AbstractRegistry<DiscriminatorConventionRegistry>
+    public class DiscriminatorConventionRegistry
     {
         private readonly ConcurrentStack<IDiscriminatorConvention> _conventions = new ConcurrentStack<IDiscriminatorConvention>();
         private readonly ConcurrentDictionary<Type, IDiscriminatorConvention> _conventionsByType = new ConcurrentDictionary<Type, IDiscriminatorConvention>();

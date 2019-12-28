@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Dahomey.Json.Serialization.Converters.DictionaryKeys
 {
-    public class DictionaryKeyConverterRegistry : AbstractRegistry<DictionaryKeyConverterRegistry>
+    public class DictionaryKeyConverterRegistry
     {
         private readonly JsonSerializerOptions _options;
         private readonly ConcurrentDictionary<Type, object> _dictionaryKeyConverters = new ConcurrentDictionary<Type, object>();

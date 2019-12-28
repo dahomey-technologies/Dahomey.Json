@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Dahomey.Json.Serialization.Converters.Mappings
 {
-    public class ObjectMappingRegistry : AbstractRegistry<ObjectMappingRegistry>
+    public class ObjectMappingRegistry
     {
         private readonly ConcurrentDictionary<Type, IObjectMapping> _objectMappings
             = new ConcurrentDictionary<Type, IObjectMapping>();

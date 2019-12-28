@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Dahomey.Json.Serialization.Converters.Mappings
 {
-    public class ObjectMappingConventionRegistry : AbstractRegistry<ObjectMappingConventionRegistry>
+    public class ObjectMappingConventionRegistry
     {
         private readonly ConcurrentDictionary<Type, IObjectMappingConvention> _conventions = new ConcurrentDictionary<Type, IObjectMappingConvention>();
         private readonly ConcurrentStack<IObjectMappingConventionProvider> _providers = new ConcurrentStack<IObjectMappingConventionProvider>();
