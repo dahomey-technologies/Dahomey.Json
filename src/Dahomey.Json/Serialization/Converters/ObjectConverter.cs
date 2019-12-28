@@ -125,91 +125,94 @@ namespace Dahomey.Json.Serialization.Converters
                 return default;
             }
 
-            Dictionary<ReadOnlyMemory<byte>, object> creatorValues = null;
-            Dictionary<ReadOnlyMemory<byte>, object> regularValues = null;
-            HashSet<IMemberConverter> readMembers = null;
-
-            if (_objectMapping.CreatorMapping != null)
+            using(new DepthHandler(options))
             {
-                creatorValues = new Dictionary<ReadOnlyMemory<byte>, object>(ReadOnlyMemoryEqualityComparer<byte>.Instance);
-                regularValues = new Dictionary<ReadOnlyMemory<byte>, object>(ReadOnlyMemoryEqualityComparer<byte>.Instance);
-            }
+                Dictionary<ReadOnlyMemory<byte>, object> creatorValues = null;
+                Dictionary<ReadOnlyMemory<byte>, object> regularValues = null;
+                HashSet<IMemberConverter> readMembers = null;
 
-            if (_memberConverters.Value.RequiredForRead.Count != 0)
-            {
-                readMembers = new HashSet<IMemberConverter>();
-            }
+                if (_objectMapping.CreatorMapping != null)
+                {
+                    creatorValues = new Dictionary<ReadOnlyMemory<byte>, object>(ReadOnlyMemoryEqualityComparer<byte>.Instance);
+                    regularValues = new Dictionary<ReadOnlyMemory<byte>, object>(ReadOnlyMemoryEqualityComparer<byte>.Instance);
+                }
 
-            T obj = default;
-            IObjectConverter converter = null;
+                if (_memberConverters.Value.RequiredForRead.Count != 0)
+                {
+                    readMembers = new HashSet<IMemberConverter>();
+                }
 
-            if (reader.TokenType != JsonTokenType.StartObject)
-            {
-                throw new JsonException();
-            }
+                T obj = default;
+                IObjectConverter converter = null;
 
-            while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
-            {
-                if (reader.TokenType != JsonTokenType.PropertyName)
+                if (reader.TokenType != JsonTokenType.StartObject)
                 {
                     throw new JsonException();
                 }
 
-                ReadMember(ref reader, ref obj, ref converter, options, creatorValues, regularValues, readMembers);
-            }
-
-            if (creatorValues != null)
-            {
-                obj = (T)_objectMapping.CreatorMapping.CreateInstance(creatorValues);
-                if (_objectMapping.OnDeserializingMethod != null)
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
                 {
-                    ((Action<T>)_objectMapping.OnDeserializingMethod)(obj);
-                }
-
-                foreach (KeyValuePair<ReadOnlyMemory<byte>, object> value in regularValues)
-                {
-                    if (!_memberConverters.Value.ForRead.TryGetValue(value.Key.Span, out IMemberConverter memberConverter))
+                    if (reader.TokenType != JsonTokenType.PropertyName)
                     {
-                        // should not happen
-                        throw new JsonException("Unexpected error");
+                        throw new JsonException();
                     }
 
-                    memberConverter.Set(obj, value.Value, options);
-                }
-            }
-
-            if (readMembers != null)
-            {
-                if (converter == null)
-                {
-                    converter = this;
+                    ReadMember(ref reader, ref obj, ref converter, options, creatorValues, regularValues, readMembers);
                 }
 
-                foreach (IMemberConverter memberConverter in converter.RequiredMemberConvertersForRead)
+                if (creatorValues != null)
                 {
-                    if (!readMembers.Contains(memberConverter))
+                    obj = (T)_objectMapping.CreatorMapping.CreateInstance(creatorValues);
+                    if (_objectMapping.OnDeserializingMethod != null)
                     {
-                        throw new JsonException($"Required property '{memberConverter.MemberNameAsString}' not found in JSON.");
+                        ((Action<T>)_objectMapping.OnDeserializingMethod)(obj);
+                    }
+
+                    foreach (KeyValuePair<ReadOnlyMemory<byte>, object> value in regularValues)
+                    {
+                        if (!_memberConverters.Value.ForRead.TryGetValue(value.Key.Span, out IMemberConverter memberConverter))
+                        {
+                            // should not happen
+                            throw new JsonException("Unexpected error");
+                        }
+
+                        memberConverter.Set(obj, value.Value, options);
                     }
                 }
-            }
 
-            if (obj == null)
-            {
-                if (converter == null)
+                if (readMembers != null)
                 {
-                    converter = this;
+                    if (converter == null)
+                    {
+                        converter = this;
+                    }
+
+                    foreach (IMemberConverter memberConverter in converter.RequiredMemberConvertersForRead)
+                    {
+                        if (!readMembers.Contains(memberConverter))
+                        {
+                            throw new JsonException($"Required property '{memberConverter.MemberNameAsString}' not found in JSON.");
+                        }
+                    }
                 }
 
-                obj = (T)converter.CreateInstance();
-            }
+                if (obj == null)
+                {
+                    if (converter == null)
+                    {
+                        converter = this;
+                    }
 
-            if (_objectMapping.OnDeserializedMethod != null)
-            {
-                ((Action<T>)_objectMapping.OnDeserializedMethod)(obj);
-            }
+                    obj = (T)converter.CreateInstance();
+                }
 
-            return obj;
+                if (_objectMapping.OnDeserializedMethod != null)
+                {
+                    ((Action<T>)_objectMapping.OnDeserializedMethod)(obj);
+                }
+
+                return obj;
+            }
         }
 
         public void ReadMember(ref Utf8JsonReader reader, ref T obj, ref IObjectConverter converter, 
@@ -375,55 +378,58 @@ namespace Dahomey.Json.Serialization.Converters
                 return;
             }
 
-            if (_objectMapping.OnSerializingMethod != null)
+            using (new DepthHandler(options))
             {
-                ((Action<T>)_objectMapping.OnSerializingMethod)(value);
-            }
-
-            writer.WriteStartObject();
-
-            Type declaredType = typeof(T);
-            Type actualType = value.GetType();
-
-            IReadOnlyList<IMemberConverter> memberConvertersForWrite;
-
-            if (_objectMapping.CreatorMapping == null && actualType != declaredType)
-            {
-                IObjectConverter converter = (IObjectConverter)options.GetConverter(actualType);
-                memberConvertersForWrite = converter.MemberConvertersForWrite;
-            }
-            else
-            {
-                memberConvertersForWrite = _memberConverters.Value.ForWrite;
-            }
-
-            foreach (IMemberConverter memberConverter in memberConvertersForWrite)
-            {
-                if (_isStruct)
+                if (_objectMapping.OnSerializingMethod != null)
                 {
-                    IMemberConverter<T> typedMemberConverter = (IMemberConverter<T>)memberConverter;
+                    ((Action<T>)_objectMapping.OnSerializingMethod)(value);
+                }
 
-                    if (typedMemberConverter.ShouldSerialize(ref value, typeof(T), options))
-                    {
-                        writer.WritePropertyName(memberConverter.MemberName);
-                        typedMemberConverter.Write(writer, ref value, options);
-                    }
+                writer.WriteStartObject();
+
+                Type declaredType = typeof(T);
+                Type actualType = value.GetType();
+
+                IReadOnlyList<IMemberConverter> memberConvertersForWrite;
+
+                if (_objectMapping.CreatorMapping == null && actualType != declaredType)
+                {
+                    IObjectConverter converter = (IObjectConverter)options.GetConverter(actualType);
+                    memberConvertersForWrite = converter.MemberConvertersForWrite;
                 }
                 else
                 {
-                    if (memberConverter.ShouldSerialize(value, typeof(T), options))
+                    memberConvertersForWrite = _memberConverters.Value.ForWrite;
+                }
+
+                foreach (IMemberConverter memberConverter in memberConvertersForWrite)
+                {
+                    if (_isStruct)
                     {
-                        writer.WritePropertyName(memberConverter.MemberName);
-                        memberConverter.Write(writer, value, options);
+                        IMemberConverter<T> typedMemberConverter = (IMemberConverter<T>)memberConverter;
+
+                        if (typedMemberConverter.ShouldSerialize(ref value, typeof(T), options))
+                        {
+                            writer.WritePropertyName(memberConverter.MemberName);
+                            typedMemberConverter.Write(writer, ref value, options);
+                        }
+                    }
+                    else
+                    {
+                        if (memberConverter.ShouldSerialize(value, typeof(T), options))
+                        {
+                            writer.WritePropertyName(memberConverter.MemberName);
+                            memberConverter.Write(writer, value, options);
+                        }
                     }
                 }
-            }
 
-            writer.WriteEndObject();
+                writer.WriteEndObject();
 
-            if (_objectMapping.OnSerializedMethod != null)
-            {
-                ((Action<T>)_objectMapping.OnSerializedMethod)(value);
+                if (_objectMapping.OnSerializedMethod != null)
+                {
+                    ((Action<T>)_objectMapping.OnSerializedMethod)(value);
+                }
             }
         }
     }

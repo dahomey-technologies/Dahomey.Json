@@ -33,29 +33,32 @@ namespace Dahomey.Json.Serialization.Converters
                 return default(TC);
             }
 
-            if (reader.TokenType != JsonTokenType.StartObject)
+            using (new DepthHandler(options))
             {
-                throw new JsonException();
-            }
-
-            IDictionary<TK, TV> workingCollection = InstantiateWorkingCollection();
-
-            while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
-            {
-                if (reader.TokenType != JsonTokenType.PropertyName)
+                if (reader.TokenType != JsonTokenType.StartObject)
                 {
                     throw new JsonException();
                 }
 
-                TK key = _keyConverter.Read(ref reader, options);
+                IDictionary<TK, TV> workingCollection = InstantiateWorkingCollection();
 
-                reader.Read();
-                TV value = _valueConverter.Read(ref reader, typeof(TV), options);
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+                {
+                    if (reader.TokenType != JsonTokenType.PropertyName)
+                    {
+                        throw new JsonException();
+                    }
 
-                workingCollection.Add(key, value);
+                    TK key = _keyConverter.Read(ref reader, options);
+
+                    reader.Read();
+                    TV value = _valueConverter.Read(ref reader, typeof(TV), options);
+
+                    workingCollection.Add(key, value);
+                }
+
+                return InstantiateCollection(workingCollection);
             }
-
-            return InstantiateCollection(workingCollection);
         }
 
         public override void Write(Utf8JsonWriter writer, TC value, JsonSerializerOptions options)
@@ -66,24 +69,27 @@ namespace Dahomey.Json.Serialization.Converters
                 return;
             }
 
-            writer.WriteStartObject();
-
-            foreach (KeyValuePair<TK, TV> kvp in value)
+            using (new DepthHandler(options))
             {
-                if (options.DictionaryKeyPolicy != null)
+                writer.WriteStartObject();
+
+                foreach (KeyValuePair<TK, TV> kvp in value)
                 {
-                    string key = options.DictionaryKeyPolicy.ConvertName(_keyConverter.ToString(kvp.Key));
-                    writer.WritePropertyName(key);
-                }
-                else
-                {
-                    _keyConverter.Write(writer, kvp.Key, options);
+                    if (options.DictionaryKeyPolicy != null)
+                    {
+                        string key = options.DictionaryKeyPolicy.ConvertName(_keyConverter.ToString(kvp.Key));
+                        writer.WritePropertyName(key);
+                    }
+                    else
+                    {
+                        _keyConverter.Write(writer, kvp.Key, options);
+                    }
+
+                    _valueConverter.Write(writer, kvp.Value, options);
                 }
 
-                _valueConverter.Write(writer, kvp.Value, options);
+                writer.WriteEndObject();
             }
-
-            writer.WriteEndObject();
         }
     }
 }

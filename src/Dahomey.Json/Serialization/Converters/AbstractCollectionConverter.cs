@@ -30,20 +30,23 @@ namespace Dahomey.Json.Serialization.Converters
                 return default(TC);
             }
 
-            if (reader.TokenType != JsonTokenType.StartArray)
+            using (new DepthHandler(options))
             {
-                throw new JsonException();
+                if (reader.TokenType != JsonTokenType.StartArray)
+                {
+                    throw new JsonException();
+                }
+
+                ICollection<TI> workingCollection = InstantiateWorkingCollection();
+
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+                {
+                    TI item = _itemConverter.Read(ref reader, typeof(TI), options);
+                    workingCollection.Add(item);
+                }
+
+                return InstantiateCollection(workingCollection);
             }
-
-            ICollection<TI> workingCollection = InstantiateWorkingCollection();
-
-            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
-            {
-                TI item = _itemConverter.Read(ref reader, typeof(TI), options);
-                workingCollection.Add(item);
-            }
-
-            return InstantiateCollection(workingCollection);
         }
 
         public override void Write(Utf8JsonWriter writer, TC value, JsonSerializerOptions options)
@@ -54,14 +57,17 @@ namespace Dahomey.Json.Serialization.Converters
                 return;
             }
 
-            writer.WriteStartArray();
-
-            foreach (TI item in value)
+            using (new DepthHandler(options))
             {
-                _itemConverter.Write(writer, item, options);
-            }
+                writer.WriteStartArray();
 
-            writer.WriteEndArray();
+                foreach (TI item in value)
+                {
+                    _itemConverter.Write(writer, item, options);
+                }
+
+                writer.WriteEndArray();
+            }
         }
     }
 }
