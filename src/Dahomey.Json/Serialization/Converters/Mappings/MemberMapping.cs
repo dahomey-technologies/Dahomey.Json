@@ -73,7 +73,6 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public void Initialize()
         {
             InitializeMemberName();
-            InitializeConverter();
             InitializeCanBeDeserialized();
             InitializeCanBeSerialized();
             ValidateDefaultValue();
@@ -85,6 +84,8 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public IMemberConverter GenerateMemberConverter()
         {
+            InitializeConverter();
+
             if (typeof(T).IsStruct())
             {
                 return (IMemberConverter)Activator.CreateInstance(

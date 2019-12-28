@@ -194,6 +194,16 @@ namespace Dahomey.Json.Serialization.Converters
                 }
             }
 
+            if (obj == null)
+            {
+                if (converter == null)
+                {
+                    converter = this;
+                }
+
+                obj = (T)converter.CreateInstance();
+            }
+
             if (_objectMapping.OnDeserializedMethod != null)
             {
                 ((Action<T>)_objectMapping.OnDeserializedMethod)(obj);
