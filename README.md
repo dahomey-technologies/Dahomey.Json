@@ -3,7 +3,7 @@
 
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Dahomey.Json)
 ![CircleCI](https://img.shields.io/circleci/build/github/dahomey-technologies/Dahomey.Json/master)
-![](https://github.com/dahomey-technologies/Dahomey.Json/workflows/.github/workflows/BuildAndTest.yml/badge.svg)
+![](https://github.com/dahomey-technologies/Dahomey.Json/workflows/Build%20and%20Test/badge.svg)
 
 ## Introduction
 The main purpose of this library is to bring missing features to the official .Net namespace [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview)
