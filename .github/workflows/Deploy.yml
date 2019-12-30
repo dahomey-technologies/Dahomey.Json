@@ -1,0 +1,26 @@
+name: Deploy to Nuget
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v1
+      
+    - name: setup
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+    
+    - name: build
+      run: dotnet pack -p:Version=${GITHUB_REF} -p:FileVersion=${GITHUB_REF} -p:AssemblyVersion=${GITHUB_REF} -c Release src/Dahomey.Json
+    
+    - name: deploy
+    - run: dotnet nuget push src/Dahomey.Json/bin/Release/Dahomey.Json.${GITHUB_REF}.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+
