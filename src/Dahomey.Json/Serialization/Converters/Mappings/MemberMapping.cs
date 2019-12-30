@@ -31,7 +31,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             _options = options;
             MemberInfo = memberInfo;
             MemberType = memberType;
-            DefaultValue = (memberType.IsClass || memberType.IsInterface) ? null : Activator.CreateInstance(memberType);
+            DefaultValue = Default.Value(memberType);
         }
 
         public MemberMapping<T> SetMemberName(string memberName)
