@@ -2,7 +2,6 @@
  Extensions to System.Text.Json
 
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Dahomey.Json)
-![CircleCI](https://img.shields.io/circleci/build/github/dahomey-technologies/Dahomey.Json/master)
 ![](https://github.com/dahomey-technologies/Dahomey.Json/workflows/Build%20and%20Test/badge.svg)
 
 ## Introduction
