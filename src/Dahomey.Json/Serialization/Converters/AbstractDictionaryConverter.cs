@@ -1,12 +1,13 @@
 ﻿using Dahomey.Json.Serialization.Converters.DictionaryKeys;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Converters
 {
-    public abstract class AbstractDictionaryConverter<TC, TK, TV> : JsonConverter<TC>
+    public abstract class AbstractDictionaryConverter<TC, TK, TV> : AbstractJsonConverter<TC>
         where TC : IDictionary<TK, TV>
     {
         private readonly IDictionaryKeyConverter<TK> _keyConverter;
@@ -33,6 +34,15 @@ namespace Dahomey.Json.Serialization.Converters
                 return default(TC);
             }
 
+            TC collection = default;
+
+            Read(ref reader, ref collection, options);
+
+            return collection;
+        }
+
+        public override void Read(ref Utf8JsonReader reader, ref TC obj, JsonSerializerOptions options)
+        {
             using (new DepthHandler(options))
             {
                 if (reader.TokenType != JsonTokenType.StartObject)
@@ -57,7 +67,21 @@ namespace Dahomey.Json.Serialization.Converters
                     workingCollection.Add(key, value);
                 }
 
-                return InstantiateCollection(workingCollection);
+                if (obj == null || obj is IImmutableDictionary<TK, TV>)
+                {
+                    obj = InstantiateCollection(workingCollection);
+                }
+                else if (obj is IDictionary<TK, TV> collection)
+                {
+                    foreach (KeyValuePair<TK, TV> item in workingCollection)
+                    {
+                        collection.Add(item);
+                    }
+                }
+                else
+                {
+                    throw new JsonException("Read only collection property not writable.");
+                }
             }
         }
 

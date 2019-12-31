@@ -16,6 +16,7 @@ namespace Dahomey.Json
         public DiscriminatorConventionRegistry DiscriminatorConventionRegistry { get; }
         public DictionaryKeyConverterRegistry DictionaryKeyConverterRegistry { get; }
         public ReferenceHandling ReferenceHandling { get; set; }
+        public ReadOnlyPropertyHandling ReadOnlyPropertyHandling { get; set; }
 
         public JsonSerializerOptionsState(JsonSerializerOptions options)
         {

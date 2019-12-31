@@ -155,7 +155,10 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             switch (MemberInfo)
             {
                 case PropertyInfo propertyInfo:
-                    CanBeDeserialized = (propertyInfo.CanWrite || propertyInfo.IsDefined(typeof(JsonDeserializeAttribute))) && !propertyInfo.GetMethod.IsStatic;
+                    CanBeDeserialized = (propertyInfo.CanWrite
+                        || _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Read
+                            || (propertyInfo.IsDefined(typeof(JsonDeserializeAttribute)) && _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default))
+                        && !propertyInfo.GetMethod.IsStatic;
                     break;
 
                 case FieldInfo fieldInfo:

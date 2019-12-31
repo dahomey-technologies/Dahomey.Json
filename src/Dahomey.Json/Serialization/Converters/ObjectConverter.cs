@@ -21,7 +21,7 @@ namespace Dahomey.Json.Serialization.Converters
         object CreateInstance();
     }
 
-    public class ObjectConverter<T> : JsonConverter<T>, IObjectConverter
+    public class ObjectConverter<T> : AbstractJsonConverter<T>, IObjectConverter
     {
         private class MemberConverters
         {
@@ -134,7 +134,7 @@ namespace Dahomey.Json.Serialization.Converters
             return obj;
         }
 
-        public void Read(ref Utf8JsonReader reader, ref T obj, JsonSerializerOptions options)
+        public override void Read(ref Utf8JsonReader reader, ref T obj, JsonSerializerOptions options)
         {
             using (new DepthHandler(options))
             {
