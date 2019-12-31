@@ -157,7 +157,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             if (memberInfo.IsDefined(typeof(JsonIgnoreIfDefaultAttribute)))
             {
-                memberMapping.SetIngoreIfDefault(true);
+                memberMapping.SetIgnoreIfDefault(true);
             }
         }
 

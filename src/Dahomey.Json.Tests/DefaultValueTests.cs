@@ -62,10 +62,10 @@ namespace Dahomey.Json.Tests
             {
                 objectMapping.AutoMap();
                 objectMapping.ClearMemberMappings();
-                objectMapping.MapMember(o => o.Id).SetDefaultValue(12).SetIngoreIfDefault(true);
-                objectMapping.MapMember(o => o.FirstName).SetDefaultValue("foo").SetIngoreIfDefault(true);
-                objectMapping.MapMember(o => o.LastName).SetDefaultValue("foo").SetIngoreIfDefault(true);
-                objectMapping.MapMember(o => o.Age).SetDefaultValue(12).SetIngoreIfDefault(true);
+                objectMapping.MapMember(o => o.Id).SetDefaultValue(12).SetIgnoreIfDefault(true);
+                objectMapping.MapMember(o => o.FirstName).SetDefaultValue("foo").SetIgnoreIfDefault(true);
+                objectMapping.MapMember(o => o.LastName).SetDefaultValue("foo").SetIgnoreIfDefault(true);
+                objectMapping.MapMember(o => o.Age).SetDefaultValue(12).SetIgnoreIfDefault(true);
             });
 
             ObjectWithDefaultValue2 obj = new ObjectWithDefaultValue2
