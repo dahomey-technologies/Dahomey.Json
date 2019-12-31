@@ -82,7 +82,7 @@ namespace Dahomey.Json.Tests
         }
 
         [Fact]
-        public void TestReadUsingReadOnlyPropertyHandling()
+        public void TestReadUsingReadOnlyPropertyHandlingRead()
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
@@ -94,6 +94,21 @@ namespace Dahomey.Json.Tests
             Assert.NotNull(obj);
             Assert.NotNull(obj.MyClass);
             Assert.Equal(12, obj.MyClass.MyInt32);
+        }
+
+        [Fact]
+        public void TestReadUsingReadOnlyPropertyHandlingIgnore()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            options.SetReadOnlyPropertyHandling(ReadOnlyPropertyHandling.Ignore);
+
+            const string json = @"{""MyClass"":{""MyInt32"":12}}";
+            var obj = JsonSerializer.Deserialize<SimpleTestClassWithReadOnlyClass>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.NotNull(obj.MyClass);
+            Assert.Equal(default, obj.MyClass.MyInt32);
         }
 
         public class SimpleTestClassWithCollectionUsingJsonDeserialize
@@ -123,7 +138,7 @@ namespace Dahomey.Json.Tests
         }
 
         [Fact]
-        public void TestReadWithCollectionUsingReadOnlyPropertyHandling()
+        public void TestReadWithCollectionUsingReadOnlyPropertyHandlingRead()
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
@@ -136,6 +151,21 @@ namespace Dahomey.Json.Tests
             Assert.NotNull(obj.MyClass);
             Assert.Equal(1, obj.MyClass.Count);
             Assert.Equal(12, obj.MyClass[0].MyInt32);
+        }
+
+        [Fact]
+        public void TestReadWithCollectionUsingReadOnlyPropertyHandlingIgnore()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            options.SetReadOnlyPropertyHandling(ReadOnlyPropertyHandling.Ignore);
+
+            const string json = @"{""MyClass"":[{""MyInt32"":12}]}";
+            var obj = JsonSerializer.Deserialize<SimpleTestClassWithReadOnlyCollectionProperty>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.NotNull(obj.MyClass);
+            Assert.Equal(0, obj.MyClass.Count);
         }
 
         public class SimpleTestClassWithDictionaryUsingJsonDeserialize
@@ -165,7 +195,7 @@ namespace Dahomey.Json.Tests
         }
 
         [Fact]
-        public void TestReadWithDictionaryUsingReadOnlyPropertyHandling()
+        public void TestReadWithDictionaryUsingReadOnlyPropertyHandlingRead()
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
@@ -179,6 +209,21 @@ namespace Dahomey.Json.Tests
             Assert.Equal(1, obj.MyClass.Count);
             Assert.True(obj.MyClass.ContainsKey("MyKey"));
             Assert.Equal(12, obj.MyClass["MyKey"].MyInt32);
+        }
+
+        [Fact]
+        public void TestReadWithDictionaryUsingReadOnlyPropertyHandlingIgnore()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            options.SetReadOnlyPropertyHandling(ReadOnlyPropertyHandling.Ignore);
+
+            const string json = @"{""MyClass"":{""MyKey"":{""MyInt32"":12}}}";
+            var obj = JsonSerializer.Deserialize<SimpleTestClassWithReadOnlyDictionaryProperty>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.NotNull(obj.MyClass);
+            Assert.Equal(0, obj.MyClass.Count);
         }
     }
 }
