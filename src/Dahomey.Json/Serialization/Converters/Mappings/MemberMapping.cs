@@ -89,7 +89,9 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             DataMemberAttribute dataMember = MemberInfo.GetCustomAttribute<DataMemberAttribute>(inherit: false);
             if (dataMember == null)
             {
-                IsHiddenByDataContract = _objectMapping.IsDataContract;
+                IsHiddenByDataContract = _objectMapping.IsDataContract
+                                         && !(MemberInfo.IsDefined(typeof(JsonPropertyAttribute), inherit: false)
+                                             || MemberInfo.IsDefined(typeof(JsonPropertyNameAttribute), inherit: false));
             }
             else
             {
