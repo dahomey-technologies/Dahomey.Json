@@ -1,13 +1,14 @@
 ﻿using Dahomey.Json.Util;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Converters
 {
-    public abstract class AbstractCollectionConverter<TC, TI> : JsonConverter<TC>
+    public abstract class AbstractCollectionConverter<TC, TI> : AbstractJsonConverter<TC>
         where TC : IEnumerable<TI>
     {
         private readonly JsonConverter<TI> _itemConverter;
@@ -34,6 +35,15 @@ namespace Dahomey.Json.Serialization.Converters
                 return default(TC);
             }
 
+            TC collection = default;
+
+            Read(ref reader, ref collection, options);
+
+            return collection;
+        }
+
+        public override void Read(ref Utf8JsonReader reader, ref TC obj, JsonSerializerOptions options)
+        {
             using (new DepthHandler(options))
             {
                 string id = null;
@@ -78,7 +88,8 @@ namespace Dahomey.Json.Serialization.Converters
                             throw new JsonException("Expected end of object");
                         }
 
-                        return InstantiateCollection((ICollection<TI>)@object);
+                        obj = InstantiateCollection((ICollection<TI>)@object);
+                        return;
                     }
                     else
                     {
@@ -108,14 +119,25 @@ namespace Dahomey.Json.Serialization.Converters
                     }
                 }
 
-                TC collection = InstantiateCollection(workingCollection);
-
-                if (!string.IsNullOrEmpty(id))
+                if (obj == null || obj is IImmutableList<TI> || obj is IImmutableSet<TI>)
                 {
-                    SerializationContext.Current.ReferenceHandler.AddReference(collection, id);
+                    obj = InstantiateCollection(workingCollection);
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        SerializationContext.Current.ReferenceHandler.AddReference(obj, id);
+                    }
                 }
-
-                return collection;
+                else if (obj is ICollection<TI> collection)
+                {
+                    foreach (TI item in workingCollection)
+                    {
+                        collection.Add(item);
+                    }
+                }
+                else
+                {
+                    throw new JsonException("Read only collection property not writable.");
+                }
             }
         }
 

@@ -64,7 +64,8 @@ namespace Dahomey.Json.Serialization.Converters
             _ignoreIfDefault = memberMapping.IgnoreIfDefault;
             _shouldSerializeMethod = memberMapping.ShouldSerializeMethod;
             _requirementPolicy = memberMapping.RequirementPolicy;
-            _deserializableReadOnlyProperty = memberMapping.MemberInfo.IsDefined(typeof(JsonDeserializeAttribute));
+            _deserializableReadOnlyProperty = options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Read
+                || (memberMapping.MemberInfo.IsDefined(typeof(JsonDeserializeAttribute)) && options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default);
         }
 
         public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
@@ -82,7 +83,7 @@ namespace Dahomey.Json.Serialization.Converters
                 }
             }
 
-            if (_deserializableReadOnlyProperty)
+            if (_deserializableReadOnlyProperty && _memberSetter == null)
             {
                 TM value = _memberGetter((T)obj);
 
@@ -91,7 +92,7 @@ namespace Dahomey.Json.Serialization.Converters
                     throw new JsonException($"Property '{MemberNameAsString}' decorated by JsonDeserializeAttribute should be instantiated");
                 }
 
-                ((ObjectConverter<TM>)_jsonConverter).Read(ref reader, ref value, options);
+                ((AbstractJsonConverter<TM>)_jsonConverter).Read(ref reader, ref value, options);
             }
             else
             {
