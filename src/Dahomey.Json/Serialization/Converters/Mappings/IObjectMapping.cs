@@ -18,6 +18,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         DiscriminatorPolicy DiscriminatorPolicy { get; }
         object Discriminator { get; }
         IExtensionDataMemberConverter ExtensionData { get; }
+        bool IsDataContract { get; }
 
         void AutoMap();
         bool IsCreatorMember(ReadOnlySpan<byte> memberName);

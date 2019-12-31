@@ -19,6 +19,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public JsonConverter Converter { get; private set; }
         public bool CanBeDeserialized { get; private set; }
         public bool CanBeSerialized { get; private set; }
+        public bool IsHiddenByDataContract { get; private set; }
         public object DefaultValue { get; private set; }
         public bool IgnoreIfDefault { get; private set; }
         public Func<object, bool> ShouldSerializeMethod { get; private set; }
@@ -72,6 +73,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public void Initialize()
         {
+            InitializeFromDataMemberAttribute();
             InitializeMemberName();
             InitializeCanBeDeserialized();
             InitializeCanBeSerialized();
@@ -80,6 +82,29 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public void PostInitialize()
         {
+        }
+
+        private void InitializeFromDataMemberAttribute()
+        {
+            DataMemberAttribute dataMember = MemberInfo.GetCustomAttribute<DataMemberAttribute>(inherit: false);
+            if (dataMember == null)
+            {
+                IsHiddenByDataContract = _objectMapping.IsDataContract;
+            }
+            else
+            {
+                if (dataMember.IsRequired)
+                {
+                    RequirementPolicy = RequirementPolicy.Always;
+                }
+
+                IgnoreIfDefault = !dataMember.EmitDefaultValue;
+
+                if (string.IsNullOrEmpty(MemberName))
+                {
+                    MemberName = dataMember.Name;
+                }
+            }
         }
 
         public IMemberConverter GenerateMemberConverter()
@@ -100,19 +125,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void InitializeMemberName()
         {
-            if (string.IsNullOrEmpty(MemberName))
+            JsonPropertyNameAttribute nameAttribute = MemberInfo.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: false);
+            if (nameAttribute != null)
             {
-                JsonPropertyNameAttribute nameAttribute = MemberInfo.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: false);
-                DataMemberAttribute dataMemberAttribute = MemberInfo.GetCustomAttribute<DataMemberAttribute>(inherit: false);
-                if (nameAttribute != null)
-                {
-                    MemberName = nameAttribute.Name ?? throw new JsonException();
-                }
-                else if (dataMemberAttribute != null)
-                {
-                    MemberName = dataMemberAttribute.Name;
-                }
-                else if (_objectMapping.PropertyNamingPolicy != null)
+                MemberName = nameAttribute.Name ?? throw new JsonException();
+            }
+            else if (string.IsNullOrEmpty(MemberName))
+            {
+                if (_objectMapping.PropertyNamingPolicy != null)
                 {
                     MemberName = _objectMapping.PropertyNamingPolicy.ConvertName(MemberInfo.Name);
                 }
@@ -122,7 +142,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
                 else
                 {
-                    MemberName= MemberInfo.Name;
+                    MemberName = MemberInfo.Name;
                 }
             }
         }
@@ -155,14 +175,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             switch (MemberInfo)
             {
                 case PropertyInfo propertyInfo:
-                    CanBeDeserialized = (propertyInfo.CanWrite
+                    CanBeDeserialized = !IsHiddenByDataContract && (propertyInfo.CanWrite
                         || _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Read
                             || (propertyInfo.IsDefined(typeof(JsonDeserializeAttribute)) && _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default))
                         && !propertyInfo.GetMethod.IsStatic;
                     break;
 
                 case FieldInfo fieldInfo:
-                    CanBeDeserialized = !fieldInfo.IsInitOnly && !fieldInfo.IsStatic;
+                    CanBeDeserialized = !IsHiddenByDataContract && !fieldInfo.IsInitOnly && !fieldInfo.IsStatic;
                     break;
 
                 default:
@@ -176,11 +196,11 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             switch (MemberInfo)
             {
                 case PropertyInfo propertyInfo:
-                    CanBeSerialized = propertyInfo.CanRead && (!_options.IgnoreReadOnlyProperties || propertyInfo.CanWrite);
+                    CanBeSerialized = !IsHiddenByDataContract && propertyInfo.CanRead && (!_options.IgnoreReadOnlyProperties || propertyInfo.CanWrite);
                     break;
 
-                case FieldInfo fieldInfo:
-                    CanBeSerialized = true;
+                case FieldInfo _:
+                    CanBeSerialized = !IsHiddenByDataContract;
                     break;
 
                 default:

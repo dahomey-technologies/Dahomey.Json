@@ -18,6 +18,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public JsonConverter Converter => null;
         public bool CanBeDeserialized => false;
         public bool CanBeSerialized => true;
+        public bool IsHiddenByDataContract => false;
         public object DefaultValue => null;
         public bool IgnoreIfDefault => false;
         public Func<object, bool> ShouldSerializeMethod => null;

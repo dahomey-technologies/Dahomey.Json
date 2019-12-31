@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text.Json;
 
 namespace Dahomey.Json.Serialization.Converters.Mappings
@@ -32,6 +33,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public DiscriminatorPolicy DiscriminatorPolicy { get; private set; }
         public object Discriminator { get; private set; }
         public IExtensionDataMemberConverter ExtensionData { get; private set; }
+        public bool IsDataContract { get; }
 
         public ObjectMapping(JsonSerializerOptions options)
         {
@@ -42,6 +44,11 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             {
                 DiscriminatorMapping<T> memberMapping = new DiscriminatorMapping<T>(_options.GetDiscriminatorConventionRegistry(), this);
                 _memberMappings.Add(memberMapping);
+            }
+
+            if (ObjectType.IsDefined(typeof(DataContractAttribute), inherit: false))
+            {
+                IsDataContract = true;
             }
         }
 

@@ -13,6 +13,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         JsonConverter Converter { get; }
         bool CanBeDeserialized { get; }
         bool CanBeSerialized { get; }
+        bool IsHiddenByDataContract { get; }
         object DefaultValue { get; }
         bool IgnoreIfDefault { get; }
         Func<object, bool> ShouldSerializeMethod { get; }
