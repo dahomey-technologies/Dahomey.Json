@@ -6,52 +6,24 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Converters.Mappings
 {
-    public class DefaultObjectMappingConvention : IObjectMappingConvention
+    public class StandardObjectMappingConvention : IObjectMappingConvention
     {
         public void Apply<T>(JsonSerializerOptions options, ObjectMapping<T> objectMapping)
         {
             Type type = objectMapping.ObjectType;
             List<MemberMapping<T>> memberMappings = new List<MemberMapping<T>>();
 
-            JsonDiscriminatorAttribute discriminatorAttribute = type.GetCustomAttribute<JsonDiscriminatorAttribute>();
-
-            if (discriminatorAttribute != null)
-            {
-                objectMapping.SetDiscriminator(discriminatorAttribute.Discriminator);
-                objectMapping.SetDiscriminatorPolicy(discriminatorAttribute.Policy);
-            }
-
-            Type namingPolicyType = type.GetCustomAttribute<JsonNamingPolicyAttribute>()?.NamingPolicyType;
-            if (namingPolicyType != null)
-            {
-                objectMapping.SetPropertyNamingPolicy((JsonNamingPolicy)Activator.CreateInstance(namingPolicyType));
-            }
-
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
             foreach (PropertyInfo propertyInfo in properties)
             {
-                if (propertyInfo.IsDefined(typeof(JsonIgnoreAttribute)))
-                {
-                    continue;
-                }
-
-                if (propertyInfo.IsDefined(typeof(JsonExtensionDataAttribute)))
-                {
-                    objectMapping.MapExtensionData(propertyInfo);
-                    continue;
-                }
-
-                if ((propertyInfo.GetMethod.IsPrivate || propertyInfo.GetMethod.IsStatic)
-                    && !propertyInfo.IsDefined(typeof(JsonPropertyNameAttribute))
-                    && !propertyInfo.IsDefined(typeof(JsonPropertyAttribute)))
+                if (!propertyInfo.IsDefined(typeof(DataMemberAttribute)))
                 {
                     continue;
                 }
@@ -61,21 +33,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 ProcessShouldSerializeMethod(memberMapping);
                 ProcessRequired(propertyInfo, memberMapping);
                 ProcessMemberName(propertyInfo, memberMapping);
-                ProcessConverter(propertyInfo, memberMapping);
-                ProcessDeserialize(propertyInfo, memberMapping);
                 memberMappings.Add(memberMapping);
             }
 
             foreach (FieldInfo fieldInfo in fields)
             {
-                if (fieldInfo.IsDefined(typeof(JsonIgnoreAttribute)))
-                {
-                    continue;
-                }
-
-                if ((fieldInfo.IsPrivate || fieldInfo.IsStatic)
-                    && !fieldInfo.IsDefined(typeof(JsonPropertyNameAttribute))
-                    && !fieldInfo.IsDefined(typeof(JsonPropertyAttribute)))
+                if (!fieldInfo.IsDefined(typeof(DataMemberAttribute)))
                 {
                     continue;
                 }
@@ -87,7 +50,6 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 ProcessShouldSerializeMethod(memberMapping);
                 ProcessRequired(fieldInfo, memberMapping);
                 ProcessMemberName(fieldInfo, memberMapping);
-                ProcessConverter(fieldInfo, memberMapping);
 
                 memberMappings.Add(memberMapping);
             }
@@ -96,23 +58,10 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             ConstructorInfo[] constructorInfos = type.GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
-            ConstructorInfo constructorInfo = constructorInfos
-                .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute)));
-
-            if (constructorInfo != null)
-            {
-                JsonConstructorAttribute constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
-                CreatorMapping creatorMapping = objectMapping.MapCreator(constructorInfo);
-                if (constructorAttribute.MemberNames != null)
-                {
-                    creatorMapping.SetMemberNames(constructorAttribute.MemberNames);
-                }
-            }
             // if no default constructor, pick up first one
-            else if (constructorInfos.Length > 0 && !constructorInfos.Any(c => c.GetParameters().Length == 0))
+            if (constructorInfos.Length > 0 && !constructorInfos.Any(c => c.GetParameters().Length == 0))
             {
-                constructorInfo = constructorInfos[0];
-                objectMapping.MapCreator(constructorInfo);
+                objectMapping.MapCreator(constructorInfos[0]);
             }
 
             MethodInfo methodInfo = type.GetMethods()
@@ -160,7 +109,8 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 memberMapping.SetDefaultValue(defaultValueAttribute.Value);
             }
 
-            if (memberInfo.IsDefined(typeof(JsonIgnoreIfDefaultAttribute)))
+            DataMemberAttribute dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
+            if (dataMemberAttribute != null && !dataMemberAttribute.EmitDefaultValue)
             {
                 memberMapping.SetIngoreIfDefault(true);
             }
@@ -180,8 +130,8 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 ParameterExpression objParameter = Expression.Parameter(typeof(object), "obj");
                 Expression<Func<object, bool>> lambdaExpression = Expression.Lambda<Func<object, bool>>(
                     Expression.Call(
-                        Expression.Convert(objParameter, objectType),
-                        shouldSerializeMethodInfo),
+                        Expression.Convert(objParameter, objectType), 
+                        shouldSerializeMethodInfo), 
                     objParameter);
 
                 memberMapping.SetShouldSerializeMethod(lambdaExpression.Compile());
@@ -190,38 +140,19 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessRequired<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            JsonRequiredAttribute jsonRequiredAttribute = memberInfo.GetCustomAttribute<JsonRequiredAttribute>();
-            if (jsonRequiredAttribute != null)
+            DataMemberAttribute dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
+            if (dataMemberAttribute != null && dataMemberAttribute.IsRequired)
             {
-                memberMapping.SetRequired(jsonRequiredAttribute.Policy);
+                memberMapping.SetRequired(RequirementPolicy.Always);
             }
         }
 
         private void ProcessMemberName<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            JsonPropertyNameAttribute jsonPropertyNameAttribute = memberInfo.GetCustomAttribute<JsonPropertyNameAttribute>();
-            if (jsonPropertyNameAttribute != null)
+            DataMemberAttribute dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
+            if (dataMemberAttribute != null && !string.IsNullOrEmpty(dataMemberAttribute.Name))
             {
-                memberMapping.SetMemberName(jsonPropertyNameAttribute.Name);
-            }
-        }
-
-        private void ProcessConverter<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
-        {
-            JsonConverterAttribute converterAttribute = memberInfo.GetCustomAttribute<JsonConverterAttribute>();
-            if (converterAttribute != null)
-            {
-                Type converterType = converterAttribute.ConverterType;
-
-                memberMapping.SetConverter((JsonConverter)Activator.CreateInstance(converterType));
-            }
-        }
-
-        private void ProcessDeserialize<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
-        {
-            if (memberInfo.IsDefined(typeof(JsonDeserializeAttribute)))
-            {
-                memberMapping.ForceDeserialize();
+                memberMapping.SetMemberName(dataMemberAttribute.Name);
             }
         }
 

@@ -12,11 +12,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     {
         private readonly ConcurrentDictionary<Type, IObjectMappingConvention> _conventions = new ConcurrentDictionary<Type, IObjectMappingConvention>();
         private readonly ConcurrentStack<IObjectMappingConventionProvider> _providers = new ConcurrentStack<IObjectMappingConventionProvider>();
-
+        
         public ObjectMappingConventionRegistry()
         {
             // order matters. It's in reverse order of how they'll get consumed
             RegisterProvider(new DefaultObjectMappingConventionProvider());
+            RegisterProvider(new StandardObjectMappingConventionProvider());
             RegisterProvider(new AnonymousObjectMappingConventionProvider());
         }
 

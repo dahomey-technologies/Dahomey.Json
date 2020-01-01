@@ -2,7 +2,6 @@
 using Dahomey.Json.Util;
 using System;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,6 +11,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     {
         private readonly IObjectMapping _objectMapping;
         private readonly JsonSerializerOptions _options;
+        private bool _forceDeserialize = false;
 
         public MemberInfo MemberInfo { get; private set; }
         public Type MemberType { get; private set; }
@@ -70,6 +70,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             return this;
         }
 
+        public MemberMapping<T> ForceDeserialize()
+        {
+            _forceDeserialize = true;
+            return this;
+        }
+
         public void Initialize()
         {
             InitializeMemberName();
@@ -102,17 +108,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         {
             if (string.IsNullOrEmpty(MemberName))
             {
-                JsonPropertyNameAttribute nameAttribute = MemberInfo.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: false);
-                DataMemberAttribute dataMemberAttribute = MemberInfo.GetCustomAttribute<DataMemberAttribute>(inherit: false);
-                if (nameAttribute != null)
-                {
-                    MemberName = nameAttribute.Name ?? throw new JsonException();
-                }
-                else if (dataMemberAttribute != null)
-                {
-                    MemberName = dataMemberAttribute.Name;
-                }
-                else if (_objectMapping.PropertyNamingPolicy != null)
+                if (_objectMapping.PropertyNamingPolicy != null)
                 {
                     MemberName = _objectMapping.PropertyNamingPolicy.ConvertName(MemberInfo.Name);
                 }
@@ -131,23 +127,9 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         {
             if (Converter == null)
             {
-                JsonConverterAttribute converterAttribute = MemberInfo.GetCustomAttribute<JsonConverterAttribute>();
-                if (converterAttribute != null)
-                {
-                    Type converterType = converterAttribute.ConverterType;
-                    VerifyMemberConverterType(converterType);
-
-                    Converter = (JsonConverter)Activator.CreateInstance(converterType);
-                }
-                else
-                {
-                    Converter = _options.GetConverter(MemberType);
-                }
+                Converter = _options.GetConverter(MemberType);
             }
-            else
-            {
-                VerifyMemberConverterType(Converter.GetType());
-            }
+            VerifyMemberConverterType(Converter.GetType());
         }
 
         private void InitializeCanBeDeserialized()
@@ -157,7 +139,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 case PropertyInfo propertyInfo:
                     CanBeDeserialized = (propertyInfo.CanWrite
                         || _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Read
-                            || (propertyInfo.IsDefined(typeof(JsonDeserializeAttribute)) && _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default))
+                            || (_forceDeserialize && _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default))
                         && !propertyInfo.GetMethod.IsStatic;
                     break;
 
