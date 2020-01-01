@@ -25,6 +25,7 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for collection interfaces: IList<>, ICollection<>, IEnumerable<>, IReadOnlyList<>, IReadOnlyCollection<>
 * Support for reference loop handling (cf. https://github.com/dotnet/corefx/issues/41002)
 * Support for deserializing into read-only properties (cf. https://github.com/dotnet/corefx/issues/40602)
+* Full support of DataContractAttribute and DataMemberAttribute
 
 ## Installation
 ### NuGet
