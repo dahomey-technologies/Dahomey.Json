@@ -432,7 +432,7 @@ namespace Dahomey.Json.Tests
 
             Assert.NotNull(obj);
             Assert.Equal("foo", obj["String"]);
-            Assert.Equal(12.12, obj["Number"]);
+            Assert.Equal(12.12, ((JsonNumber)obj["Number"]).GetDouble(), 3);
             Assert.Equal(true, obj["Bool"]);
             Assert.Equal(JsonValueKind.Null, obj["Null"].ValueKind);
             Assert.Equal(new JsonArray(new[] { 1, 2 }), obj["Array"]);
