@@ -22,6 +22,9 @@ jobs:
   build_and_test:
 
     runs-on: ubuntu-latest
+    
+    container:
+      image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
     steps:
     - name: checkout
@@ -32,22 +35,8 @@ jobs:
 #      with:
 #        dotnet-version: 3.1.100
 
-    - name: setup
-      run: |
-        wget https://dot.net/v1/dotnet-install.sh
-        chmod +x ./dotnet-install.sh
-        ./dotnet-install.sh
-        export PATH=~/.dotnet:$PATH
-        dotnet --list-sdks
-        ./dotnet-install.sh --version 2.2.207
-        dotnet --list-sdks
-
-    - name: info
-      run: |
-        ~/.dotnet --list-sdks
- 
     - name: build
-      run: ~/.dotnet build -c Release src/Dahomey.Json
+      run: dotnet build -c Release src/Dahomey.Json
     
     - name: test
-      run: ~/.dotnet test -c Release src/Dahomey.Json.Tests
+      run: dotnet test -c Release src/Dahomey.Json.Tests
