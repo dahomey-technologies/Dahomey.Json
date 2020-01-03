@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     
     container:
-      image: mcr.microsoft.com/dotnet/core/sdk:2.2.110
+      image: mcr.microsoft.com/dotnet/core/sdk:2.2.207
 
     steps:
     - name: checkout
