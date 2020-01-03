@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Dahomey.Json;
+
 namespace System.Text.Json
 {
     /// <summary>
@@ -186,5 +188,15 @@ namespace System.Text.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         public static implicit operator JsonNode(decimal value) => new JsonNumber(value);
+
+        public override string ToString()
+        {
+            return ToString(new JsonSerializerOptions().SetupExtensions());
+        }
+
+        public string ToString(JsonSerializerOptions options)
+        {
+            return JsonSerializer.Serialize(this, GetType(), options);
+        }
     }
 }

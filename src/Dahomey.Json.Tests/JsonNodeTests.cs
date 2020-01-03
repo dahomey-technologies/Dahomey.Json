@@ -439,5 +439,23 @@ namespace Dahomey.Json.Tests
             Assert.NotNull(obj["Object"]);
             Assert.Equal(1, ((JsonObject)obj["Object"])["Id"]);
         }
+
+        [Fact]
+        public void ToJsonString()
+        {
+            JsonObject obj = new JsonObject
+            {
+                ["String"] = "foo",
+                ["Number"] = 12.12,
+                ["Bool"] = true,
+                ["Null"] = null,
+                ["Array"] = new JsonArray { 1, 2 },
+                ["Object"] = new JsonObject { ["Id"] = 1 },
+            };
+
+            const string json = @"{""String"":""foo"",""Number"":12.12,""Bool"":true,""Null"":null,""Array"":[1,2],""Object"":{""Id"":1}}";
+
+            Assert.Equal(json, obj.ToString());
+        }
     }
 }
