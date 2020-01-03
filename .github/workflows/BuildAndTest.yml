@@ -40,15 +40,17 @@ jobs:
     - name: checkout
       uses: actions/checkout@v1
 
-    - name: setup 3.1
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.100
+    #- name: setup 3.1
+     # uses: actions/setup-dotnet@v1
+      #with:
+       # dotnet-version: 3.1.100
 
-    - name: setup 2.2
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 2.2.207    
+    - name: setup
+      run: |
+        wget https://dot.net/v1/dotnet-install.sh
+        ./dotnet-install.sh --version 3.1.100
+        ./dotnet-install.sh --version 2.2.207
+        export PATH=~/.dotnet:$PATH
     
     - name: info
       run: dotnet --info
