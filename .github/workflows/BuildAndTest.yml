@@ -19,19 +19,30 @@ on:
       - '*.*.*'       
 
 jobs:
-  build:
+  build_and_test:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
 
     steps:
     - name: checkout
       uses: actions/checkout@v1
-      
-    - name: setup
+
+    - name: setup .net core 2.2.207
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.207
+
+    - name: setup .net core 3.1.100
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.100
-    
+
+# workaround for using multiple dotnet core installs
+    - name: setup multiple sdks
+      run: |
+        rsync -a ${DOTNET_ROOT/3.1.100/2.2.207}/* $DOTNET_ROOT/
+        dotnet --info
+
     - name: build
       run: dotnet build -c Release src/Dahomey.Json
     
