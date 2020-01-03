@@ -41,7 +41,12 @@ jobs:
         dotnet --list-sdks
         ./dotnet-install.sh --version 2.2.207
         dotnet --list-sdks
-    
+
+    - name: info
+      run: |
+        which dotnet
+        dotnet --list-sdks
+ 
     - name: build
       run: dotnet build -c Release src/Dahomey.Json
     
