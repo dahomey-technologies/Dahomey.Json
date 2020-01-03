@@ -15,7 +15,7 @@ namespace Dahomey.Json.Tests.Issues
 
         public sealed class SignedDocument
         {
-            public SignedDocument([NotNull] string id, [NotNull] string name, IReadOnlyCollection<SignatureDefinition> signatureDefinitions)
+            public SignedDocument(string id, string name, IReadOnlyCollection<SignatureDefinition> signatureDefinitions)
             {
                 Id = id;
                 Name = name;
