@@ -33,12 +33,6 @@ jobs:
           - sdk: '3.1.100'
             lib_framework: 'netcoreapp3.0'
             test_framework: 'netcoreapp3.0'
-          - sdk: '2.2.207'
-            lib_framework: 'netstandard2.0'
-            test_framework: 'netcoreapp2.2'
-          - sdk: '2.2.207'
-            lib_framework: 'netstandard2.0'
-            test_framework: 'netcoreapp2.1'
         
     name: sdk ${{ matrix.sdk }} lib ${{matrix.lib_framework}} test ${{matrix.test_framework}}
 
