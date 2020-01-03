@@ -2,13 +2,11 @@
 using System.Reflection;
 using Dahomey.Json.Serialization.Conventions;
 using Dahomey.Json.Util;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 using System;
 using System.Text;
 using Dahomey.Json.Serialization.Converters.Mappings;
 using Dahomey.Json.Attributes;
-using System.Linq;
 
 namespace Dahomey.Json.Serialization.Converters
 {

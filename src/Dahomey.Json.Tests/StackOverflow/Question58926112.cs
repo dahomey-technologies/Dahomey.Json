@@ -1,5 +1,4 @@
 ﻿using Dahomey.Json.Serialization.Converters.Mappings;
-using System;
 using System.Linq;
 using System.Text.Json;
 using Xunit;

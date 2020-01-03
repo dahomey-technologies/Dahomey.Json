@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace System.Text
+﻿namespace System.Text
 {
     internal static class EncodingExtensions
     {
