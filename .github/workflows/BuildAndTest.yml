@@ -19,23 +19,24 @@ on:
       - '*.*.*'       
 
 jobs:
-  build:
+  build_and_test:
 
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        dotnet: [ '2.2.207', '3.0.100', '3.1.100' ]
+        
+    name: .net ${{ matrix.dotnet }}
 
     steps:
     - name: checkout
       uses: actions/checkout@v1
-        
-    - name: setup .net core 2.2
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 2.2.207
 
-    - name: setup .net core 3.1
+    - name: setup
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.100
+        dotnet-version: ${{ matrix.dotnet }}
     
     - name: build
       run: dotnet build -c Release src/Dahomey.Json
