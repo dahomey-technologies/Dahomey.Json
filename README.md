@@ -15,11 +15,11 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for non default constructors
 * Can ignore default values
 * Can require properties or fields with different policies
-* Object mapping to programmatically configure features on a class
+* Object mapping to programmatically configure features in a non invasive way
 * Support for Writable JSON Document Object Model (cf. [Spec](https://github.com/dotnet/corefx/blob/master/src/System.Text.Json/docs/writable_json_dom_spec.md))
 * Support for serialization callbacks (before/after serialization/deserialization)
 * Support for anonymous types
-* Support for DataMemberAttribute
+* Support for DataContractAttribute and DataMemberAttribute
 * Extended support for structs
 * Support for Nullables
 * Support for collection interfaces: IList<>, ICollection<>, IEnumerable<>, IReadOnlyList<>, IReadOnlyCollection<>
