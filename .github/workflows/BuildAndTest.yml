@@ -21,32 +21,28 @@ on:
 jobs:
   build_and_test:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
 
     steps:
     - name: checkout
       uses: actions/checkout@v1
 
-#    - name: setup
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: 3.1.100
+    - name: setup .net core 2.2.207
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.207
 
-    - name: setup
-      run: |
-        wget https://dot.net/v1/dotnet-install.sh
-        chmod +x ./dotnet-install.sh
-        ./dotnet-install.sh
-        export PATH=~/.dotnet:$PATH
-        dotnet --list-sdks
-        ./dotnet-install.sh --version 2.2.207
-        dotnet --list-sdks
+    - name: setup .net core 3.1.100
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
 
-    - name: info
+# workaround for using multiple dotnet core installs
+    - name: setup multiple sdks
       run: |
-        which dotnet
-        dotnet --list-sdks
- 
+        rsync -a ${DOTNET_ROOT/3.1.100/2.2.207}/* $DOTNET_ROOT/
+        dotnet --info
+
     - name: build
       run: dotnet build -c Release src/Dahomey.Json
     
