@@ -30,7 +30,7 @@ jobs:
     - name: setup .net core 2.2.207
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 2.2.207
+        dotnet-version: 2.2.101
 
     - name: setup .net core 3.1.100
       uses: actions/setup-dotnet@v1
@@ -40,7 +40,7 @@ jobs:
 # workaround for using multiple dotnet core installs
     - name: setup multiple sdks
       run: |
-        rsync -a ${DOTNET_ROOT/3.1.100/2.2.207}/* $DOTNET_ROOT/
+        rsync -a ${DOTNET_ROOT/3.1.100/2.2.101}/* $DOTNET_ROOT/
         dotnet --list-sdks
 
     - name: build
