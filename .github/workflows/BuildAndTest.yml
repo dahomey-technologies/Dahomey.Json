@@ -22,28 +22,27 @@ jobs:
   build_and_test:
 
     runs-on: ubuntu-latest
-    
-#    container:
-#      image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
     steps:
     - name: checkout
       uses: actions/checkout@v1
 
-#    - name: setup
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: 3.1.100
+    - name: setup .net core 3.1.100
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
 
-#    - name: build
-#      run: dotnet build -c Release src/Dahomey.Json
+    - name: setup .net core 2.2.207
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.207
+
+# workaround for using multiple dotnet core installs
+    - name: setup multiple sdks
+      run: rsync -a ${DOTNET_ROOT/3.1.100/2.2.207}/* $DOTNET_ROOT/
+
+    - name: build
+      run: dotnet build -c Release src/Dahomey.Json
     
     - name: test
-      run: |
-        wget -P ~ https://dot.net/v1/dotnet-install.sh	
-        chmod +x ~/dotnet-install.sh	
-        ~/dotnet-install.sh	--version 3.1.100
-        export PATH=~/.dotnet:$PATH	
-        ~/dotnet-install.sh --version 2.2.207	
-        dotnet --list-sdks
-        dotnet test -c Release src/Dahomey.Json.Tests
+      run: dotnet test -c Release src/Dahomey.Json.Tests
