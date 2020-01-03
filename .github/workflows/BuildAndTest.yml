@@ -30,18 +30,18 @@ jobs:
     - name: setup .net core 2.2.207
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 2.2.101
+        dotnet-version: 2.2.207
 
-#    - name: setup .net core 3.1.100
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: 3.1.100
+    - name: setup .net core 3.1.100
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
 
 # workaround for using multiple dotnet core installs
-#    - name: setup multiple sdks
-#      run: |
-#        rsync -a ${DOTNET_ROOT/3.1.100/2.2.101}/* $DOTNET_ROOT/
-#        dotnet --list-sdks
+    - name: setup multiple sdks
+      run: |
+        rsync -a ${DOTNET_ROOT/3.1.100/2.2.101}/* $DOTNET_ROOT/
+        dotnet --list-sdks
 
     - name: build
       run: dotnet build -c Release src/Dahomey.Json
