@@ -385,7 +385,7 @@ namespace Dahomey.Json.Tests
         }
 
         [Fact]
-        public void ToObjectTest()
+        public void ToObject()
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
@@ -410,6 +410,34 @@ namespace Dahomey.Json.Tests
             Assert.Equal(new[] { 1, 2 }, myObject.Array);
             Assert.NotNull(myObject.Object);
             Assert.Equal(1, myObject.Object.Id);
+        }
+
+        [Fact]
+        public void FromObject()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            MyObject myObject = new MyObject
+            {
+                String = "foo",
+                Number = 12.12,
+                Bool = true,
+                Null = null,
+                Array = new List<int> { 1, 2 },
+                Object = new IdObject { Id = 1 }
+            };
+
+            JsonObject obj = JsonObject.FromObject(myObject, options);
+
+            Assert.NotNull(obj);
+            Assert.Equal("foo", obj["String"]);
+            Assert.Equal(12.12, obj["Number"]);
+            Assert.Equal(true, obj["Bool"]);
+            Assert.Equal(JsonValueKind.Null, obj["Null"].ValueKind);
+            Assert.Equal(new JsonArray(new[] { 1, 2 }), obj["Array"]);
+            Assert.NotNull(obj["Object"]);
+            Assert.Equal(1, ((JsonObject)obj["Object"])["Id"]);
         }
     }
 }

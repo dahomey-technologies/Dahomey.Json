@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Dahomey.Json.Util;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -628,5 +629,15 @@ namespace System.Text.Json
         ///   Returns <see cref="JsonValueKind.Object"/>
         /// </summary>
         public override JsonValueKind ValueKind { get => JsonValueKind.Object; }
+
+        public static JsonObject FromObject<T>(T obj, JsonSerializerOptions options = null)
+        {
+            using (ArrayBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>())
+            using (Utf8JsonWriter writer = new Utf8JsonWriter(bufferWriter))
+            {
+                JsonSerializer.Serialize(writer, obj, options);
+                return JsonSerializer.Deserialize<JsonObject>(bufferWriter.WrittenSpan, options);
+            }
+        }
     }
 }
