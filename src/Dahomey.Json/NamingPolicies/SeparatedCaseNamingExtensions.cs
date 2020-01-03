@@ -56,7 +56,7 @@ namespace Dahomey.Json.NamingPolicies
 
             foreach (char nameChar in nameSpan)
             {
-                if (char.IsLetter(nameChar) && char.IsUpper(nameChar))
+                if (char.IsUpper(nameChar))
                 {
                     if (position > 0)
                         destination[position++] = separator;
