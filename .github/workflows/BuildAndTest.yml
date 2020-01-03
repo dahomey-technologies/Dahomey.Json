@@ -25,6 +25,9 @@ jobs:
     
     strategy:
       matrix:
+        sdk: []
+        lib_framework: []
+        test_framework: []
         include:
           - sdk: '3.1.100'
             lib_framework: 'netcoreapp3.1'
