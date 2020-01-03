@@ -44,11 +44,10 @@ jobs:
 
     - name: info
       run: |
-        which dotnet
-        dotnet --list-sdks
+        ~/.dotnet --list-sdks
  
     - name: build
-      run: dotnet build -c Release src/Dahomey.Json
+      run: ~/.dotnet build -c Release src/Dahomey.Json
     
     - name: test
-      run: dotnet test -c Release src/Dahomey.Json.Tests
+      run: ~/.dotnet test -c Release src/Dahomey.Json.Tests
