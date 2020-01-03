@@ -37,11 +37,10 @@ jobs:
         wget https://dot.net/v1/dotnet-install.sh
         chmod +x ./dotnet-install.sh
         ./dotnet-install.sh
-        ./dotnet-install.sh --version 2.2.207
         export PATH=~/.dotnet:$PATH
-    
-    - name: info
-      run: dotnet --list-sdks
+        dotnet --list-sdks
+        ./dotnet-install.sh --version 2.2.207
+        dotnet --list-sdks
     
     - name: build
       run: dotnet build -c Release src/Dahomey.Json
