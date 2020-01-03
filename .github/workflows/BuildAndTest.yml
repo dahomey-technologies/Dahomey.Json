@@ -39,4 +39,8 @@ jobs:
       run: dotnet build -c Release src/Dahomey.Json
     
     - name: test
-      run: dotnet test -c Release src/Dahomey.Json.Tests
+      run: |
+        wget https://dot.net/v1/dotnet-install.sh
+        chmod +x ./dotnet-install.sh
+        ./dotnet-install.sh -i /usr/share/dotnet -v 2.2.207
+        dotnet test -c Release src/Dahomey.Json.Tests
