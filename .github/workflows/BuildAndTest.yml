@@ -40,7 +40,7 @@ jobs:
 # workaround for using multiple dotnet core installs
     - name: setup multiple sdks
       run: |
-        rsync -a ${DOTNET_ROOT/3.1.100/2.2.101}/* $DOTNET_ROOT/
+        rsync -a ${DOTNET_ROOT/3.1.100/2.2.207}/* $DOTNET_ROOT/
         dotnet --info
 
     - name: build
