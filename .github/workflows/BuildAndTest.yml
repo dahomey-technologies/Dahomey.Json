@@ -25,7 +25,7 @@ jobs:
     
     strategy:
       matrix:
-        test_framework: ['netcoreapp3.1','netcoreapp3.0','netcoreapp2.2','netcoreapp2.1']
+        test_framework: ['netcoreapp3.1','netcoreapp3.0']
         include:
           - sdk: '3.1.100'
             lib_framework: 'netcoreapp3.1'
