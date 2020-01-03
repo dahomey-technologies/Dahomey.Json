@@ -25,9 +25,21 @@ jobs:
     
     strategy:
       matrix:
-        dotnet: [ '2.2.207', '3.0.100', '3.1.100' ]
+        include:
+          - sdk: '3.1.100'
+            lib_framework: 'netcoreapp3.1'
+            test_framework: 'netcoreapp3.1'
+          - sdk: '3.1.100'
+            lib_framework: 'netcoreapp3.0'
+            test_framework: 'netcoreapp3.0'
+          - sdk: '2.2.207'
+            lib_framework: 'netstandard2.0'
+            test_framework: 'netcoreapp2.2'
+          - sdk: '2.2.207'
+            lib_framework: 'netstandard2.0'
+            test_framework: 'netcoreapp2.1'
         
-    name: .net ${{ matrix.dotnet }}
+    name: sdk ${{ matrix.sdk }} lib ${{matrix.lib_framework}} test ${{matrix.test_framework}}
 
     steps:
     - name: checkout
@@ -36,10 +48,10 @@ jobs:
     - name: setup
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: ${{ matrix.sdk }}
     
     - name: build
-      run: dotnet build -c Release src/Dahomey.Json
+      run: dotnet build -c Release -f ${{matrix.lib_framework}} src/Dahomey.Json
     
     - name: test
-      run: dotnet test -c Release src/Dahomey.Json.Tests
+      run: dotnet test -c Release -f ${{matrix.test_framework}} src/Dahomey.Json.Tests
