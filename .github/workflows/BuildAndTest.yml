@@ -23,17 +23,17 @@ jobs:
 
     runs-on: ubuntu-latest
     
-    container:
-      image: mcr.microsoft.com/dotnet/core/sdk:2.2.207
+#    container:
+#      image: mcr.microsoft.com/dotnet/core/sdk:2.2.207
 
     steps:
     - name: checkout
       uses: actions/checkout@v1
 
-#    - name: setup .net core 2.2.110
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        dotnet-version: 2.2.110
+    - name: setup .net core 2.2.207
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.207
 
 #    - name: setup .net core 3.1.100
 #      uses: actions/setup-dotnet@v1
