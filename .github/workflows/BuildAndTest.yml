@@ -22,25 +22,12 @@ jobs:
   build_and_test:
 
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        test_framework: ['netcoreapp3.1','netcoreapp3.0']
-        include:
-          - sdk: '3.1.100'
-            lib_framework: 'netcoreapp3.1'
-            test_framework: 'netcoreapp3.1'
-          - sdk: '3.1.100'
-            lib_framework: 'netcoreapp3.0'
-            test_framework: 'netcoreapp3.0'
-        
-    name: sdk ${{ matrix.sdk }} lib ${{matrix.lib_framework}} test ${{matrix.test_framework}}
 
     steps:
     - name: checkout
       uses: actions/checkout@v1
 
-    #- name: setup 3.1
+    #- name: setup
      # uses: actions/setup-dotnet@v1
       #with:
        # dotnet-version: 3.1.100
@@ -54,10 +41,10 @@ jobs:
         export PATH=~/.dotnet:$PATH
     
     - name: info
-      run: dotnet --info
+      run: dotnet --list-sdks
     
     - name: build
-      run: dotnet build -c Release -f ${{matrix.lib_framework}} src/Dahomey.Json
+      run: dotnet build -c Release src/Dahomey.Json
     
     - name: test
-      run: dotnet test -c Release -f ${{matrix.test_framework}} src/Dahomey.Json.Tests
+      run: dotnet test -c Release src/Dahomey.Json.Tests
