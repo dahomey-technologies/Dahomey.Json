@@ -40,11 +40,16 @@ jobs:
     - name: checkout
       uses: actions/checkout@v1
 
-    - name: setup
+    - name: setup 3.1
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.sdk }}
-        
+        dotnet-version: 3.1.100
+
+    - name: setup 2.2
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.207    
+    
     - name: info
       run: dotnet --info
     
