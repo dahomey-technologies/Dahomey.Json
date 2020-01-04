@@ -630,12 +630,36 @@ namespace System.Text.Json
         /// </summary>
         public override JsonValueKind ValueKind { get => JsonValueKind.Object; }
 
+        /// <summary>
+        ///    Convert a .NET CLR type to a <see cref="JsonObject"/>
+        /// </summary>
+        /// <param name="obj">Value to convert to <see cref="JsonObject"/></param>
+        /// <param name="options">Serialization options</param>
+        /// <typeparam name="T">Type of <see cref="obj"/></typeparam>
+        /// <returns><see cref="JsonObject"/> representation of specified <see cref="T"/> value</returns>
         public static JsonObject FromObject<T>(T obj, JsonSerializerOptions options = null)
         {
             using (ArrayBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>())
             using (Utf8JsonWriter writer = new Utf8JsonWriter(bufferWriter))
             {
                 JsonSerializer.Serialize(writer, obj, options);
+                return JsonSerializer.Deserialize<JsonObject>(bufferWriter.WrittenSpan, options);
+            }
+        }
+        
+        /// <summary>
+        ///    Convert a .NET CLR type to a <see cref="JsonObject"/>
+        /// </summary>
+        /// <param name="obj">Value to convert to <see cref="JsonObject"/></param>
+        /// <param name="objType">Type of <see cref="obj"/></param>
+        /// <param name="options">Serialization options</param>
+        /// <returns><see cref="JsonObject"/> representation of specified <see cref="Object"/> value</returns>
+        public static JsonObject FromObject(object obj, Type objType, JsonSerializerOptions options = null)
+        {
+            using (ArrayBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>())
+            using (Utf8JsonWriter writer = new Utf8JsonWriter(bufferWriter))
+            {
+                JsonSerializer.Serialize(writer, obj, objType, options);
                 return JsonSerializer.Deserialize<JsonObject>(bufferWriter.WrittenSpan, options);
             }
         }

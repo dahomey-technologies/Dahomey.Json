@@ -428,16 +428,20 @@ namespace Dahomey.Json.Tests
                 Object = new IdObject { Id = 1 }
             };
 
-            JsonObject obj = JsonObject.FromObject(myObject, options);
+            JsonObject obj1 = JsonObject.FromObject(myObject, options);
+            JsonObject obj2 = JsonObject.FromObject(myObject, typeof(MyObject), options);
 
-            Assert.NotNull(obj);
-            Assert.Equal("foo", obj["String"]);
-            Assert.Equal(12.12, ((JsonNumber)obj["Number"]).GetDouble(), 3);
-            Assert.Equal(true, obj["Bool"]);
-            Assert.Equal(JsonValueKind.Null, obj["Null"].ValueKind);
-            Assert.Equal(new JsonArray(new[] { 1, 2 }), obj["Array"]);
-            Assert.NotNull(obj["Object"]);
-            Assert.Equal(1, ((JsonObject)obj["Object"])["Id"]);
+            Assert.All(new[] {obj1, obj2}, obj =>
+            {
+                Assert.NotNull(obj);
+                Assert.Equal("foo", obj["String"]);
+                Assert.Equal(12.12, ((JsonNumber) obj["Number"]).GetDouble(), 3);
+                Assert.Equal(true, obj["Bool"]);
+                Assert.Equal(JsonValueKind.Null, obj["Null"].ValueKind);
+                Assert.Equal(new JsonArray(new[] {1, 2}), obj["Array"]);
+                Assert.NotNull(obj["Object"]);
+                Assert.Equal(1, ((JsonObject) obj["Object"])["Id"]);
+            });
         }
 
         [Fact]
