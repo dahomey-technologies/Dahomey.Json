@@ -8,7 +8,12 @@ using Xunit;
 
 namespace Dahomey.Json.Tests
 {
-    public class BaseObjectHolder
+    public class BaseBaseObjectHolder
+    {
+
+    }
+
+    public class BaseObjectHolder : BaseBaseObjectHolder
     {
         public BaseObject BaseObject { get; set; }
         public NameObject NameObject { get; set; }
@@ -57,7 +62,7 @@ namespace Dahomey.Json.Tests
             registry.RegisterConvention(new AttributeBasedDiscriminatorConvention<int>(options));
             registry.RegisterType<NameObject>();
 
-            object obj = JsonSerializer.Deserialize<object>(json, options);
+            BaseBaseObjectHolder obj = JsonSerializer.Deserialize<BaseBaseObjectHolder>(json, options);
 
             Assert.NotNull(obj);
             Assert.IsType<BaseObjectHolder>(obj);

@@ -25,6 +25,11 @@ namespace Dahomey.Json.Serialization.Converters.Factories
                 return CreateGenericConverter(options, typeof(NullableConverter<>), Nullable.GetUnderlyingType(typeToConvert));
             }
 
+            if (typeToConvert == typeof(object))
+            {
+                return new BaseObjectConverter();
+            }
+
             return CreateGenericConverter(options, typeof(ObjectConverter<>), typeToConvert);
         }
     }
