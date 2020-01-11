@@ -11,7 +11,7 @@ namespace System.Text.Json
     /// <summary>
     ///  Represents a mutable JSON object.
     /// </summary>
-    public sealed class JsonObject : JsonNode, IEnumerable<KeyValuePair<string, JsonNode>>
+    public sealed partial class JsonObject : JsonNode, IEnumerable<KeyValuePair<string, JsonNode>>
     {
         internal readonly Dictionary<string, JsonObjectProperty> _dictionary;
         internal JsonObjectProperty _first;

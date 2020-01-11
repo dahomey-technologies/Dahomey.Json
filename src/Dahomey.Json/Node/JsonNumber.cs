@@ -9,7 +9,7 @@ namespace System.Text.Json
     /// <summary>
     ///   Represents a mutable numeric JSON value.
     /// </summary>
-    public sealed class JsonNumber : JsonNode, IEquatable<JsonNumber>
+    public sealed partial class JsonNumber : JsonNode, IEquatable<JsonNumber>
     {
         private string _value;
 
