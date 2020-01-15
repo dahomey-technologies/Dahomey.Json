@@ -11,12 +11,17 @@ namespace Dahomey.Json.Util
 
         static Utf8JsonWriterExtensions()
         {
-            MethodInfo method = typeof(Utf8JsonWriter).GetMethod(
+            MethodInfo? method = typeof(Utf8JsonWriter).GetMethod(
                 nameof(Utf8JsonWriter.WriteNumberValue),
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
                 new[] { typeof(ReadOnlySpan<byte>) },
                 null);
+
+            if (method == null)
+            {
+                throw new JsonException("Unexpected");
+            }
 
             s_writeFormatedNmberValueFunc = 
                 (WriteFormatedNumberValueFuncDelegate)method

@@ -32,7 +32,13 @@ namespace Dahomey.Json.Serialization.Converters.Factories
         {
             if (typeToConvert.IsArray)
             {
-                Type itemType = typeToConvert.GetElementType();
+                Type? itemType = typeToConvert.GetElementType();
+
+                if (itemType == null)
+                {
+                    throw new JsonException("Unexpected");
+                }
+
                 return CreateGenericConverter(
                     options,
                     typeof(ArrayConverter<>), itemType);

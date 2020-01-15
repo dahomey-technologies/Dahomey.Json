@@ -30,7 +30,6 @@ namespace Dahomey.Json.Util
                 ArrayPool<T>.Shared.Return(_buffer);
             }
 
-            _buffer = null;
             _size = 0;
         }
 

@@ -18,7 +18,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             Type type = objectMapping.ObjectType;
             List<MemberMapping<T>> memberMappings = new List<MemberMapping<T>>();
 
-            JsonDiscriminatorAttribute discriminatorAttribute = type.GetCustomAttribute<JsonDiscriminatorAttribute>();
+            JsonDiscriminatorAttribute? discriminatorAttribute = type.GetCustomAttribute<JsonDiscriminatorAttribute>();
 
             if (discriminatorAttribute != null)
             {
@@ -26,10 +26,17 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 objectMapping.SetDiscriminatorPolicy(discriminatorAttribute.Policy);
             }
 
-            Type namingPolicyType = type.GetCustomAttribute<JsonNamingPolicyAttribute>()?.NamingPolicyType;
+            Type? namingPolicyType = type.GetCustomAttribute<JsonNamingPolicyAttribute>()?.NamingPolicyType;
             if (namingPolicyType != null)
             {
-                objectMapping.SetPropertyNamingPolicy((JsonNamingPolicy)Activator.CreateInstance(namingPolicyType));
+                JsonNamingPolicy? namingPolicy = (JsonNamingPolicy?)Activator.CreateInstance(namingPolicyType);
+
+                if (namingPolicy == null)
+                {
+                    throw new JsonException($"Cannot instantiate naming policy {namingPolicyType}");
+                }
+
+                objectMapping.SetPropertyNamingPolicy(namingPolicy);
             }
 
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
@@ -48,7 +55,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                     continue;
                 }
 
-                if ((propertyInfo.GetMethod.IsPrivate || propertyInfo.GetMethod.IsStatic)
+                MethodInfo? getMethod = propertyInfo.GetMethod;
+
+                if (getMethod == null)
+                {
+                    continue;
+                }
+
+                if ((getMethod.IsPrivate || getMethod.IsStatic)
                     && !propertyInfo.IsDefined(typeof(JsonPropertyNameAttribute))
                     && !propertyInfo.IsDefined(typeof(JsonPropertyAttribute)))
                 {
@@ -100,9 +114,9 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             if (constructorInfo != null)
             {
-                JsonConstructorAttribute constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
+                JsonConstructorAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
                 CreatorMapping creatorMapping = objectMapping.MapCreator(constructorInfo);
-                if (constructorAttribute.MemberNames != null)
+                if (constructorAttribute != null && constructorAttribute.MemberNames != null)
                 {
                     creatorMapping.SetMemberNames(constructorAttribute.MemberNames);
                 }
@@ -122,7 +136,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
             else if (type.GetInterfaces().Any(i => i == typeof(ISupportInitialize)))
             {
-                objectMapping.SetOnDeserializingMethod(t => ((ISupportInitialize)t).BeginInit());
+                objectMapping.SetOnDeserializingMethod(t => ((ISupportInitialize?)t)?.BeginInit());
             }
 
             methodInfo = type.GetMethods()
@@ -133,7 +147,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
             else if (type.GetInterfaces().Any(i => i == typeof(ISupportInitialize)))
             {
-                objectMapping.SetOnDeserializedMethod(t => ((ISupportInitialize)t).EndInit());
+                objectMapping.SetOnDeserializedMethod(t => ((ISupportInitialize?)t)?.EndInit());
             }
 
             methodInfo = type.GetMethods()
@@ -153,7 +167,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessDefaultValue<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            DefaultValueAttribute defaultValueAttribute = memberInfo.GetCustomAttribute<DefaultValueAttribute>();
+            DefaultValueAttribute? defaultValueAttribute = memberInfo.GetCustomAttribute<DefaultValueAttribute>();
             if (defaultValueAttribute != null)
             {
                 memberMapping.SetDefaultValue(defaultValueAttribute.Value);
@@ -168,9 +182,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         private void ProcessShouldSerializeMethod<T>(MemberMapping<T> memberMapping)
         {
             string shouldSerializeMethodName = "ShouldSerialize" + memberMapping.MemberInfo.Name;
-            Type objectType = memberMapping.MemberInfo.DeclaringType;
+            Type? objectType = memberMapping.MemberInfo.DeclaringType;
 
-            MethodInfo shouldSerializeMethodInfo = objectType.GetMethod(shouldSerializeMethodName, new Type[] { });
+            if (objectType == null)
+            {
+                return;
+            }
+
+            MethodInfo? shouldSerializeMethodInfo = objectType.GetMethod(shouldSerializeMethodName, new Type[] { });
             if (shouldSerializeMethodInfo != null &&
                 shouldSerializeMethodInfo.IsPublic &&
                 shouldSerializeMethodInfo.ReturnType == typeof(bool))
@@ -189,7 +208,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessRequired<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            JsonRequiredAttribute jsonRequiredAttribute = memberInfo.GetCustomAttribute<JsonRequiredAttribute>();
+            JsonRequiredAttribute? jsonRequiredAttribute = memberInfo.GetCustomAttribute<JsonRequiredAttribute>();
             if (jsonRequiredAttribute != null)
             {
                 memberMapping.SetRequired(jsonRequiredAttribute.Policy);
@@ -198,7 +217,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessMemberName<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            JsonPropertyNameAttribute jsonPropertyNameAttribute = memberInfo.GetCustomAttribute<JsonPropertyNameAttribute>();
+            JsonPropertyNameAttribute? jsonPropertyNameAttribute = memberInfo.GetCustomAttribute<JsonPropertyNameAttribute>();
             if (jsonPropertyNameAttribute != null)
             {
                 memberMapping.SetMemberName(jsonPropertyNameAttribute.Name);
@@ -207,12 +226,19 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessConverter<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            JsonConverterAttribute converterAttribute = memberInfo.GetCustomAttribute<JsonConverterAttribute>();
+            JsonConverterAttribute? converterAttribute = memberInfo.GetCustomAttribute<JsonConverterAttribute>();
             if (converterAttribute != null)
             {
                 Type converterType = converterAttribute.ConverterType;
 
-                memberMapping.SetConverter((JsonConverter)Activator.CreateInstance(converterType));
+                JsonConverter? converter = (JsonConverter?)Activator.CreateInstance(converterType);
+
+                if (converter == null)
+                {
+                    throw new JsonException($"Cannot instantiate {converterType}");
+                }
+
+                memberMapping.SetConverter(converter);
             }
         }
 

@@ -8,6 +8,7 @@ using System.Text.Json;
 namespace Dahomey.Json.Serialization.Converters.DictionaryKeys
 {
     public class EnumDictionaryKeyConverter<T> : IDictionaryKeyConverter<T>
+        where T : notnull
     {
         private readonly ByteBufferDictionary<T> _names2Values = new ByteBufferDictionary<T>();
         private readonly Dictionary<T, ReadOnlyMemory<byte>> _values2Names = new Dictionary<T, ReadOnlyMemory<byte>>();

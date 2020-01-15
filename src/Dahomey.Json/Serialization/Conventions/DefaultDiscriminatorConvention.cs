@@ -53,7 +53,7 @@ namespace Dahomey.Json.Serialization.Conventions
         {
             string[] parts = name.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-            string assemblyName;
+            string? assemblyName;
             string typeName;
 
             switch(parts.Length)
@@ -76,11 +76,10 @@ namespace Dahomey.Json.Serialization.Conventions
             if (!string.IsNullOrEmpty(assemblyName))
             {
                 Assembly assembly = Assembly.Load(assemblyName);
-                Type type = assembly.GetType(typeName);
-                return type;
+                return assembly.GetType(typeName) ?? throw new JsonException($"Cannot get type from {name}");
             }
 
-            return Type.GetType(typeName);
+            return Type.GetType(typeName) ?? throw new JsonException($"Cannot get type from {name}");
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Dahomey.Json.Serialization
         {
             get
             {
-                SerializationContext context = _current.Value;
+                SerializationContext? context = _current.Value;
                 if (context == null)
                 {
                     context = new SerializationContext();

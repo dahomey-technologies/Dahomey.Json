@@ -3,6 +3,7 @@ using Dahomey.Json.Serialization.Conventions;
 using System;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Converters.Mappings
@@ -12,15 +13,15 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         private readonly DiscriminatorConventionRegistry _discriminatorConventionRegistry;
         private readonly IObjectMapping _objectMapping;
 
-        public MemberInfo MemberInfo => null;
-        public Type MemberType => null;
-        public string MemberName { get; private set; }
-        public JsonConverter Converter => null;
+        public MemberInfo? MemberInfo => null;
+        public Type MemberType => throw new NotSupportedException();
+        public string? MemberName { get; private set; }
+        public JsonConverter? Converter => null;
         public bool CanBeDeserialized => false;
         public bool CanBeSerialized => true;
-        public object DefaultValue => null;
+        public object? DefaultValue => null;
         public bool IgnoreIfDefault => false;
-        public Func<object, bool> ShouldSerializeMethod => null;
+        public Func<object, bool>? ShouldSerializeMethod => null;
         public RequirementPolicy RequirementPolicy => RequirementPolicy.Never;
 
         public DiscriminatorMapping(DiscriminatorConventionRegistry discriminatorConventionRegistry, 
@@ -36,7 +37,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public void PostInitialize()
         {
-            IDiscriminatorConvention discriminatorConvention = _discriminatorConventionRegistry.GetConvention(_objectMapping.ObjectType);
+            IDiscriminatorConvention? discriminatorConvention = _discriminatorConventionRegistry.GetConvention(_objectMapping.ObjectType);
             if (discriminatorConvention != null)
             {
                 MemberName = Encoding.UTF8.GetString(discriminatorConvention.MemberName);
@@ -45,7 +46,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public IMemberConverter GenerateMemberConverter()
         {
-            IDiscriminatorConvention discriminatorConvention = _discriminatorConventionRegistry.GetConvention(_objectMapping.ObjectType);
+            IDiscriminatorConvention? discriminatorConvention = _discriminatorConventionRegistry.GetConvention(_objectMapping.ObjectType);
+
+            if (discriminatorConvention == null)
+            {
+                throw new JsonException($"Cannot find a discriminator convention for type {_objectMapping.ObjectType}");
+            }
 
             IMemberConverter memberConverter = new DiscriminatorMemberConverter<T>(
                 discriminatorConvention, _objectMapping.DiscriminatorPolicy);

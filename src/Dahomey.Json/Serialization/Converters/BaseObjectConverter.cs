@@ -6,9 +6,9 @@ using System.Text.Json.Serialization;
 
 namespace Dahomey.Json.Serialization.Converters
 {
-    public class BaseObjectConverter : JsonConverter<object>
+    public class BaseObjectConverter : JsonConverter<object?>
     {
-        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             switch (reader.TokenType)
             {
@@ -57,7 +57,7 @@ namespace Dahomey.Json.Serialization.Converters
             throw new JsonException();
         }
 
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, object? value, JsonSerializerOptions options)
         {
             if (value == null)
             {
@@ -66,7 +66,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
 
             JsonConverter jsonConverter = options.GetConverter(value.GetType());
-            jsonConverter.GetType().GetMethod("Write").Invoke(jsonConverter, new object[] { writer, value, options });
+            jsonConverter.GetType().GetMethod("Write")!.Invoke(jsonConverter, new object[] { writer, value, options });
         }
     }
 }

@@ -17,15 +17,25 @@ namespace Dahomey.Json.Serialization.Converters.DictionaryKeys
 
         public Utf8DictionaryKeyConverter()
         {
-            MethodInfo tryParseMethod = typeof(Utf8Parser).GetMethod(
+            MethodInfo? tryParseMethod = typeof(Utf8Parser).GetMethod(
                 nameof(Utf8Parser.TryParse),
                 new[] { typeof(ReadOnlySpan<byte>), typeof(T).MakeByRefType(), typeof(int).MakeByRefType(), typeof(char) });
 
+            if (tryParseMethod == null)
+            {
+                throw new JsonException($"Cannot find method Utf8Parser.TryParse for type {typeof(T)}");
+            }
+
             _tryParseFunc = (TryParseDelegate)tryParseMethod.CreateDelegate(typeof(TryParseDelegate));
 
-            MethodInfo tryFormatMethod = typeof(Utf8Formatter).GetMethod(
+            MethodInfo? tryFormatMethod = typeof(Utf8Formatter).GetMethod(
                 nameof(Utf8Formatter.TryFormat),
                 new[] { typeof(T), typeof(Span<byte>), typeof(int).MakeByRefType(), typeof(StandardFormat) });
+
+            if (tryFormatMethod == null)
+            {
+                throw new JsonException($"Cannot find method Utf8Parser.TryFormat for type {typeof(T)}");
+            }
 
             _tryFormatFunc = (TryFormatDelegate)tryFormatMethod.CreateDelegate(typeof(TryFormatDelegate));
         }

@@ -1,5 +1,7 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 
+[assembly: CLSCompliant(true)]
 namespace Dahomey.Json
 {
     public static class JsonSerializerExtensions

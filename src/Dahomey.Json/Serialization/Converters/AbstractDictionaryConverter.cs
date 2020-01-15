@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 namespace Dahomey.Json.Serialization.Converters
 {
     public abstract class AbstractDictionaryConverter<TC, TK, TV> : AbstractJsonConverter<TC>
+        where TK : notnull
         where TC : IDictionary<TK, TV>
     {
         private readonly IDictionaryKeyConverter<TK> _keyConverter;
@@ -31,10 +32,10 @@ namespace Dahomey.Json.Serialization.Converters
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
-                return default(TC);
+                return default!;
             }
 
-            TC collection = default;
+            TC collection = default!;
 
             Read(ref reader, ref collection, options);
 

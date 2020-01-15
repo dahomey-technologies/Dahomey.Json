@@ -7,7 +7,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     {
         private static readonly StandardObjectMappingConvention _standardObjectMappingConvention = new StandardObjectMappingConvention();
 
-        public IObjectMappingConvention GetConvention(Type type)
+        public IObjectMappingConvention? GetConvention(Type type)
         {
             if (type.IsDefined(typeof(DataContractAttribute), inherit: false))
             {

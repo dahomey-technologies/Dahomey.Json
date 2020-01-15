@@ -20,9 +20,11 @@ namespace Dahomey.Json.Serialization.Converters.Factories
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            if (Nullable.GetUnderlyingType(typeToConvert) != null)
+            Type? nullableUnderlyingType = Nullable.GetUnderlyingType(typeToConvert);
+
+            if (nullableUnderlyingType != null)
             {
-                return CreateGenericConverter(options, typeof(NullableConverter<>), Nullable.GetUnderlyingType(typeToConvert));
+                return CreateGenericConverter(options, typeof(NullableConverter<>), nullableUnderlyingType);
             }
 
             if (typeToConvert == typeof(object))

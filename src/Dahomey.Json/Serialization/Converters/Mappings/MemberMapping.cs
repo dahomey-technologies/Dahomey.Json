@@ -15,13 +15,13 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public MemberInfo MemberInfo { get; private set; }
         public Type MemberType { get; private set; }
-        public string MemberName { get; private set; }
-        public JsonConverter Converter { get; private set; }
+        public string? MemberName { get; private set; }
+        public JsonConverter? Converter { get; private set; }
         public bool CanBeDeserialized { get; private set; }
         public bool CanBeSerialized { get; private set; }
-        public object DefaultValue { get; private set; }
+        public object? DefaultValue { get; private set; }
         public bool IgnoreIfDefault { get; private set; }
-        public Func<object, bool> ShouldSerializeMethod { get; private set; }
+        public Func<object, bool>? ShouldSerializeMethod { get; private set; }
         public RequirementPolicy RequirementPolicy { get; private set; }
 
         public MemberMapping(JsonSerializerOptions options,
@@ -46,7 +46,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             return this;
         }
 
-        public MemberMapping<T> SetDefaultValue(object defaultValue)
+        public MemberMapping<T> SetDefaultValue(object? defaultValue)
         {
             DefaultValue = defaultValue;
             return this;
@@ -94,14 +94,28 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             if (typeof(T).IsStruct())
             {
-                return (IMemberConverter)Activator.CreateInstance(
-                    typeof(StructMemberConverter<,>).MakeGenericType(typeof(T), MemberType),
-                    _options, this);
+                Type structMemberConverterType = typeof(StructMemberConverter<,>).MakeGenericType(typeof(T), MemberType);
+                IMemberConverter? structMemberConverter =
+                    (IMemberConverter?)Activator.CreateInstance(structMemberConverterType, _options, this);
+
+                if (structMemberConverter == null)
+                {
+                    throw new JsonException($"Cannot instantiate {structMemberConverterType}");
+                }
+
+                return structMemberConverter;
             }
 
-            return (IMemberConverter)Activator.CreateInstance(
-            typeof(MemberConverter<,>).MakeGenericType(typeof(T), MemberType),
-            _options, this);
+            Type memberConverterType = typeof(MemberConverter<,>).MakeGenericType(typeof(T), MemberType);
+            IMemberConverter? memberConverter =
+                (IMemberConverter?)Activator.CreateInstance(memberConverterType, _options, this);
+
+            if (memberConverter == null)
+            {
+                throw new JsonException($"Cannot instantiate {memberConverterType}");
+            }
+
+            return memberConverter;
         }
 
         private void InitializeMemberName()
@@ -140,7 +154,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                     CanBeDeserialized = (propertyInfo.CanWrite
                         || _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Read
                             || (_forceDeserialize && _options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default))
-                        && !propertyInfo.GetMethod.IsStatic;
+                        && propertyInfo.GetMethod != null && !propertyInfo.GetMethod.IsStatic;
                     break;
 
                 case FieldInfo fieldInfo:
@@ -176,7 +190,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             Type jsonConverterType = typeof(JsonConverter<>).MakeGenericType(MemberType);
             if (!jsonConverterType.IsAssignableFrom(memberConverterType))
             {
-                throw new JsonException($"Custom converter on member {MemberInfo.ReflectedType.Name}.{MemberInfo.Name} is not a JsonConverter<{MemberType.Name}>");
+                throw new JsonException($"Custom converter on member {MemberInfo.ReflectedType?.Name}.{MemberInfo.Name} is not a JsonConverter<{MemberType.Name}>");
             }
         }
 

@@ -16,7 +16,7 @@ namespace Dahomey.Json.Serialization.Converters
     {
         ReadOnlySpan<byte> MemberName { get; }
         bool IgnoreIfDefault { get; }
-        string MemberNameAsString { get; }
+        string? MemberNameAsString { get; }
         RequirementPolicy RequirementPolicy { get; }
 
         void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options);
@@ -36,13 +36,13 @@ namespace Dahomey.Json.Serialization.Converters
     public class MemberConverter<T, TM> : IMemberConverter 
         where T : class
     {
-        private readonly Func<T, TM> _memberGetter;
-        private readonly Action<T, TM> _memberSetter;
+        private readonly Func<T, TM>? _memberGetter;
+        private readonly Action<T, TM>? _memberSetter;
         private readonly JsonConverter<TM> _jsonConverter;
         private readonly ReadOnlyMemory<byte> _memberName;
         private readonly TM _defaultValue;
         private readonly bool _ignoreIfDefault;
-        private readonly Func<object, bool> _shouldSerializeMethod;
+        private readonly Func<object, bool>? _shouldSerializeMethod;
         private readonly RequirementPolicy _requirementPolicy;
         private readonly bool _isClass = typeof(TM).IsClass;
         private readonly bool _canBeNull = typeof(TM).IsClass || Nullable.GetUnderlyingType(typeof(TM)) != null;
@@ -55,17 +55,24 @@ namespace Dahomey.Json.Serialization.Converters
 
         public MemberConverter(JsonSerializerOptions options, IMemberMapping memberMapping)
         {
-            MemberNameAsString = memberMapping.MemberName;
+            MemberInfo? memberInfo = memberMapping.MemberInfo;
+
+            if (memberInfo == null)
+            {
+                throw new JsonException("MemberInfo must not be null");
+            }
+
+            MemberNameAsString = memberMapping.MemberName!;
             _memberName = Encoding.UTF8.GetBytes(MemberNameAsString);
-            _memberGetter = GenerateGetter(memberMapping.MemberInfo);
-            _memberSetter = GenerateSetter(memberMapping.MemberInfo);
-            _jsonConverter = (JsonConverter<TM>)memberMapping.Converter;
-            _defaultValue = (TM)memberMapping.DefaultValue;
+            _memberGetter = GenerateGetter(memberInfo);
+            _memberSetter = GenerateSetter(memberInfo);
+            _jsonConverter = (JsonConverter<TM>)memberMapping.Converter!;
+            _defaultValue = (TM)memberMapping.DefaultValue!;
             _ignoreIfDefault = memberMapping.IgnoreIfDefault;
             _shouldSerializeMethod = memberMapping.ShouldSerializeMethod;
             _requirementPolicy = memberMapping.RequirementPolicy;
             _deserializableReadOnlyProperty = options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Read
-                || (memberMapping.MemberInfo.IsDefined(typeof(JsonDeserializeAttribute)) && options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default);
+                || (memberInfo.IsDefined(typeof(JsonDeserializeAttribute)) && options.GetReadOnlyPropertyHandling() == ReadOnlyPropertyHandling.Default);
         }
 
         public void Read(ref Utf8JsonReader reader, object obj, JsonSerializerOptions options)
@@ -85,6 +92,11 @@ namespace Dahomey.Json.Serialization.Converters
 
             if (_deserializableReadOnlyProperty && _memberSetter == null)
             {
+                if (_memberGetter == null)
+                {
+                    throw new JsonException($"No member getter for '{MemberNameAsString}'");
+                }
+
                 TM value = _memberGetter((T)obj);
 
                 if (value == null)
@@ -96,12 +108,22 @@ namespace Dahomey.Json.Serialization.Converters
             }
             else
             {
+                if (_memberSetter == null)
+                {
+                    throw new JsonException($"No member setter for '{MemberNameAsString}'");
+                }
+
                 _memberSetter((T)obj, _jsonConverter.Read(ref reader, typeof(TM), options));
             }
         }
 
         public void Write(Utf8JsonWriter writer, object obj, JsonSerializerOptions options)
         {
+            if (_memberGetter == null)
+            {
+                throw new JsonException($"No member getter for '{MemberNameAsString}'");
+            }
+
             TM value = _memberGetter((T)obj);
 
             if (_isClass && value == null && (_requirementPolicy == RequirementPolicy.DisallowNull
@@ -115,7 +137,7 @@ namespace Dahomey.Json.Serialization.Converters
 
         public object Read(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            return _jsonConverter.Read(ref reader, typeof(TM), options);
+            return _jsonConverter.Read(ref reader, typeof(TM), options)!;
         }
 
         public void Set(object obj, object value, JsonSerializerOptions options)
@@ -132,11 +154,21 @@ namespace Dahomey.Json.Serialization.Converters
                 }
             }
 
-            _memberSetter((T)obj, (TM)value);
+            if (_memberSetter == null)
+            {
+                throw new JsonException($"No member setter for '{MemberNameAsString}'");
+            }
+
+            _memberSetter((T)obj, (TM)value!);
         }
 
         public bool ShouldSerialize(object obj, Type declaredType, JsonSerializerOptions options)
         {
+            if (_memberGetter == null)
+            {
+                throw new JsonException($"No member getter for '{MemberNameAsString}'");
+            }
+
             if (options.IgnoreNullValues && _canBeNull && _memberGetter((T)obj) == null)
             {
                 return false;
@@ -155,12 +187,12 @@ namespace Dahomey.Json.Serialization.Converters
             return true;
         }
 
-        private Func<T, TM> GenerateGetter(MemberInfo memberInfo)
+        private Func<T, TM>? GenerateGetter(MemberInfo memberInfo)
         {
             switch (memberInfo)
             {
                 case PropertyInfo propertyInfo:
-                    if (propertyInfo.GetMethod.IsStatic)
+                    if (propertyInfo.GetMethod != null && propertyInfo.GetMethod.IsStatic)
                     {
                         if (!propertyInfo.CanRead)
                         {
@@ -185,12 +217,12 @@ namespace Dahomey.Json.Serialization.Converters
             }
         }
 
-        private Action<T, TM> GenerateSetter(MemberInfo memberInfo)
+        private Action<T, TM>? GenerateSetter(MemberInfo memberInfo)
         {
             switch (memberInfo)
             {
                 case PropertyInfo propertyInfo:
-                    if (!propertyInfo.CanWrite || propertyInfo.SetMethod.IsStatic)
+                    if (!propertyInfo.CanWrite || (propertyInfo.SetMethod != null && propertyInfo.SetMethod.IsStatic))
                     {
                         return null;
                     }
@@ -214,8 +246,8 @@ namespace Dahomey.Json.Serialization.Converters
     public class StructMemberConverter<T, TM> : IMemberConverter, IMemberConverter<T>
         where T : struct
     {
-        private readonly StructMemberGetterDelegate<T, TM> _memberGetter;
-        private readonly StructMemberSetterDelegate<T, TM> _memberSetter;
+        private readonly StructMemberGetterDelegate<T, TM>? _memberGetter;
+        private readonly StructMemberSetterDelegate<T, TM>? _memberSetter;
         private readonly JsonConverter<TM> _jsonConverter;
         private readonly ReadOnlyMemory<byte> _memberName;
         private readonly TM _defaultValue;
@@ -231,12 +263,19 @@ namespace Dahomey.Json.Serialization.Converters
 
         public StructMemberConverter(JsonSerializerOptions options, IMemberMapping memberMapping)
         {
-            MemberNameAsString = memberMapping.MemberName;
+            MemberInfo? memberInfo = memberMapping.MemberInfo;
+
+            if (memberInfo == null)
+            {
+                throw new JsonException("MemberInfo must not be null");
+            }
+
+            MemberNameAsString = memberMapping.MemberName!;
             _memberName = Encoding.UTF8.GetBytes(MemberNameAsString);
-            _memberGetter = GenerateGetter(memberMapping.MemberInfo);
-            _memberSetter = GenerateSetter(memberMapping.MemberInfo);
-            _jsonConverter = (JsonConverter<TM>)memberMapping.Converter;
-            _defaultValue = (TM)memberMapping.DefaultValue;
+            _memberGetter = GenerateGetter(memberInfo);
+            _memberSetter = GenerateSetter(memberInfo);
+            _jsonConverter = (JsonConverter<TM>)memberMapping.Converter!;
+            _defaultValue = (TM)memberMapping.DefaultValue!;
             _ignoreIfDefault = memberMapping.IgnoreIfDefault;
             _requirementPolicy = memberMapping.RequirementPolicy;
         }
@@ -253,7 +292,7 @@ namespace Dahomey.Json.Serialization.Converters
 
         public object Read(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            return _jsonConverter.Read(ref reader, typeof(TM), options);
+            return _jsonConverter.Read(ref reader, typeof(TM), options)!;
         }
 
         public void Set(object obj, object value, JsonSerializerOptions options)
@@ -281,11 +320,21 @@ namespace Dahomey.Json.Serialization.Converters
                 }
             }
 
+            if (_memberSetter == null)
+            {
+                throw new JsonException($"No member setter for '{MemberNameAsString}'");
+            }
+
             _memberSetter(ref instance, _jsonConverter.Read(ref reader, typeof(TM), options));
         }
 
         public void Write(Utf8JsonWriter writer, ref T instance, JsonSerializerOptions options)
         {
+            if (_memberGetter == null)
+            {
+                throw new JsonException($"No member getter for '{MemberNameAsString}'");
+            }
+
             TM value = _memberGetter(ref instance);
 
             if (_isClass && value == null && (_requirementPolicy == RequirementPolicy.DisallowNull
@@ -299,6 +348,11 @@ namespace Dahomey.Json.Serialization.Converters
 
         public bool ShouldSerialize(ref T instance, Type declaredType, JsonSerializerOptions options)
         {
+            if (_memberGetter == null)
+            {
+                throw new JsonException($"No member getter for '{MemberNameAsString}'");
+            }
+
             if (options.IgnoreNullValues && _canBeNull && _memberGetter(ref instance) == null)
             {
                 return false;
@@ -312,12 +366,12 @@ namespace Dahomey.Json.Serialization.Converters
             return true;
         }
 
-        private StructMemberGetterDelegate<T, TM> GenerateGetter(MemberInfo memberInfo)
+        private StructMemberGetterDelegate<T, TM>? GenerateGetter(MemberInfo memberInfo)
         {
             switch (memberInfo)
             {
                 case PropertyInfo propertyInfo:
-                    if (propertyInfo.GetMethod.IsStatic)
+                    if (propertyInfo.GetMethod != null && propertyInfo.GetMethod.IsStatic)
                     {
                         if (!propertyInfo.CanRead)
                         {
@@ -342,12 +396,12 @@ namespace Dahomey.Json.Serialization.Converters
             }
         }
 
-        private StructMemberSetterDelegate<T, TM> GenerateSetter(MemberInfo memberInfo)
+        private StructMemberSetterDelegate<T, TM>? GenerateSetter(MemberInfo memberInfo)
         {
             switch (memberInfo)
             {
                 case PropertyInfo propertyInfo:
-                    if (!propertyInfo.CanWrite || propertyInfo.SetMethod.IsStatic)
+                    if (!propertyInfo.CanWrite || (propertyInfo.SetMethod != null && propertyInfo.SetMethod.IsStatic))
                     {
                         return null;
                     }
@@ -375,7 +429,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly ReadOnlyMemory<byte> _memberName;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
-        public string MemberNameAsString { get; private set; }
+        public string? MemberNameAsString { get; private set; }
         public bool IgnoreIfDefault => false;
         public RequirementPolicy RequirementPolicy => RequirementPolicy.Never;
 

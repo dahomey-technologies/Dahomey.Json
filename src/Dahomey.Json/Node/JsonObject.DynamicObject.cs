@@ -6,7 +6,7 @@ namespace System.Text.Json
     {
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            if (!TryGetPropertyValue(binder.Name, out JsonNode jsonNode))
+            if (!TryGetPropertyValue(binder.Name, out JsonNode? jsonNode))
             {
                 return base.TryGetMember(binder, out result);
             }

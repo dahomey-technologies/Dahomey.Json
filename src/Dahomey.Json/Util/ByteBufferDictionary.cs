@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -11,13 +12,13 @@ namespace Dahomey.Json.Util
         private class Node
         {
             public ulong key;
-            public T value;
-            public NodeCollection next;
+            public T value = default!;
+            public NodeCollection? next;
         }
 
         private class NodeCollection
         {
-            private Node[] _nodes;
+            private Node[]? _nodes;
 
             public void Add(Node node)
             {
@@ -52,11 +53,11 @@ namespace Dahomey.Json.Util
                 _nodes = nodes;
             }
 
-            public bool TryGetValue(ulong key, out Node node)
+            public bool TryGetValue(ulong key, [MaybeNullWhen(false)] out Node node)
             {
                 if (_nodes == null)
                 {
-                    node = null;
+                    node = null!;
                     return false;
                 }
 
@@ -64,7 +65,7 @@ namespace Dahomey.Json.Util
 
                 if (index < 0)
                 {
-                    node = null;
+                    node = null!;
                     return false;
                 }
 
@@ -74,6 +75,11 @@ namespace Dahomey.Json.Util
 
             private unsafe int BinarySearch(ulong key)
             {
+                if (_nodes == null)
+                {
+                    return ~0;
+                }
+
                 int lo = 0;
                 int hi = _nodes.Length - 1;
 
@@ -119,7 +125,7 @@ namespace Dahomey.Json.Util
 
             foreach (ulong segment in segments)
             {
-                Node node;
+                Node? node;
 
                 if (last.next == null)
                 {
@@ -137,9 +143,9 @@ namespace Dahomey.Json.Util
             last.value = value;
         }
 
-        public bool TryGetValue(ReadOnlySpan<byte> key, out T value)
+        public bool TryGetValue(ReadOnlySpan<byte> key, [MaybeNullWhen(false)] out T value)
         {
-            Node node;
+            Node? node;
             int len = key.Length;
 
             if (len <= 8)
@@ -153,7 +159,7 @@ namespace Dahomey.Json.Util
 
                 if (_root.next == null || !_root.next.TryGetValue(singleKey, out node))
                 {
-                    value = default;
+                    value = default!;
                     return false;
                 }
             }
@@ -167,7 +173,7 @@ namespace Dahomey.Json.Util
                 {
                     if (node.next == null || !node.next.TryGetValue(segment, out node))
                     {
-                        value = default;
+                        value = default!;
                         return false;
                     }
                 }

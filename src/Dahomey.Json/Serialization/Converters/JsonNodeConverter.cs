@@ -84,6 +84,7 @@ namespace Dahomey.Json.Serialization.Converters
             if (value == null)
             {
                 writer.WriteNullValue();
+                return;
             }
 
             switch (value.ValueKind)

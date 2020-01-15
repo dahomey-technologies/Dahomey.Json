@@ -81,7 +81,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private IObjectMappingConvention CreateConvention(Type type)
         {
-            IObjectMappingConvention convention = _providers
+            IObjectMappingConvention? convention = _providers
                 .Select(provider => provider.GetConvention(type))
                 .FirstOrDefault(provider => provider != null);
 

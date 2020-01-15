@@ -15,6 +15,7 @@ namespace Dahomey.Json.Serialization.Converters.DictionaryKeys
         }
 
         public IDictionaryKeyConverter<T> GetDictionaryKeyConverter<T>()
+             where T : notnull
         {
             return (IDictionaryKeyConverter<T>)_dictionaryKeyConverters
                 .GetOrAdd(typeof(T), t => GenerateDictionaryKeyConverter<T>());
@@ -26,6 +27,7 @@ namespace Dahomey.Json.Serialization.Converters.DictionaryKeys
         }
 
         private IDictionaryKeyConverter<T> GenerateDictionaryKeyConverter<T>()
+            where T : notnull
         {
             Type type = typeof(T);
 

@@ -5,7 +5,7 @@ namespace Dahomey.Json.Util
 {
     public static class TypeExtensions
     {
-        public static object GetDefaultValue(this Type type)
+        public static object? GetDefaultValue(this Type type)
         {
             if (type.IsClass)
             {

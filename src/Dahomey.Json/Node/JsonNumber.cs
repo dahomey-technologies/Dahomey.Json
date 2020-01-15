@@ -11,7 +11,7 @@ namespace System.Text.Json
     /// </summary>
     public sealed partial class JsonNumber : JsonNode, IEquatable<JsonNumber>
     {
-        private string _value;
+        private string _value = null!;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref="JsonNumber"/> class representing the value 0.
@@ -77,24 +77,28 @@ namespace System.Text.Json
         ///   Initializes a new instance of the <see cref="JsonNumber"/> class from a <see cref="sbyte"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public JsonNumber(sbyte value) => SetSByte(value);
 
         /// <summary>
         ///   Initializes a new instance of the <see cref="JsonNumber"/> class from a <see cref="ushort"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public JsonNumber(ushort value) => SetUInt16(value);
 
         /// <summary>
         ///   Initializes a new instance of the <see cref="JsonNumber"/> class from a <see cref="uint"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public JsonNumber(uint value) => SetUInt32(value);
 
         /// <summary>
         ///   Initializes a new instance of the <see cref="JsonNumber"/> class from a <see cref="ulong"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public JsonNumber(ulong value) => SetUInt64(value);
 
         /// <summary>
@@ -212,6 +216,7 @@ namespace System.Text.Json
         /// <exception cref="FormatException">
         ///   <see cref="JsonNumber"/> represents a number in a format not compliant with <see cref="sbyte"/>.
         /// </exception>
+        [CLSCompliant(false)]
         public sbyte GetSByte() => sbyte.Parse(_value);
 
         /// <summary>
@@ -224,6 +229,7 @@ namespace System.Text.Json
         /// <exception cref="FormatException">
         ///   <see cref="JsonNumber"/> represents a number in a format not compliant with <see cref="ushort"/>.
         /// </exception>
+        [CLSCompliant(false)]
         public ushort GetUInt16() => ushort.Parse(_value);
 
         /// <summary>
@@ -236,6 +242,7 @@ namespace System.Text.Json
         /// <exception cref="FormatException">
         ///   <see cref="JsonNumber"/> represents a number in a format not compliant with <see cref="uint"/>.
         /// </exception>
+        [CLSCompliant(false)]
         public uint GetUInt32() => uint.Parse(_value);
 
         /// <summary>
@@ -248,6 +255,7 @@ namespace System.Text.Json
         /// <exception cref="FormatException">
         ///   <see cref="JsonNumber"/> represents a number in a format not compliant with <see cref="ulong"/>.
         /// </exception>
+        [CLSCompliant(false)]
         public ulong GetUInt64() => ulong.Parse(_value);
 
         /// <summary>
@@ -370,6 +378,7 @@ namespace System.Text.Json
         ///  <see langword="true"/> if instance was converted successfully;
         ///  otherwise, <see langword="false"/>
         /// </returns>
+        [CLSCompliant(false)]
         public bool TryGetSByte(out sbyte value) => sbyte.TryParse(_value, out value);
 
         /// <summary>
@@ -384,6 +393,7 @@ namespace System.Text.Json
         ///  <see langword="true"/> if instance was converted successfully;
         ///  otherwise, <see langword="false"/>
         /// </returns>
+        [CLSCompliant(false)]
         public bool TryGetUInt16(out ushort value) => ushort.TryParse(_value, out value);
 
         /// <summary>
@@ -398,6 +408,7 @@ namespace System.Text.Json
         ///  <see langword="true"/> if instance was converted successfully;
         ///  otherwise, <see langword="false"/>
         /// </returns>
+        [CLSCompliant(false)]
         public bool TryGetUInt32(out uint value) => uint.TryParse(_value, out value);
 
         /// <summary>
@@ -412,6 +423,7 @@ namespace System.Text.Json
         ///  <see langword="true"/> if instance was converted successfully;
         ///  otherwise, <see langword="false"/>
         /// </returns>
+        [CLSCompliant(false)]
         public bool TryGetUInt64(out ulong value) => ulong.TryParse(_value, out value);
 
         /// <summary>
@@ -516,24 +528,28 @@ namespace System.Text.Json
         ///   Changes the numeric value of this instance to represent a specified <see cref="sbyte"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public void SetSByte(sbyte value) => _value = value.ToString();
 
         /// <summary>
         ///   Changes the numeric value of this instance to represent a specified <see cref="ushort"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public void SetUInt16(ushort value) => _value = value.ToString();
 
         /// <summary>
         ///   Changes the numeric value of this instance to represent a specified <see cref="uint"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public void SetUInt32(uint value) => _value = value.ToString();
 
         /// <summary>
         ///   Changes the numeric value of this instance to represent a specified <see cref="ulong"/> value.
         /// </summary>
         /// <param name="value">The value to represent as a JSON number.</param>
+        [CLSCompliant(false)]
         public void SetUInt64(ulong value) => _value = value.ToString();
 
         /// <summary>
@@ -550,7 +566,7 @@ namespace System.Text.Json
         ///   <see langword="true"/> if the value of this instance matches <paramref name="obj"/> exactly (is equal and has the same format),
         ///   <see langword="false"/> otherwise.
         /// </returns>
-        public override bool Equals(object obj) => obj is JsonNumber jsonNumber && Equals(jsonNumber);
+        public override bool Equals(object? obj) => obj is JsonNumber jsonNumber && Equals(jsonNumber);
 
         /// <summary>
         ///   Calculates a hash code of this instance.
@@ -566,7 +582,7 @@ namespace System.Text.Json
         ///   <see langword="true"/> if the value of this instance matches <paramref name="other"/> exactly (is equal and has the same format),
         ///   <see langword="false"/> otherwise.
         /// </returns>
-        public bool Equals(JsonNumber other) => !(other is null) && _value == other._value;
+        public bool Equals(JsonNumber? other) => !(other is null) && _value == other._value;
 
         /// <summary>
         ///   Compares values of two JSON numbers.
@@ -577,7 +593,7 @@ namespace System.Text.Json
         ///   <see langword="true"/> if values of instances match exactly (are equal and have the same format),
         ///   <see langword="false"/> otherwise.
         /// </returns>
-        public static bool operator ==(JsonNumber left, JsonNumber right)
+        public static bool operator ==(JsonNumber? left, JsonNumber? right)
         {
             // Test "right" first to allow branch elimination when inlined for null checks (== null)
             // so it can become a simple test
@@ -599,7 +615,7 @@ namespace System.Text.Json
         ///   <see langword="true"/> if values of instances do not match exactly (are not equal or have different format),
         ///   <see langword="false"/> otherwise.
         /// </returns>
-        public static bool operator !=(JsonNumber left, JsonNumber right) => !(left == right);
+        public static bool operator !=(JsonNumber? left, JsonNumber? right) => !(left == right);
 
         /// <summary>
         ///   Creates a new JSON number that is a copy of the current instance.

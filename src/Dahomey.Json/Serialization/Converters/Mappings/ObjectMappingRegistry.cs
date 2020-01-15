@@ -62,8 +62,15 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private IObjectMapping CreateDefaultObjectMapping(Type type)
         {
-            IObjectMapping objectMapping =
-                (IObjectMapping)Activator.CreateInstance(typeof(ObjectMapping<>).MakeGenericType(type), _options);
+            Type objectMappingType = typeof(ObjectMapping<>).MakeGenericType(type);
+
+            IObjectMapping? objectMapping =
+                (IObjectMapping?)Activator.CreateInstance(objectMappingType, _options);
+
+            if (objectMapping == null)
+            {
+                throw new JsonException($"Cannot instantiate {objectMappingType}");
+            }
 
             objectMapping.AutoMap();
 

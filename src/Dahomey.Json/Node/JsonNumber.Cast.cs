@@ -2,6 +2,7 @@
 {
     public partial class JsonNumber
     {
+        [CLSCompliant(false)]
         public static implicit operator sbyte(JsonNumber node)
         {
             return node.GetSByte();
@@ -17,6 +18,7 @@
             return node.GetInt16();
         }
 
+        [CLSCompliant(false)]
         public static implicit operator ushort(JsonNumber node)
         {
             return node.GetUInt16();
@@ -27,6 +29,7 @@
             return node.GetInt32();
         }
 
+        [CLSCompliant(false)]
         public static implicit operator uint(JsonNumber node)
         {
             return node.GetUInt32();
@@ -37,6 +40,7 @@
             return node.GetInt64();
         }
 
+        [CLSCompliant(false)]
         public static implicit operator ulong(JsonNumber node)
         {
             return node.GetUInt64();

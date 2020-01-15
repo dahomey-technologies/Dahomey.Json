@@ -22,6 +22,11 @@ namespace Dahomey.Json.Serialization.Converters
 
         public ExtensionDataMemberConverter(PropertyInfo propertyInfo, JsonSerializerOptions options)
         {
+            if (propertyInfo.GetMethod == null || propertyInfo.SetMethod == null)
+            {
+                throw new JsonException("Invalid Serialization DataExtension Property");
+            }
+
             Debug.Assert(propertyInfo.IsDefined(typeof(JsonExtensionDataAttribute)));
             _memberGetter = (Func<T, Dictionary<string, TValue>>)propertyInfo.GetMethod.CreateDelegate(typeof(Func<T, Dictionary<string, TValue>>));
             _memberSetter = (Action<T, Dictionary<string, TValue>>)propertyInfo.SetMethod.CreateDelegate(typeof(Action<T, Dictionary<string, TValue>>));

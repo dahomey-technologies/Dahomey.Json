@@ -18,7 +18,7 @@ namespace Dahomey.Json.Serialization
             return _objects2Refs.ContainsKey(obj);
         }
 
-        public void AddReference(object obj, string reference = null)
+        public void AddReference(object obj, string? reference = null)
         {
             if (reference == null)
             {
@@ -43,9 +43,9 @@ namespace Dahomey.Json.Serialization
             return @ref;
         }
 
-        public object ResolveReference(string @ref)
+        public object? ResolveReference(string @ref)
         {
-            _refs2Objects.TryGetValue(@ref, out object @object);
+            _refs2Objects.TryGetValue(@ref, out object? @object);
             return @object;
         }
 

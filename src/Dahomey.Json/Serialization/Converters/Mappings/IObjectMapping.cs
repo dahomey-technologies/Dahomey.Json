@@ -8,16 +8,16 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     public interface IObjectMapping : IMappingInitialization
     {
         Type ObjectType { get; }
-        JsonNamingPolicy PropertyNamingPolicy { get; }
+        JsonNamingPolicy? PropertyNamingPolicy { get; }
         IReadOnlyCollection<IMemberMapping> MemberMappings { get; }
-        ICreatorMapping CreatorMapping { get; }
-        Delegate OnSerializingMethod { get; }
-        Delegate OnSerializedMethod { get; }
-        Delegate OnDeserializingMethod { get; }
-        Delegate OnDeserializedMethod { get; }
+        ICreatorMapping? CreatorMapping { get; }
+        Delegate? OnSerializingMethod { get; }
+        Delegate? OnSerializedMethod { get; }
+        Delegate? OnDeserializingMethod { get; }
+        Delegate? OnDeserializedMethod { get; }
         DiscriminatorPolicy DiscriminatorPolicy { get; }
-        object Discriminator { get; }
-        IExtensionDataMemberConverter ExtensionData { get; }
+        object? Discriminator { get; }
+        IExtensionDataMemberConverter? ExtensionData { get; }
 
         void AutoMap();
         bool IsCreatorMember(ReadOnlySpan<byte> memberName);

@@ -4,6 +4,7 @@ using System.Text.Json;
 namespace Dahomey.Json.Serialization.Converters
 {
     public class DictionaryConverter<TC, TK, TV> : AbstractDictionaryConverter<TC, TK, TV>
+        where TK : notnull
         where TC : class, IDictionary<TK, TV>, new()
     {
         public DictionaryConverter(JsonSerializerOptions options)

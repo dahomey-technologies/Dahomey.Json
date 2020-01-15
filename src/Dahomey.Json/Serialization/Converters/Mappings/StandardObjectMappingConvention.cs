@@ -71,7 +71,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
             else if (type.GetInterfaces().Any(i => i == typeof(ISupportInitialize)))
             {
-                objectMapping.SetOnDeserializingMethod(t => ((ISupportInitialize)t).BeginInit());
+                objectMapping.SetOnDeserializingMethod(t => ((ISupportInitialize?)t)?.BeginInit());
             }
 
             methodInfo = type.GetMethods()
@@ -82,7 +82,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
             else if (type.GetInterfaces().Any(i => i == typeof(ISupportInitialize)))
             {
-                objectMapping.SetOnDeserializedMethod(t => ((ISupportInitialize)t).EndInit());
+                objectMapping.SetOnDeserializedMethod(t => ((ISupportInitialize?)t)?.EndInit());
             }
 
             methodInfo = type.GetMethods()
@@ -102,13 +102,13 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessDefaultValue<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            DefaultValueAttribute defaultValueAttribute = memberInfo.GetCustomAttribute<DefaultValueAttribute>();
+            DefaultValueAttribute? defaultValueAttribute = memberInfo.GetCustomAttribute<DefaultValueAttribute>();
             if (defaultValueAttribute != null)
             {
                 memberMapping.SetDefaultValue(defaultValueAttribute.Value);
             }
 
-            DataMemberAttribute dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
+            DataMemberAttribute? dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
             if (dataMemberAttribute != null && !dataMemberAttribute.EmitDefaultValue)
             {
                 memberMapping.SetIngoreIfDefault(true);
@@ -118,9 +118,9 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         private void ProcessShouldSerializeMethod<T>(MemberMapping<T> memberMapping)
         {
             string shouldSerializeMethodName = "ShouldSerialize" + memberMapping.MemberInfo.Name;
-            Type objectType = memberMapping.MemberInfo.DeclaringType;
+            Type? objectType = memberMapping.MemberInfo.DeclaringType;
 
-            MethodInfo shouldSerializeMethodInfo = objectType.GetMethod(shouldSerializeMethodName, new Type[] { });
+            MethodInfo? shouldSerializeMethodInfo = objectType?.GetMethod(shouldSerializeMethodName, new Type[] { });
             if (shouldSerializeMethodInfo != null &&
                 shouldSerializeMethodInfo.IsPublic &&
                 shouldSerializeMethodInfo.ReturnType == typeof(bool))
@@ -139,7 +139,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessRequired<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            DataMemberAttribute dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
+            DataMemberAttribute? dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
             if (dataMemberAttribute != null && dataMemberAttribute.IsRequired)
             {
                 memberMapping.SetRequired(RequirementPolicy.Always);
@@ -148,7 +148,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         private void ProcessMemberName<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
         {
-            DataMemberAttribute dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
+            DataMemberAttribute? dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
             if (dataMemberAttribute != null && !string.IsNullOrEmpty(dataMemberAttribute.Name))
             {
                 memberMapping.SetMemberName(dataMemberAttribute.Name);

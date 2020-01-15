@@ -32,10 +32,10 @@ namespace Dahomey.Json.Serialization.Converters
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
-                return default(TC);
+                return default!;
             }
 
-            TC collection = default;
+            TC collection = default!;
 
             Read(ref reader, ref collection, options);
 
@@ -46,7 +46,7 @@ namespace Dahomey.Json.Serialization.Converters
         {
             using (new DepthHandler(options))
             {
-                string id = null;
+                string? id = null;
 
                 if (_referenceHandling == ReferenceHandling.Preserve)
                 {
@@ -76,7 +76,7 @@ namespace Dahomey.Json.Serialization.Converters
                         reader.Read();
                         string @ref = reader.GetString();
 
-                        object @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
+                        object? @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
 
                         if (@object == null)
                         {
@@ -151,7 +151,7 @@ namespace Dahomey.Json.Serialization.Converters
 
             using (new DepthHandler(options))
             {
-                ReferenceHandler referenceResolver = null;
+                ReferenceHandler? referenceResolver = null;
                 if (_referenceHandling == ReferenceHandling.Ignore)
                 {
                     referenceResolver = SerializationContext.Current.ReferenceHandler;
@@ -182,13 +182,13 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     if (_referenceHandling == ReferenceHandling.Ignore)
                     {
-                        if (referenceResolver.IsReferenced(item))
+                        if (referenceResolver!.IsReferenced(item!))
                         {
                             continue;
                         }
                         else
                         {
-                            referenceResolver.AddReference(item);
+                            referenceResolver.AddReference(item!);
                         }
                     }
 

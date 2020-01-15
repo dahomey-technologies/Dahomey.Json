@@ -8,6 +8,7 @@ using Dahomey.Json.Serialization.Converters.Mappings;
 namespace Dahomey.Json.Serialization.Conventions
 {
     public class AttributeBasedDiscriminatorConvention<T> : IDiscriminatorConvention
+        where T : notnull
     {
         private readonly JsonSerializerOptions _options;
         private readonly ReadOnlyMemory<byte> _memberName;
@@ -46,7 +47,7 @@ namespace Dahomey.Json.Serialization.Conventions
         public Type ReadDiscriminator(ref Utf8JsonReader reader)
         {
             T discriminator = _jsonConverter.Read(ref reader, typeof(T), _options);
-            if (!_typesByDiscriminator.TryGetValue(discriminator, out Type type))
+            if (!_typesByDiscriminator.TryGetValue(discriminator, out Type? type))
             {
                 throw new JsonException($"Unknown type discriminator: {discriminator}");
             }

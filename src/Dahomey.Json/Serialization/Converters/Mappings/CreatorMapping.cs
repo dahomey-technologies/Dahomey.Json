@@ -13,10 +13,10 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         private readonly IObjectMapping _objectMapping;
         private readonly Delegate _delegate;
         private readonly ParameterInfo[] _parameters;
-        private List<ReadOnlyMemory<byte>> _memberNames = null;
-        private List<object> _defaultValues = null;
+        private List<ReadOnlyMemory<byte>>? _memberNames = null;
+        private List<object?>? _defaultValues = null;
 
-        public IReadOnlyCollection<ReadOnlyMemory<byte>> MemberNames => _memberNames;
+        public IReadOnlyCollection<ReadOnlyMemory<byte>>? MemberNames => _memberNames;
 
         public CreatorMapping(IObjectMapping objectMapping, ConstructorInfo constructorInfo)
         {
@@ -53,11 +53,16 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         object ICreatorMapping.CreateInstance(Dictionary<ReadOnlyMemory<byte>, object> values)
         {
-            object[] args = new object[_memberNames.Count];
+            if (_memberNames == null || _defaultValues == null)
+            {
+                throw new JsonException("Initialize has not been called");
+            }
+
+            object?[] args = new object?[_memberNames.Count];
 
             for (int i = 0; i < _memberNames.Count; i++)
             {
-                if (values.TryGetValue(_memberNames[i], out object value))
+                if (values.TryGetValue(_memberNames[i], out object? value))
                 {
                     args[i] = value;
                 }
@@ -67,7 +72,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
             }
 
-            return _delegate.DynamicInvoke(args);
+            return _delegate.DynamicInvoke(args) ?? throw new JsonException("Cannot instantiate type");
         }
 
         public void Initialize()
@@ -75,7 +80,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             bool createMemberNames = _memberNames == null;
 
             IReadOnlyCollection<IMemberMapping> memberMappings = _objectMapping.MemberMappings;
-            if (createMemberNames)
+            if (_memberNames == null)
             {
                 _memberNames = new List<ReadOnlyMemory<byte>>(_parameters.Length);
             }
@@ -84,7 +89,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 throw new JsonException("Size mismatch between creator parameters and member names");
             }
 
-            _defaultValues = new List<object>(_parameters.Length);
+            _defaultValues = new List<object?>(_parameters.Length);
 
             for (int i = 0; i < _parameters.Length; i++)
             {
@@ -96,7 +101,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                     memberMapping = memberMappings
                         .FirstOrDefault(m => string.Compare(m.MemberName, parameter.Name, ignoreCase: true) == 0);
 
-                    if (memberMapping == null)
+                    if (memberMapping == null || memberMapping.MemberName == null)
                     {
                         _memberNames.Add(new ReadOnlyMemory<byte>());
                     }

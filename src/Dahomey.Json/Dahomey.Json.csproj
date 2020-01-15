@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <PackageReleaseNotes>cf. https://github.com/dahomey-technologies/Dahomey.Json/releases/tag/$(Version)</PackageReleaseNotes>
     <Authors>Michaël Catanzariti</Authors>
     <Company>Dahomey Technologies</Company>
@@ -24,10 +25,14 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.0" />
+    <PackageReference Include="Nullable" Version="1.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Images\icon.png" Pack="true" PackagePath=""/>
+    <None Include="Images\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
     
 </Project>

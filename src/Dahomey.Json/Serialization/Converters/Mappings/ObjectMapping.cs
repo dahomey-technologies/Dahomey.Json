@@ -17,28 +17,29 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     {
         private readonly JsonSerializerOptions _options;
         private List<IMemberMapping> _memberMappings = new List<IMemberMapping>();
-        private ICreatorMapping _creatorMapping = null;
-        private Action _orderByAction = null; 
+        private ICreatorMapping? _creatorMapping = null;
+        private Action? _orderByAction = null; 
 
         public Type ObjectType { get; private set; }
 
-        public JsonNamingPolicy PropertyNamingPolicy { get; private set; }
+        public JsonNamingPolicy? PropertyNamingPolicy { get; private set; }
         public IReadOnlyCollection<IMemberMapping> MemberMappings => _memberMappings;
-        public ICreatorMapping CreatorMapping => _creatorMapping;
-        public Delegate OnSerializingMethod { get; private set; }
-        public Delegate OnSerializedMethod { get; private set; }
-        public Delegate OnDeserializingMethod { get; private set; }
-        public Delegate OnDeserializedMethod { get; private set; }
+        public ICreatorMapping? CreatorMapping => _creatorMapping;
+        public Delegate? OnSerializingMethod { get; private set; }
+        public Delegate? OnSerializedMethod { get; private set; }
+        public Delegate? OnDeserializingMethod { get; private set; }
+        public Delegate? OnDeserializedMethod { get; private set; }
         public DiscriminatorPolicy DiscriminatorPolicy { get; private set; }
-        public object Discriminator { get; private set; }
-        public IExtensionDataMemberConverter ExtensionData { get; private set; }
+        public object? Discriminator { get; private set; }
+        public IExtensionDataMemberConverter? ExtensionData { get; private set; }
 
         public ObjectMapping(JsonSerializerOptions options)
         {
             _options = options;
             ObjectType = typeof(T);
 
-            if (!ObjectType.IsAbstract && !ObjectType.IsInterface && !ObjectType.IsStruct())
+            if (!ObjectType.IsAbstract && !ObjectType.IsInterface && !ObjectType.IsStruct() 
+                && _options.GetDiscriminatorConventionRegistry().AnyConvention())
             {
                 DiscriminatorMapping<T> memberMapping = new DiscriminatorMapping<T>(_options.GetDiscriminatorConventionRegistry(), this);
                 _memberMappings.Add(memberMapping);
@@ -113,10 +114,15 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 throw new JsonException("Invalid Serialization DataExtension Property");
             }
 
-            ExtensionData = (IExtensionDataMemberConverter)
+            ExtensionData = (IExtensionDataMemberConverter?)
                 Activator.CreateInstance(typeof(ExtensionDataMemberConverter<,>)
                     .MakeGenericType(typeof(T), propertyType.GetGenericArguments()[1]),
                     propertyInfo, _options);
+
+            if (ExtensionData == null)
+            {
+                throw new JsonException($"Cannot instantiate ExtensionDataMemberConverter for type {typeof(T)}");
+            }
 
             return this;
         }
@@ -243,7 +249,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public bool IsCreatorMember(ReadOnlySpan<byte> memberName)
         {
-            if (CreatorMapping == null)
+            if (CreatorMapping == null || CreatorMapping.MemberNames == null)
             {
                 return false;
             }

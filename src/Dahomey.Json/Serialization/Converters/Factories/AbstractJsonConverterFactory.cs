@@ -8,7 +8,14 @@ namespace Dahomey.Json.Serialization.Converters.Factories
     {
         protected JsonConverter CreateConverter(JsonSerializerOptions options, Type converterType)
         {
-            return (JsonConverter)Activator.CreateInstance(converterType, options);
+            JsonConverter? converter = (JsonConverter?)Activator.CreateInstance(converterType, options);
+
+            if (converter == null)
+            {
+                throw new JsonException($"Cannot instantiate {converterType}");
+            }
+
+            return converter;
         }
 
         protected JsonConverter CreateGenericConverter(JsonSerializerOptions options, Type genericType, params Type[] typeArguments)
