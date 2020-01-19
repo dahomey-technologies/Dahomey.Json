@@ -12,11 +12,11 @@ namespace Dahomey.Json.Serialization.Converters
 {
     public interface IObjectConverter
     {
-        void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers);
-        bool ReadValue(ref Utf8JsonReader reader, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter>? readMembers, out object value);
         IReadOnlyList<IMemberConverter> MemberConvertersForWrite { get; }
         IReadOnlyList<IMemberConverter> RequiredMemberConvertersForRead { get; }
         object CreateInstance();
+        void ReadValue(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter> readMembers);
+        bool ReadValue(ref Utf8JsonReader reader, ReadOnlySpan<byte> memberName, JsonSerializerOptions options, HashSet<IMemberConverter>? readMembers, out object value);
     }
 
     public class ObjectConverter<T> : AbstractJsonConverter<T>, IObjectConverter
@@ -290,9 +290,9 @@ namespace Dahomey.Json.Serialization.Converters
                             // discriminator value
                             Type actualType = _discriminatorConvention.ReadDiscriminator(ref reader);
 
-                            if (actualType == null)
+                            if (!_objectMapping.ObjectType.IsAssignableFrom(actualType))
                             {
-                                throw new JsonException();
+                                throw new JsonException($"expected type {_objectMapping.ObjectType} is not assignable from actual type {actualType}");
                             }
 
                             converter = (IObjectConverter)options.GetConverter(actualType);

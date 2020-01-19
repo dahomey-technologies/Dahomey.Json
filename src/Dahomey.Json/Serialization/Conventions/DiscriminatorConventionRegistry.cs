@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dahomey.Json.Serialization.Converters.Mappings;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ namespace Dahomey.Json.Serialization.Conventions
 {
     public class DiscriminatorConventionRegistry
     {
+        private readonly JsonSerializerOptions _options;
         private readonly ConcurrentStack<IDiscriminatorConvention> _conventions = new ConcurrentStack<IDiscriminatorConvention>();
         private readonly ConcurrentDictionary<Type, IDiscriminatorConvention?> _conventionsByType = new ConcurrentDictionary<Type, IDiscriminatorConvention?>();
 
@@ -15,8 +17,9 @@ namespace Dahomey.Json.Serialization.Conventions
 
         public DiscriminatorConventionRegistry(JsonSerializerOptions options)
         {
+            _options = options;
             // order matters. It's in reverse order of how they'll get consumed
-            RegisterConvention(new DefaultDiscriminatorConvention(options));
+            RegisterConvention(new DefaultDiscriminatorConvention<string>(options));
         }
 
         public bool AnyConvention()
@@ -75,9 +78,14 @@ namespace Dahomey.Json.Serialization.Conventions
 
             if (convention != null)
             {
+                IObjectMapping objectMapping = _options.GetObjectMappingRegistry().Lookup(type);
+                objectMapping.AddDiscriminatorMapping();
+
                 // setup discriminator for all base types
                 for (Type? currentType = type.BaseType; currentType != null && currentType != typeof(object); currentType = currentType.BaseType)
                 {
+                    objectMapping = _options.GetObjectMappingRegistry().Lookup(currentType);
+                    objectMapping.AddDiscriminatorMapping();
                     _conventionsByType.TryAdd(currentType, convention);
                 }
 

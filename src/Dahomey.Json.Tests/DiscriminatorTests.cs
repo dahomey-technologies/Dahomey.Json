@@ -30,6 +30,11 @@ namespace Dahomey.Json.Tests
         public string Name { get; set; }
     }
 
+    [JsonDiscriminator(13)]
+    public class OtherObject
+    {
+    }
+
     public class DiscriminatorTests
     {
         [Fact]
@@ -40,7 +45,8 @@ namespace Dahomey.Json.Tests
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
             DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
-            registry.RegisterConvention(new AttributeBasedDiscriminatorConvention<int>(options));
+            registry.ClearConventions();
+            registry.RegisterConvention(new DefaultDiscriminatorConvention<int>(options));
             registry.RegisterType<NameObject>();
 
             BaseObjectHolder obj = JsonSerializer.Deserialize<BaseObjectHolder>(json, options);
@@ -52,33 +58,33 @@ namespace Dahomey.Json.Tests
         }
 
         [Fact]
-        public void ReadPolymorphicObjectWithDefaultDiscriminatorConvention()
+        public void ReadNonAssignablePolymorphicObject()
         {
-            const string json = @"{""$type"":""Dahomey.Json.Tests.BaseObjectHolder, Dahomey.Json.Tests"",""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1}}";
+            const string json = @"{""BaseObject"":{""$type"":13}}";
 
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
             DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
-            registry.RegisterConvention(new AttributeBasedDiscriminatorConvention<int>(options));
+            registry.ClearConventions();
+            registry.RegisterConvention(new DefaultDiscriminatorConvention<int>(options));
             registry.RegisterType<NameObject>();
+            registry.RegisterType<OtherObject>();
 
-            BaseBaseObjectHolder obj = JsonSerializer.Deserialize<BaseBaseObjectHolder>(json, options);
-
-            Assert.NotNull(obj);
-            Assert.IsType<BaseObjectHolder>(obj);
+            Assert.ThrowsAny<JsonException>(() => JsonSerializer.Deserialize<BaseObjectHolder>(json, options));
         }
 
         [Theory]
         [InlineData(DiscriminatorPolicy.Default, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
         [InlineData(DiscriminatorPolicy.Auto, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
         [InlineData(DiscriminatorPolicy.Never, @"{""BaseObject"":{""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
-        [InlineData(DiscriminatorPolicy.Always, @"{""$type"":""Dahomey.Json.Tests.BaseObjectHolder, Dahomey.Json.Tests"",""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""$type"":12,""Name"":""bar"",""Id"":2}}")]
+        [InlineData(DiscriminatorPolicy.Always, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""$type"":12,""Name"":""bar"",""Id"":2}}")]
         public void WritePolymorphicObject(DiscriminatorPolicy discriminatorPolicy, string expected)
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
             DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
-            registry.RegisterConvention(new AttributeBasedDiscriminatorConvention<int>(options));
+            registry.ClearConventions();
+            registry.RegisterConvention(new DefaultDiscriminatorConvention<int>(options));
             registry.RegisterType<NameObject>();
             registry.DiscriminatorPolicy = discriminatorPolicy;
 
@@ -144,6 +150,22 @@ namespace Dahomey.Json.Tests
             }
         }
 
+        public class BaseObjectHolder2 : BaseBaseObjectHolder
+        {
+            public BaseObject2 BaseObject { get; set; }
+            public NameObject2 NameObject { get; set; }
+        }
+
+        public class BaseObject2
+        {
+            public int Id { get; set; }
+        }
+
+        public class NameObject2 : BaseObject2
+        {
+            public string Name { get; set; }
+        }
+
         [Fact]
         public void ReadWithCustomDiscriminator()
         {
@@ -151,14 +173,14 @@ namespace Dahomey.Json.Tests
             options.SetupExtensions();
             DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
             registry.RegisterConvention(new CustomDiscriminatorConvention());
-            registry.RegisterType(typeof(NameObject));
+            registry.RegisterType(typeof(NameObject2));
 
-            const string json = @"{""BaseObject"":{""type"":571690115,""Name"":""foo"",""Id"":1}}";
-            BaseObjectHolder obj = JsonSerializer.Deserialize<BaseObjectHolder>(json, options);
+            const string json = @"{""BaseObject"":{""type"":263970807,""Name"":""foo"",""Id"":1}}";
+            BaseObjectHolder2 obj = JsonSerializer.Deserialize<BaseObjectHolder2>(json, options);
 
             Assert.NotNull(obj);
-            Assert.IsType<NameObject>(obj.BaseObject);
-            Assert.Equal("foo", ((NameObject)obj.BaseObject).Name);
+            Assert.IsType<NameObject2>(obj.BaseObject);
+            Assert.Equal("foo", ((NameObject2)obj.BaseObject).Name);
             Assert.Equal(1, obj.BaseObject.Id);
         }
 
@@ -169,11 +191,11 @@ namespace Dahomey.Json.Tests
             options.SetupExtensions();
             DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
             registry.RegisterConvention(new CustomDiscriminatorConvention());
-            registry.RegisterType(typeof(NameObject));
+            registry.RegisterType(typeof(NameObject2));
 
-            BaseObjectHolder obj = new BaseObjectHolder
+            BaseObjectHolder2 obj = new BaseObjectHolder2
             {
-                BaseObject = new NameObject
+                BaseObject = new NameObject2
                 {
                     Id = 1,
                     Name = "foo"
@@ -181,7 +203,7 @@ namespace Dahomey.Json.Tests
             };
 
             string actual = JsonSerializer.Serialize(obj, options);
-            const string expected = @"{""BaseObject"":{""type"":571690115,""Name"":""foo"",""Id"":1},""NameObject"":null}";
+            const string expected = @"{""BaseObject"":{""type"":263970807,""Name"":""foo"",""Id"":1},""NameObject"":null}";
 
             Assert.Equal(expected, actual);
         }

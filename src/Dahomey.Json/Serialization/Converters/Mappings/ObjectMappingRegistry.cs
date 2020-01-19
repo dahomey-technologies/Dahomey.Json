@@ -26,10 +26,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             _objectMappings.AddOrUpdate(objectMapping.ObjectType, objectMapping,
                 (type, existingObjectMapping) => objectMapping);
 
-            if (objectMapping.Discriminator == null)
-            {
-                _options.GetDiscriminatorConventionRegistry().RegisterType(objectMapping.ObjectType);
-            }
+            _options.GetDiscriminatorConventionRegistry().RegisterType(objectMapping.ObjectType);
 
             if (mappingInitialization != null)
             {

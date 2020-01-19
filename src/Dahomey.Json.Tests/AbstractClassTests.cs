@@ -41,7 +41,8 @@ namespace Dahomey.Json.Tests
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
             DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
-            registry.RegisterConvention(new AttributeBasedDiscriminatorConvention<string>(options, "Tag"));
+            registry.ClearConventions();
+            registry.RegisterConvention(new DefaultDiscriminatorConvention<string>(options, "Tag"));
             registry.RegisterType<Box>();
             registry.RegisterType<Circle>();
 

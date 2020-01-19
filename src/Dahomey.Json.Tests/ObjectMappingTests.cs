@@ -227,8 +227,9 @@ namespace Dahomey.Json.Tests
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
+            options.GetDiscriminatorConventionRegistry().ClearConventions();
             options.GetDiscriminatorConventionRegistry().RegisterConvention(
-                new AttributeBasedDiscriminatorConvention<string>(options, "_t"));
+                new DefaultDiscriminatorConvention<string>(options, "_t"));
             options.GetObjectMappingRegistry().Register<InheritedObject>(objectMapping =>
                 objectMapping
                     .AutoMap()
@@ -249,8 +250,9 @@ namespace Dahomey.Json.Tests
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
+            options.GetDiscriminatorConventionRegistry().ClearConventions();
             options.GetDiscriminatorConventionRegistry().RegisterConvention(
-                new AttributeBasedDiscriminatorConvention<string>(options, "_t"));
+                new DefaultDiscriminatorConvention<string>(options, "_t"));
             options.GetObjectMappingRegistry().Register<InheritedObject>(objectMapping =>
                 objectMapping
                     .SetDiscriminator("inherited")

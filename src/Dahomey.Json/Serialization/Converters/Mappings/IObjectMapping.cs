@@ -21,5 +21,6 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         void AutoMap();
         bool IsCreatorMember(ReadOnlySpan<byte> memberName);
+        void AddDiscriminatorMapping();
     }
 }
