@@ -72,7 +72,7 @@ It means that different type inheritance hierarchy could serialize/deserialize t
 The library offers 1 built-in discriminator convention:
 - **DefaultDiscriminatorConvention<T>**: the discriminator value is defined by decorating classes with the attribute **JsonDiscriminatorAttribute**
 
-Both built-in conventions setup the convention property name to **$type**
+This built-in convention setup the convention property name to **$type**
 
 #### DefaultDiscriminatorConvention<T>
  
