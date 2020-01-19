@@ -20,7 +20,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             JsonDiscriminatorAttribute? discriminatorAttribute = type.GetCustomAttribute<JsonDiscriminatorAttribute>();
 
-            if (discriminatorAttribute != null)
+            if (discriminatorAttribute != null && options.GetDiscriminatorConventionRegistry().AnyConvention())
             {
                 objectMapping.SetDiscriminator(discriminatorAttribute.Discriminator);
                 objectMapping.SetDiscriminatorPolicy(discriminatorAttribute.Policy);

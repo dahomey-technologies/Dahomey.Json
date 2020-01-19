@@ -37,13 +37,6 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         {
             _options = options;
             ObjectType = typeof(T);
-
-            if (!ObjectType.IsAbstract && !ObjectType.IsInterface && !ObjectType.IsStruct() 
-                && _options.GetDiscriminatorConventionRegistry().AnyConvention())
-            {
-                DiscriminatorMapping<T> memberMapping = new DiscriminatorMapping<T>(_options.GetDiscriminatorConventionRegistry(), this);
-                _memberMappings.Add(memberMapping);
-            }
         }
 
         void IObjectMapping.AutoMap()
@@ -263,6 +256,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
 
             return false;
+        }
+
+        public void AddDiscriminatorMapping()
+        {
+            DiscriminatorMapping<T> memberMapping = new DiscriminatorMapping<T>(_options.GetDiscriminatorConventionRegistry(), this);
+            _memberMappings.Insert(0, memberMapping);
         }
 
         public void Initialize()
