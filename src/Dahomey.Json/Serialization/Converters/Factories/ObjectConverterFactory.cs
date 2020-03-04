@@ -15,7 +15,8 @@ namespace Dahomey.Json.Serialization.Converters.Factories
                     && typeToConvert != typeof(DateTime)
                     && typeToConvert != typeof(DateTimeOffset)
                     && typeToConvert != typeof(Guid)
-                    && typeToConvert != typeof(JsonElement);
+                    && typeToConvert != typeof(JsonElement)
+                    && typeToConvert != typeof(Decimal);
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
