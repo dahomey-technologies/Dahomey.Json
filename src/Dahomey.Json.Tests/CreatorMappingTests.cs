@@ -99,7 +99,7 @@ namespace Dahomey.Json.Tests
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.SetupExtensions();
 
-            ObjectWithConstructor2 obj = Helper.Read<ObjectWithConstructor2>(json, options);
+            ObjectWithConstructor3 obj = Helper.Read<ObjectWithConstructor3>(json, options);
 
             Assert.NotNull(obj);
             Assert.Equal(expectedId, obj.Id);

@@ -112,7 +112,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
                 else
                 {
-                    var memberName = Encoding.UTF8.GetString(_memberNames[i].ToArray());
+                    string memberName = Encoding.UTF8.GetString(_memberNames[i].Span);
                     memberMapping = memberMappings
                         .FirstOrDefault(m => string.Compare(m.MemberName, memberName, ignoreCase: true) == 0);
 
