@@ -182,16 +182,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         private void ProcessShouldSerializeMethod<T>(MemberMapping<T> memberMapping)
         {
             string shouldSerializeMethodName = "ShouldSerialize" + memberMapping.MemberInfo.Name;
-            Type? objectType = memberMapping.MemberInfo.DeclaringType;
+            Type objectType = typeof(T);
 
-            if (objectType == null)
-            {
-                return;
-            }
+            MethodInfo? shouldSerializeMethodInfo = objectType.GetMethod(
+                shouldSerializeMethodName, 
+                BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Instance, 
+                null, new Type[] { }, null);
 
-            MethodInfo? shouldSerializeMethodInfo = objectType.GetMethod(shouldSerializeMethodName, new Type[] { });
             if (shouldSerializeMethodInfo != null &&
-                shouldSerializeMethodInfo.IsPublic &&
                 shouldSerializeMethodInfo.ReturnType == typeof(bool))
             {
                 // obj => ((TClass) obj).ShouldSerializeXyz()
