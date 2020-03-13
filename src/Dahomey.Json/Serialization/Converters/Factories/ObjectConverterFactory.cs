@@ -1,4 +1,5 @@
-﻿using Dahomey.Json.Util;
+﻿
+using Dahomey.Json.Util;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
