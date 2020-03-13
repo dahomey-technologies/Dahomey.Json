@@ -112,12 +112,13 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
                 else
                 {
+                    string memberName = Encoding.UTF8.GetString(_memberNames[i].Span);
                     memberMapping = memberMappings
-                        .FirstOrDefault(m => string.Compare(m.MemberName, _memberNames[i].ToString(), ignoreCase: true) == 0);
+                        .FirstOrDefault(m => string.Compare(m.MemberName, memberName, ignoreCase: true) == 0);
 
                     if (memberMapping == null)
                     {
-                        throw new JsonException($"Cannot find a field or property named {_memberNames[i]} on type {_objectMapping.ObjectType.FullName}");
+                        throw new JsonException($"Cannot find a field or property named {memberName} on type {_objectMapping.ObjectType.FullName}");
                     }
                 }
 

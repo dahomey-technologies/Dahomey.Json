@@ -1,7 +1,7 @@
-﻿using Xunit;
+﻿using Dahomey.Json.Attributes;
 using System;
 using System.Text.Json;
-using Dahomey.Json.Attributes;
+using Xunit;
 
 namespace Dahomey.Json.Tests
 {
@@ -69,6 +69,37 @@ namespace Dahomey.Json.Tests
             options.SetupExtensions();
 
             ObjectWithConstructor2 obj = Helper.Read<ObjectWithConstructor2>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.Equal(expectedId, obj.Id);
+            Assert.Equal(expectedName, obj.Name);
+            Assert.Equal(expectedAge, obj.Age);
+        }
+
+        private class ObjectWithConstructor3
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int Age { get; set; }
+
+            [JsonConstructor(nameof(Id), nameof(Name))]
+            public ObjectWithConstructor3(int id, string name)
+            {
+                Id = id;
+                Name = name;
+            }
+        }
+
+        [Theory]
+        [InlineData(@"{""Id"":12,""Name"":""foo""}", 12, "foo", 0)]
+        [InlineData(@"{""Id"":12}", 12, null, 0)]
+        [InlineData(@"{""Id"":12,""Name"":""foo"",""Age"":13}", 12, "foo", 13)]
+        public void ConstructorByAttributeWithMemberNames(string json, int expectedId, string expectedName, int expectedAge)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            ObjectWithConstructor3 obj = Helper.Read<ObjectWithConstructor3>(json, options);
 
             Assert.NotNull(obj);
             Assert.Equal(expectedId, obj.Id);
