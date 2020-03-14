@@ -101,15 +101,15 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public ObjectMapping<T> MapExtensionData(PropertyInfo propertyInfo)
         {
             Type propertyType = propertyInfo.PropertyType;
-            if (propertyType != typeof(Dictionary<string, object>)
-                && propertyType != typeof(Dictionary<string, JsonElement>))
-            {
+            if (!typeof(IDictionary<string, JsonElement>).IsAssignableFrom(propertyType) &&
+                !typeof(IDictionary<string, object>).IsAssignableFrom(propertyType))
+            { 
                 throw new JsonException("Invalid Serialization DataExtension Property");
             }
 
             ExtensionData = (IExtensionDataMemberConverter?)
-                Activator.CreateInstance(typeof(ExtensionDataMemberConverter<,>)
-                    .MakeGenericType(typeof(T), propertyType.GetGenericArguments()[1]),
+                Activator.CreateInstance(typeof(ExtensionDataMemberConverter<,,>)
+                    .MakeGenericType(typeof(T), propertyType, propertyType.GetGenericArguments()[1]),
                     propertyInfo, _options);
 
             if (ExtensionData == null)

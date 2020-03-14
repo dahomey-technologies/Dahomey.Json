@@ -519,6 +519,12 @@ namespace Dahomey.Json.Serialization.Converters
                     }
                 }
 
+                var memberConverters = _memberConverters.Value;
+                if (memberConverters.ExtensionData != null)
+                {
+                    memberConverters.ExtensionData.Write(writer, value!, options);
+                }
+                
                 writer.WriteEndObject();
 
                 if (_objectMapping.OnSerializedMethod != null)
