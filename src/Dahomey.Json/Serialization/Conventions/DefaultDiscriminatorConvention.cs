@@ -39,6 +39,11 @@ namespace Dahomey.Json.Serialization.Conventions
                 return false;
             }
 
+            if (_typesByDiscriminator.ContainsKey(discriminator))
+            {
+                return _typesByDiscriminator[discriminator] == type;
+            }
+
             _discriminatorsByType[type] = discriminator;
             _typesByDiscriminator.Add(discriminator, type);
             return true;
