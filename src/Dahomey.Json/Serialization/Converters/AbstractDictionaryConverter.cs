@@ -9,7 +9,7 @@ namespace Dahomey.Json.Serialization.Converters
 {
     public abstract class AbstractDictionaryConverter<TC, TK, TV> : AbstractJsonConverter<TC>
         where TK : notnull
-        where TC : IDictionary<TK, TV>
+        where TC : IEnumerable<KeyValuePair<TK, TV>>
     {
         private readonly IDictionaryKeyConverter<TK> _keyConverter;
         private readonly JsonConverter<TV> _valueConverter;

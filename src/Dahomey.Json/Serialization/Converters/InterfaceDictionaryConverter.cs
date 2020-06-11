@@ -3,8 +3,10 @@ using System.Text.Json;
 
 namespace Dahomey.Json.Serialization.Converters
 {
-    public class InterfaceDictionaryConverter<TK, TV> : AbstractDictionaryConverter<IDictionary<TK, TV>, TK, TV>
+    public class InterfaceDictionaryConverter<TI, TK, TV> : AbstractDictionaryConverter<TI, TK, TV>
         where TK : notnull
+        where TI : IEnumerable<KeyValuePair<TK, TV>>
+
     {
         public InterfaceDictionaryConverter(JsonSerializerOptions options)
             : base(options)
@@ -16,9 +18,9 @@ namespace Dahomey.Json.Serialization.Converters
             return new Dictionary<TK, TV>();
         }
 
-        protected override IDictionary<TK, TV> InstantiateCollection(IDictionary<TK, TV> workingCollection)
+        protected override TI InstantiateCollection(IDictionary<TK, TV> workingCollection)
         {
-            return workingCollection;
+            return (TI)workingCollection;
         }
     }
 }
