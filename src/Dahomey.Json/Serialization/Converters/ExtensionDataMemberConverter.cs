@@ -18,20 +18,23 @@ namespace Dahomey.Json.Serialization.Converters
         where TDict : IDictionary<string, TValue>
     {
         private readonly Func<T, TDict> _memberGetter;
-        private readonly Action<T, TDict> _memberSetter;
+        private readonly Action<T, TDict>? _memberSetter;
         private JsonConverter<JsonElement> _jsonElementConverter;
         private JsonConverter<TValue> _jsonValueConverter;
 
         public ExtensionDataMemberConverter(PropertyInfo propertyInfo, JsonSerializerOptions options)
         {
-            if (propertyInfo.GetMethod == null || propertyInfo.SetMethod == null)
+            if (propertyInfo.GetMethod == null)
             {
                 throw new JsonException("Invalid Serialization DataExtension Property");
             }
 
             Debug.Assert(propertyInfo.IsDefined(typeof(JsonExtensionDataAttribute)));
             _memberGetter = (Func<T, TDict>)propertyInfo.GetMethod.CreateDelegate(typeof(Func<T, TDict>));
-            _memberSetter = (Action<T, TDict>)propertyInfo.SetMethod.CreateDelegate(typeof(Action<T, TDict>));
+            if (propertyInfo.SetMethod != null)
+            {
+                _memberSetter = (Action<T, TDict>)propertyInfo.SetMethod.CreateDelegate(typeof(Action<T, TDict>));
+            }
             _jsonElementConverter = options.GetConverter<JsonElement>();
             _jsonValueConverter = options.GetConverter<TValue>();
         }
@@ -39,10 +42,11 @@ namespace Dahomey.Json.Serialization.Converters
         public void Read(ref Utf8JsonReader reader, object obj, ReadOnlySpan<byte> memberName, JsonSerializerOptions options)
         {
             IDictionary<string, TValue> extensionData = _memberGetter((T)obj);
+
             if (extensionData == null)
             {
                 extensionData = new Dictionary<string, TValue>();
-                _memberSetter((T)obj, (TDict)extensionData);
+                _memberSetter?.Invoke((T)obj, (TDict)extensionData);
             }
 
             JsonElement jsonElement = _jsonElementConverter.Read(ref reader, typeof(JsonElement), options);
