@@ -77,6 +77,7 @@ namespace Dahomey.Json.Serialization.Converters
         private readonly bool _isStruct;
         private readonly IDiscriminatorConvention? _discriminatorConvention;
         private readonly ReferenceHandling _referenceHandling;
+        private readonly MissingMemberHandling _missingMemberHandling;
 
         public IReadOnlyList<IMemberConverter> MemberConvertersForWrite => _memberConverters.Value.ForWrite;
         public IReadOnlyList<IMemberConverter> RequiredMemberConvertersForRead => _memberConverters.Value.RequiredForRead;
@@ -109,6 +110,7 @@ namespace Dahomey.Json.Serialization.Converters
 
             _discriminatorConvention = options.GetDiscriminatorConventionRegistry().GetConvention(typeof(T));
             _referenceHandling = _isStruct ? ReferenceHandling.Default : options.GetReferenceHandling();
+            _missingMemberHandling = options.GetMissingMemberHandling();
         }
 
         public object CreateInstance()
@@ -374,6 +376,10 @@ namespace Dahomey.Json.Serialization.Converters
 
                 ((IMemberConverter<T>)memberConverter).Read(ref reader, ref instance, options);
             }
+            else if (_missingMemberHandling == MissingMemberHandling.Error)
+            {
+                throw new JsonException($"Missing member '{Encoding.UTF8.GetString(memberName)}'");
+            }
             else if (memberConverters.ExtensionData != null)
             {
                 memberConverters.ExtensionData.Read(ref reader, instance!, memberName, options);
@@ -399,6 +405,10 @@ namespace Dahomey.Json.Serialization.Converters
                 }
 
                 memberConverter.Read(ref reader, obj, options);
+            }
+            else if (_missingMemberHandling == MissingMemberHandling.Error)
+            {
+                throw new JsonException($"Missing member '{Encoding.UTF8.GetString(memberName)}'");
             }
             else if (memberConverters.ExtensionData != null)
             {

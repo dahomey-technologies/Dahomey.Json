@@ -69,5 +69,15 @@ namespace Dahomey.Json
         {
             return (JsonSerializerOptionsState)options.GetConverter<JsonSerializerOptionsState>();
         }
+
+        public static MissingMemberHandling GetMissingMemberHandling(this JsonSerializerOptions options)
+        {
+            return options.GetState().MissingMemberHandling;
+        }
+
+        public static void SetMissingMemberHandling(this JsonSerializerOptions options, MissingMemberHandling missingMemberHandling)
+        {
+            options.GetState().MissingMemberHandling = missingMemberHandling;
+        }
     }
 }

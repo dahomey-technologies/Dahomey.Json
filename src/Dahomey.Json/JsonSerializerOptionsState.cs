@@ -15,6 +15,7 @@ namespace Dahomey.Json
         public DictionaryKeyConverterRegistry DictionaryKeyConverterRegistry { get; }
         public ReferenceHandling ReferenceHandling { get; set; }
         public ReadOnlyPropertyHandling ReadOnlyPropertyHandling { get; set; }
+        public MissingMemberHandling MissingMemberHandling { get; set; }
 
         public JsonSerializerOptionsState(JsonSerializerOptions options)
         {
