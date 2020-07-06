@@ -107,25 +107,28 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             objectMapping.AddMemberMappings(memberMappings);
 
-            ConstructorInfo[] constructorInfos = type.GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-
-            ConstructorInfo constructorInfo = constructorInfos
-                .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute)));
-
-            if (constructorInfo != null)
+            if (!type.IsAbstract)
             {
-                JsonConstructorAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
-                CreatorMapping creatorMapping = objectMapping.MapCreator(constructorInfo);
-                if (constructorAttribute != null && constructorAttribute.MemberNames != null)
+                ConstructorInfo[] constructorInfos = type.GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+                ConstructorInfo constructorInfo = constructorInfos
+                    .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute)));
+
+                if (constructorInfo != null)
                 {
-                    creatorMapping.SetMemberNames(constructorAttribute.MemberNames);
+                    JsonConstructorAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
+                    CreatorMapping creatorMapping = objectMapping.MapCreator(constructorInfo);
+                    if (constructorAttribute != null && constructorAttribute.MemberNames != null)
+                    {
+                        creatorMapping.SetMemberNames(constructorAttribute.MemberNames);
+                    }
                 }
-            }
-            // if no default constructor, pick up first one
-            else if (constructorInfos.Length > 0 && !constructorInfos.Any(c => c.GetParameters().Length == 0))
-            {
-                constructorInfo = constructorInfos[0];
-                objectMapping.MapCreator(constructorInfo);
+                // if no default constructor, pick up first one
+                else if (constructorInfos.Length > 0 && !constructorInfos.Any(c => c.GetParameters().Length == 0))
+                {
+                    constructorInfo = constructorInfos[0];
+                    objectMapping.MapCreator(constructorInfo);
+                }
             }
 
             MethodInfo methodInfo = type.GetMethods()

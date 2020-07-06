@@ -67,5 +67,77 @@ namespace Dahomey.Json.Tests
             Circle restoredCircle = Assert.IsType<Circle>(restored2);
             Assert.Equal(30, restoredCircle.Radius);
         }
+
+        public interface MyInterface
+        {
+            public int Id { get; set; }
+        }
+
+        public class MyImplementation : MyInterface
+        {
+            public int Id { get; set; }
+        }
+
+        [Fact]
+        public void TestWriteInterface()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            const string expectedJson = @"{""Id"":12}";
+            string actualJson = JsonSerializer.Serialize(new MyImplementation { Id = 12 }, typeof(MyInterface), options);
+
+            Assert.Equal(expectedJson, actualJson);
+        }
+
+        public abstract class MyAbstractClass
+        {
+            public int Id { get; set; }
+        }
+
+        public class MyConcreteClass : MyAbstractClass
+        {
+        }
+
+        [Fact]
+        public void TestWriteAbstractClass()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            const string expectedJson = @"{""Id"":12}";
+            string actualJson = JsonSerializer.Serialize(new MyConcreteClass { Id = 12 }, typeof(MyAbstractClass), options);
+
+            Assert.Equal(expectedJson, actualJson);
+        }
+
+        public abstract class MyAbstractClass2
+        {
+            protected MyAbstractClass2(int id)
+            {
+                Id = id;
+            }
+
+            public int Id { get; set; }
+        }
+
+        public class MyConcreteClass2 : MyAbstractClass2
+        {
+            public MyConcreteClass2() : base(0)
+            {
+            }
+        }
+
+        [Fact]
+        public void TestWriteAbstractClassWithNoDefaultCtor()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+
+            const string expectedJson = @"{""Id"":12}";
+            string actualJson = JsonSerializer.Serialize(new MyConcreteClass2 { Id = 12 }, typeof(MyAbstractClass2), options);
+
+            Assert.Equal(expectedJson, actualJson);
+        }
     }
 }
