@@ -18,7 +18,9 @@ namespace Dahomey.Json.Serialization.Converters.Factories
                     .Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>))
                 || typeToConvert.IsInterface
                     && (typeToConvert.GetGenericTypeDefinition() == typeof(IDictionary<,>)
-                    || typeToConvert.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)));
+                    || typeToConvert.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)))
+                || typeToConvert.GetInterfaces()
+                    .Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>));
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
@@ -67,6 +69,17 @@ namespace Dahomey.Json.Serialization.Converters.Factories
                         typeof(InterfaceDictionaryConverter<,,>),
                         typeToConvert, keyType, valueType);
                 }
+            }
+
+            Type dictInterface = typeToConvert.GetInterfaces()
+                .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+            if (dictInterface != null)
+            {
+                Type keyType = dictInterface.GetGenericArguments()[0];
+                Type valueType = dictInterface.GetGenericArguments()[1];
+                return CreateGenericConverter(
+                    options,
+                    typeof(DictionaryConverter<,,>), typeToConvert, keyType, valueType);
             }
 
             throw new JsonException();
