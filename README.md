@@ -8,6 +8,12 @@
 ## Introduction
 The main purpose of this library is to bring missing features to the official .Net namespace [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview)
 
+## Supported .NET versions
+* .NET Standard 2.0
+* .NET Core 3.0
+* .NET Core 3.1
+* .NET 5.0 (preview 6)
+
 ## Features
 * Extensible Polymorphism support based on discriminator conventions
 * Conditional Property Serialization support based on the existence of a method ShouldSerialize\[PropertyName\]()
