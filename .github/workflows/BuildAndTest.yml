@@ -47,7 +47,6 @@ jobs:
       run: |
         rsync -a ${DOTNET_ROOT/5.0.100-preview.6.20318.15/2.2.207}/* $DOTNET_ROOT/
         rsync -a ${DOTNET_ROOT/5.0.100-preview.6.20318.15/3.1.100}/* $DOTNET_ROOT/
-        ls -R $DOTNET_ROOT
         dotnet --info
 
     - name: build
