@@ -28,7 +28,7 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for deserializing into read-only properties (cf. https://github.com/dotnet/corefx/issues/40602)
 * Support for dynamics
 * Support for C# 8 nullable reference types
-* Support for MissingMemberHandling
+* Support for MissingMemberHandling ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/MissingMemberHandlingTests.cs))
 
 ## Installation
 ### NuGet
