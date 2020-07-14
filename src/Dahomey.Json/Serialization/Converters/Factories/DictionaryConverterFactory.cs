@@ -71,7 +71,7 @@ namespace Dahomey.Json.Serialization.Converters.Factories
                 }
             }
 
-            Type dictInterface = typeToConvert.GetInterfaces()
+            Type? dictInterface = typeToConvert.GetInterfaces()
                 .FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>));
             if (dictInterface != null)
             {

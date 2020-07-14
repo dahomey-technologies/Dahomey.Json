@@ -1,6 +1,7 @@
 ﻿using Dahomey.Json.Attributes;
 using Dahomey.Json.Serialization.Conventions;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Xunit;
 
 namespace Dahomey.Json.Tests.Issues

@@ -639,6 +639,7 @@ namespace System.Text.Json
         /// <param name="options">Serialization options</param>
         /// <typeparam name="T">Type of <see cref="obj"/></typeparam>
         /// <returns><see cref="JsonObject"/> representation of specified <see cref="T"/> value</returns>
+        [return: MaybeNull]
         public static JsonObject FromObject<T>(T obj, JsonSerializerOptions? options = null)
         {
             using (ArrayBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>())
@@ -648,7 +649,7 @@ namespace System.Text.Json
                 return JsonSerializer.Deserialize<JsonObject>(bufferWriter.WrittenSpan, options);
             }
         }
-        
+
         /// <summary>
         ///    Convert a .NET CLR type to a <see cref="JsonObject"/>
         /// </summary>
@@ -656,6 +657,7 @@ namespace System.Text.Json
         /// <param name="objType">Type of <see cref="obj"/></param>
         /// <param name="options">Serialization options</param>
         /// <returns><see cref="JsonObject"/> representation of specified <see cref="Object"/> value</returns>
+        [return: MaybeNull]
         public static JsonObject FromObject(object obj, Type objType, JsonSerializerOptions? options = null)
         {
             using (ArrayBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>())

@@ -65,7 +65,7 @@ namespace Dahomey.Json.Serialization.Converters
                     reader.Read();
                     TV value = _valueConverter.Read(ref reader, typeof(TV), options);
 
-                    workingCollection.Add(key, value);
+                    workingCollection.Add(key, value!);
                 }
 
                 if (obj == null || obj is IImmutableDictionary<TK, TV>)

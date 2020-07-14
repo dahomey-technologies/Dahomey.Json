@@ -111,13 +111,22 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             {
                 ConstructorInfo[] constructorInfos = type.GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
-                ConstructorInfo constructorInfo = constructorInfos
-                    .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute)));
+                ConstructorInfo? constructorInfo = constructorInfos
+                    .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))
+#if NETCOREAPP5_0
+                    || c.IsDefined(typeof(JsonConstructorExAttribute))
+#endif
+                    );
 
                 if (constructorInfo != null)
                 {
-                    JsonConstructorAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
                     CreatorMapping creatorMapping = objectMapping.MapCreator(constructorInfo);
+
+#if NETCOREAPP5_0
+                    JsonConstructorExAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorExAttribute>();
+#else
+                    JsonConstructorAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
+#endif
                     if (constructorAttribute != null && constructorAttribute.MemberNames != null)
                     {
                         creatorMapping.SetMemberNames(constructorAttribute.MemberNames);
@@ -131,7 +140,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
             }
 
-            MethodInfo methodInfo = type.GetMethods()
+            MethodInfo? methodInfo = type.GetMethods()
                 .FirstOrDefault(m => m.IsDefined(typeof(OnDeserializingAttribute)));
             if (methodInfo != null)
             {
@@ -230,16 +239,19 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             JsonConverterAttribute? converterAttribute = memberInfo.GetCustomAttribute<JsonConverterAttribute>();
             if (converterAttribute != null)
             {
-                Type converterType = converterAttribute.ConverterType;
+                Type? converterType = converterAttribute.ConverterType;
 
-                JsonConverter? converter = (JsonConverter?)Activator.CreateInstance(converterType);
-
-                if (converter == null)
+                if (converterType != null)
                 {
-                    throw new JsonException($"Cannot instantiate {converterType}");
-                }
+                    JsonConverter? converter = (JsonConverter?)Activator.CreateInstance(converterType);
 
-                memberMapping.SetConverter(converter);
+                    if (converter == null)
+                    {
+                        throw new JsonException($"Cannot instantiate {converterType}");
+                    }
+
+                    memberMapping.SetConverter(converter);
+                }
             }
         }
 

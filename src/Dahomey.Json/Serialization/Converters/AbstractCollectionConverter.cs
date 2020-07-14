@@ -74,7 +74,12 @@ namespace Dahomey.Json.Serialization.Converters
                     else if (memberName.SequenceEqual(ReferenceHandler.REF_MEMBER_NAME))
                     {
                         reader.Read();
-                        string @ref = reader.GetString();
+                        string? @ref = reader.GetString();
+
+                        if (@ref == null)
+                        {
+                            throw new JsonException($"Cannot resolve null reference");
+                        }
 
                         object? @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
 
@@ -107,7 +112,7 @@ namespace Dahomey.Json.Serialization.Converters
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
                 {
                     TI item = _itemConverter.Read(ref reader, typeof(TI), options);
-                    workingCollection.Add(item);
+                    workingCollection.Add(item!);
                 }
 
                 if (_referenceHandling == ReferenceHandling.Preserve)

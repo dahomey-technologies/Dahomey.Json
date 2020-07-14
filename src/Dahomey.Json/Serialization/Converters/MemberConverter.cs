@@ -113,7 +113,7 @@ namespace Dahomey.Json.Serialization.Converters
                     throw new JsonException($"No member setter for '{MemberNameAsString}'");
                 }
 
-                _memberSetter((T)obj, _jsonConverter.Read(ref reader, typeof(TM), options));
+                _memberSetter((T)obj, _jsonConverter.Read(ref reader, typeof(TM), options)!);
             }
         }
 
@@ -325,7 +325,7 @@ namespace Dahomey.Json.Serialization.Converters
                 throw new JsonException($"No member setter for '{MemberNameAsString}'");
             }
 
-            _memberSetter(ref instance, _jsonConverter.Read(ref reader, typeof(TM), options));
+            _memberSetter(ref instance, _jsonConverter.Read(ref reader, typeof(TM), options)!);
         }
 
         public void Write(Utf8JsonWriter writer, ref T instance, JsonSerializerOptions options)

@@ -2,8 +2,24 @@
 
 namespace Dahomey.Json.Attributes
 {
+#if NETCOREAPP5_0
     [AttributeUsage(AttributeTargets.Constructor)]
-    public class JsonConstructorAttribute : Attribute
+    public class JsonConstructorExAttribute : Attribute
+    {
+        public string[]? MemberNames { get; set; }
+
+        public JsonConstructorExAttribute()
+        {
+        }
+
+        public JsonConstructorExAttribute(params string[] memberNames)
+        {
+            MemberNames = memberNames;
+        }
+    }
+#else
+    [AttributeUsage(AttributeTargets.Constructor)]
+    public sealed class JsonConstructorAttribute : Attribute
     {
         public string[]? MemberNames { get; set; }
 
@@ -16,4 +32,5 @@ namespace Dahomey.Json.Attributes
             MemberNames = memberNames;
         }
     }
+#endif
 }
