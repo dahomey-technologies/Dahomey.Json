@@ -278,6 +278,8 @@ namespace Dahomey.Json.Serialization.Converters
             ReadOnlySpan<byte> memberName = reader.GetRawString();
             reader.Read();
 
+            bool isDiscriminatorValue = false;
+
             if (obj == null)
             {
                 if (converter == null)
@@ -288,6 +290,7 @@ namespace Dahomey.Json.Serialization.Converters
                         {
                             // discriminator value
                             Type actualType = _discriminatorConvention.ReadDiscriminator(ref reader);
+                            isDiscriminatorValue = true;
 
                             if (!_objectMapping.ObjectType.IsAssignableFrom(actualType))
                             {
@@ -334,6 +337,11 @@ namespace Dahomey.Json.Serialization.Converters
             else if (converter == null)
             {
                 converter = this;
+            }
+
+            if (isDiscriminatorValue)
+            {
+                return;
             }
 
             if (creatorValues == null)
@@ -408,7 +416,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
             else if (_missingMemberHandling == MissingMemberHandling.Error)
             {
-                throw new JsonException($"Missing member '{Encoding.UTF8.GetString(memberName)}'");
+                throw new JsonException($"Could not find member '{Encoding.UTF8.GetString(memberName)}' on object of type '{obj.GetType().Name}'");
             }
             else if (memberConverters.ExtensionData != null)
             {
