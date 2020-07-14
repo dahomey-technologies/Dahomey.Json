@@ -15,26 +15,29 @@ The main purpose of this library is to bring missing features to the official .N
 * .NET 5.0 (preview 6)
 
 ## Features
-* Extensible Polymorphism support based on discriminator conventions
-* Conditional Property Serialization support based on the existence of a method ShouldSerialize\[PropertyName\]()
-* Support for interfaces and abstract classes
-* Support for numeric, enum and custom dictionary keys
-* Support for non default constructors
-* Can ignore default values
-* Can require properties or fields with different policies
-* Object mapping to programmatically configure features in a non invasive way
-* Support for Writable JSON Document Object Model (cf. [Spec](https://github.com/dotnet/corefx/blob/master/src/System.Text.Json/docs/writable_json_dom_spec.md))
-* Support for serialization callbacks (before/after serialization/deserialization)
-* Support for anonymous types
-* Support for DataContractAttribute and DataMemberAttribute
-* Extended support for structs
-* Support for Nullables
-* Support for collection interfaces: IList<>, ICollection<>, IEnumerable<>, IReadOnlyList<>, IReadOnlyCollection<>
-* Support for reference loop handling (cf. https://github.com/dotnet/corefx/issues/41002)
-* Support for deserializing into read-only properties (cf. https://github.com/dotnet/corefx/issues/40602)
-* Support for dynamics
+* Extensible Polymorphism support based on discriminator conventions ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DiscriminatorTests.cs))
+* Conditional Property Serialization support based on the existence of a method ShouldSerialize\[PropertyName\]() ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ShouldSerializeTests.cs))
+* Support for interfaces and abstract classes ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DictionaryTests.cs))
+* Support for numeric, enum and custom dictionary keys ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DictionaryTests.cs))
+* Support for non default constructors ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/CreatorMappingTests.cs)
+* Can ignore default values ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DefaultValueTests.cs))
+* Can require properties or fields with different policies ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ClassMemberModifierTests.cs))
+* Object mapping to programmatically configure features in a non invasive way ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ObjectMappingTests.cs))
+* Support for Writable JSON Document Object Model (cf. [Spec](https://github.com/dotnet/corefx/blob/master/src/System.Text.Json/docs/writable_json_dom_spec.md)) ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/JsonNodeTests.cs))
+* Support for serialization callbacks (before/after serialization/deserialization) ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/CallbackTests.cs))
+* Support for anonymous types ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/AnonymousTests.cs))
+* Support for DataContractAttribute and DataMemberAttribute ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DataContractAndMemberTests.cs))
+* Extended support for structs ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/StructTests.cs))
+* Support for Nullables ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/NullableTests.cs))
+* Support for collection interfaces: ISet<>, IList<>, ICollection<>, IEnumerable<>, IReadOnlyList<>, IReadOnlyCollection<>, IDictionary<>, IReadOnlyDictionary<> ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/InterfaceCollectionTests.cs))
+* Support for immutable collections: ImmutableArray<>, ImmutableList<>, ImmutableSortedSet<>, ImmutableHashSet<>, ImmutableDictionary<>, ImmutableSortedDictionary<> ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ImmutableCollectionTests.cs))
+* Support for reference loop handling (cf. https://github.com/dotnet/corefx/issues/41002) ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ReferenceHandlingTests.cs))
+* Support for deserializing into read-only properties (cf. https://github.com/dotnet/corefx/issues/40602) ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ReadOnlyPropertyTests.cs))
+* Support for dynamics ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DynamicObjectTests.cs))
 * Support for C# 8 nullable reference types
 * Support for MissingMemberHandling ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/MissingMemberHandlingTests.cs))
+* Support for different property requirement policy ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/RequiredTests.cs))
+* Support for extended naming policies: Kebab case and Snake case ([example1](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/KebabCaseNamingPolicyTests.cs), [example2](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/SnakeCaseNamingPolicyTests.cs))
 
 ## Installation
 ### NuGet
