@@ -280,7 +280,7 @@ namespace Dahomey.Json.Serialization.Converters
 
             bool isDiscriminatorValue = false;
 
-            if (obj == null)
+            if (obj == null || converter == null)
             {
                 if (converter == null)
                 {
@@ -318,7 +318,7 @@ namespace Dahomey.Json.Serialization.Converters
 
                 if (creatorValues == null)
                 {
-                    if (!_isStruct)
+                    if (!_isStruct && obj == null)
                     {
                         obj = (T)converter.CreateInstance();
 
@@ -333,10 +333,6 @@ namespace Dahomey.Json.Serialization.Converters
                         ((Action<T>)converter.ObjectMapping.OnDeserializingMethod)(obj);
                     }
                 }
-            }
-            else if (converter == null)
-            {
-                converter = this;
             }
 
             if (isDiscriminatorValue)
