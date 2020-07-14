@@ -4,7 +4,7 @@ namespace System.Text.Json
 {
     public sealed partial class JsonObject
     {
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        public override bool TryGetMember(GetMemberBinder binder, out object? result)
         {
             if (!TryGetPropertyValue(binder.Name, out JsonNode? jsonNode))
             {
@@ -15,7 +15,7 @@ namespace System.Text.Json
             return true;
         }
 
-        public override bool TrySetMember(SetMemberBinder binder, object value)
+        public override bool TrySetMember(SetMemberBinder binder, object? value)
         {
             if (value == null)
             {

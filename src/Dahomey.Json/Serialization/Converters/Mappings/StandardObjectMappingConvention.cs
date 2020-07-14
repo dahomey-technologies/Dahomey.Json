@@ -63,7 +63,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 objectMapping.MapCreator(constructorInfos[0]);
             }
 
-            MethodInfo methodInfo = type.GetMethods()
+            MethodInfo? methodInfo = type.GetMethods()
                 .FirstOrDefault(m => m.IsDefined(typeof(OnDeserializingAttribute)));
             if (methodInfo != null)
             {
@@ -120,7 +120,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             string shouldSerializeMethodName = "ShouldSerialize" + memberMapping.MemberInfo.Name;
             Type? objectType = memberMapping.MemberInfo.DeclaringType;
 
-            MethodInfo? shouldSerializeMethodInfo = objectType?.GetMethod(shouldSerializeMethodName, new Type[] { });
+            if (objectType == null)
+            {
+                return;
+            }
+
+            MethodInfo? shouldSerializeMethodInfo = objectType.GetMethod(shouldSerializeMethodName, new Type[] { });
             if (shouldSerializeMethodInfo != null &&
                 shouldSerializeMethodInfo.IsPublic &&
                 shouldSerializeMethodInfo.ReturnType == typeof(bool))

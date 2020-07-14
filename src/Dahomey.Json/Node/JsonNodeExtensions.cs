@@ -1,9 +1,11 @@
 ﻿using Dahomey.Json.Util;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.Text.Json
 {
     public static class JsonNodeExtensions
     {
+        [return: MaybeNull]
         public static T ToObject<T>(this JsonNode node, JsonSerializerOptions? options = null)
         {
             using (ArrayBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>())

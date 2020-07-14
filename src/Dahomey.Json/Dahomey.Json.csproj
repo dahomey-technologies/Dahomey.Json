@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.0;netcoreapp3.1;net5.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <PackageReleaseNotes>cf. https://github.com/dahomey-technologies/Dahomey.Json/releases/tag/$(Version)</PackageReleaseNotes>
@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/dahomey-technologies/Dahomey.Json.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageIcon>icon.png</PackageIcon>
-    <Copyright>Copyright © Dahomey Technologies 2019</Copyright>
+    <Copyright>Copyright © Dahomey Technologies 2020</Copyright>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 

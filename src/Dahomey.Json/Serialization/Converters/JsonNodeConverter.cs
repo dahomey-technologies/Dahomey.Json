@@ -69,7 +69,13 @@ namespace Dahomey.Json.Serialization.Converters
                     throw new JsonException();
                 }
 
-                string propertyName = reader.GetString();
+                string? propertyName = reader.GetString();
+
+                if (propertyName == null)
+                {
+                    throw new JsonException("Property name cannot be null");
+                }
+
                 reader.Read();
                 JsonNode propertyValue = Read(ref reader, typeof(JsonNode), options);
 

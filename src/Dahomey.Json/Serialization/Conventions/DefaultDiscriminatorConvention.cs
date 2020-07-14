@@ -47,6 +47,12 @@ namespace Dahomey.Json.Serialization.Conventions
         public Type ReadDiscriminator(ref Utf8JsonReader reader)
         {
             T discriminator = _jsonConverter.Read(ref reader, typeof(T), _options);
+
+            if (discriminator == null)
+            {
+                throw new JsonException($"Null discriminator");
+            }
+
             if (!_typesByDiscriminator.TryGetValue(discriminator, out Type? type))
             {
                 throw new JsonException($"Unknown type discriminator: {discriminator}");
