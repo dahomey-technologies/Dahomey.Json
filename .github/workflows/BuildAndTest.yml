@@ -36,6 +36,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.100
+        
+    - name: setup .net core 5.0.100-preview.6.20318.15
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100-preview.6.20318.15
 
 # workaround for using multiple dotnet core installs
     - name: setup multiple sdks
