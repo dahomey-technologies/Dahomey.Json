@@ -19,7 +19,7 @@ The main purpose of this library is to bring missing features to the official .N
 * Conditional Property Serialization support based on the existence of a method ShouldSerialize\[PropertyName\]() ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ShouldSerializeTests.cs))
 * Support for interfaces and abstract classes ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DictionaryTests.cs))
 * Support for numeric, enum and custom dictionary keys ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DictionaryTests.cs))
-* Support for non default constructors ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/CreatorMappingTests.cs)
+* Support for non default constructors ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/CreatorMappingTests.cs))
 * Can ignore default values ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DefaultValueTests.cs))
 * Can require properties or fields with different policies ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ClassMemberModifierTests.cs))
 * Object mapping to programmatically configure features in a non invasive way ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/ObjectMappingTests.cs))
