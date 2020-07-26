@@ -9,7 +9,7 @@ namespace Dahomey.Json.Tests.Issues
     {
         public readonly struct MyStruct
         {
-#if NETCOREAPP5_0
+#if NET5_0
             [JsonConstructorEx("Value")]
 #else
             [JsonConstructor("Value")]
