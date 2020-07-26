@@ -6,15 +6,10 @@ using Xunit;
 
 namespace Dahomey.Json.Tests.Issues
 {
-    public class Issue0045
+    public class Issue0047
     {
         public readonly struct MyStruct
         {
-#if NET5_0
-            [JsonConstructorEx("IntValue")]
-#else
-            [JsonConstructor("IntValue")]
-#endif
             public MyStruct(int intValue)
             {
                 IntValue = intValue;
@@ -42,8 +37,18 @@ namespace Dahomey.Json.Tests.Issues
             options.SetupExtensions();
             var json = JsonSerializer.Serialize(s1, options);
             var s2 = JsonSerializer.Deserialize<MyStruct>(json, options);
-            // serialized as "intValue", but JsonConstructor specifies "IntValue"
-            Assert.Equal(default, s2.IntValue);
+            Assert.Equal(100, s2.IntValue);
+        }
+
+        [Fact]
+        public void TestSnakeCase()
+        {
+            var s1 = new MyStruct(100);
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = new SnakeCaseNamingPolicy() };
+            options.SetupExtensions();
+            var json = JsonSerializer.Serialize(s1, options);
+            var s2 = JsonSerializer.Deserialize<MyStruct>(json, options);
+            Assert.Equal(100, s2.IntValue);
         }
     }
 }
