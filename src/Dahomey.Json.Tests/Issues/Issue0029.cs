@@ -18,7 +18,7 @@ namespace Dahomey.Json.Tests.Issues
         [JsonDiscriminator(nameof(InheritedClass))]
         private class InheritedClass : BaseClass
         {
-            [JsonConstructor]
+            [JsonConstructorEx]
             public InheritedClass(int id, string name)
             {
                 Id = id;

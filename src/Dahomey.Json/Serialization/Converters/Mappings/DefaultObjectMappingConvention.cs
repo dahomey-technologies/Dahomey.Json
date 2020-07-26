@@ -112,9 +112,9 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 ConstructorInfo[] constructorInfos = type.GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
                 ConstructorInfo? constructorInfo = constructorInfos
-                    .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))
+                    .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorExAttribute))
 #if NET5_0
-                    || c.IsDefined(typeof(JsonConstructorExAttribute))
+                    || c.IsDefined(typeof(JsonConstructorAttribute))
 #endif
                     );
 
@@ -122,11 +122,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 {
                     CreatorMapping creatorMapping = objectMapping.MapCreator(constructorInfo);
 
-#if NET5_0
                     JsonConstructorExAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorExAttribute>();
-#else
-                    JsonConstructorAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();
-#endif
                     if (constructorAttribute != null && constructorAttribute.MemberNames != null)
                     {
                         creatorMapping.SetMemberNames(constructorAttribute.MemberNames);

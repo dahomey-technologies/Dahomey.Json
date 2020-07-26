@@ -52,7 +52,11 @@ namespace Dahomey.Json.Tests
             public string Name { get; set; }
             public int Age { get; set; }
 
+#if NET5_0
             [JsonConstructor]
+#else
+            [JsonConstructorEx]
+#endif
             public ObjectWithConstructor2(int id, string name)
             {
                 Id = id;
@@ -83,11 +87,7 @@ namespace Dahomey.Json.Tests
             public string Name { get; set; }
             public int Age { get; set; }
 
-#if NET5_0
             [JsonConstructorEx(nameof(Id), nameof(Name))]
-#else
-            [JsonConstructor(nameof(Id), nameof(Name))]
-#endif
             public ObjectWithConstructor3(int id, string name)
             {
                 Id = id;

@@ -1,7 +1,5 @@
 ﻿using Dahomey.Json.Attributes;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Dahomey.Json.NamingPolicies;
 using Xunit;
 
 namespace Dahomey.Json.Tests.Issues
@@ -10,11 +8,7 @@ namespace Dahomey.Json.Tests.Issues
     {
         public readonly struct MyStruct
         {
-#if NET5_0
             [JsonConstructorEx("IntValue")]
-#else
-            [JsonConstructor("IntValue")]
-#endif
             public MyStruct(int intValue)
             {
                 IntValue = intValue;
