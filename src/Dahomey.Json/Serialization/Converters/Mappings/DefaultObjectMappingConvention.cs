@@ -113,7 +113,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
                 ConstructorInfo? constructorInfo = constructorInfos
                     .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorAttribute))
-#if NETCOREAPP5_0
+#if NET5_0
                     || c.IsDefined(typeof(JsonConstructorExAttribute))
 #endif
                     );
@@ -122,7 +122,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 {
                     CreatorMapping creatorMapping = objectMapping.MapCreator(constructorInfo);
 
-#if NETCOREAPP5_0
+#if NET5_0
                     JsonConstructorExAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorExAttribute>();
 #else
                     JsonConstructorAttribute? constructorAttribute = constructorInfo.GetCustomAttribute<JsonConstructorAttribute>();

@@ -83,7 +83,7 @@ namespace Dahomey.Json.Tests
             public string Name { get; set; }
             public int Age { get; set; }
 
-#if NETCOREAPP5_0
+#if NET5_0
             [JsonConstructorEx(nameof(Id), nameof(Name))]
 #else
             [JsonConstructor(nameof(Id), nameof(Name))]

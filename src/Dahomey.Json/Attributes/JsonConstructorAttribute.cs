@@ -2,7 +2,7 @@
 
 namespace Dahomey.Json.Attributes
 {
-#if NETCOREAPP5_0
+#if NET5_0
     [AttributeUsage(AttributeTargets.Constructor)]
     public class JsonConstructorExAttribute : Attribute
     {
