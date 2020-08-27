@@ -10,7 +10,6 @@ The main purpose of this library is to bring missing features to the official .N
 
 ## Supported .NET versions
 * .NET Standard 2.0
-* .NET Core 3.0
 * .NET Core 3.1
 * .NET 5.0 (preview 8)
 
