@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -36,6 +37,16 @@ namespace Dahomey.Json.Serialization.Converters.Factories
                     return CreateGenericConverter(
                         options,
                         typeof(ImmutableDictionaryConverter<,,>), typeToConvert, keyType, valueType);
+                }
+
+                if (typeToConvert.GetGenericTypeDefinition() == typeof(ReadOnlyDictionary<,>))
+                {
+                    Type keyType = typeToConvert.GetGenericArguments()[0];
+                    Type valueType = typeToConvert.GetGenericArguments()[1];
+
+                    return CreateGenericConverter(
+                        options,
+                        typeof(ReadOnlyDictionaryConverter<,>), keyType, valueType);
                 }
 
                 if (typeToConvert.GetInterfaces()
