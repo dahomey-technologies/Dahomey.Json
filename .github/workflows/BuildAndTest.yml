@@ -37,16 +37,16 @@ jobs:
       with:
         dotnet-version: 3.1.100
         
-    - name: setup .net core 5.0.100-preview.8.20417.9
+    - name: setup .net core 5.0.100-rc.1.20452.10
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100-preview.8.20417.9
+        dotnet-version: 5.0.100-rc.1.20452.10
 
 # workaround for using multiple dotnet core installs
     - name: setup multiple sdks
       run: |
-        rsync -a ${DOTNET_ROOT/5.0.100-preview.8.20417.9/2.1.809}/* $DOTNET_ROOT/
-        rsync -a ${DOTNET_ROOT/5.0.100-preview.8.20417.9/3.1.100}/* $DOTNET_ROOT/
+        rsync -a ${DOTNET_ROOT/5.0.100-rc.1.20452.10/2.1.809}/* $DOTNET_ROOT/
+        rsync -a ${DOTNET_ROOT/5.0.100-rc.1.20452.10/3.1.100}/* $DOTNET_ROOT/
         dotnet --info
 
     - name: build
