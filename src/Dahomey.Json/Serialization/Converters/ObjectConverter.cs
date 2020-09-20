@@ -100,12 +100,10 @@ namespace Dahomey.Json.Serialization.Converters
                     Type.EmptyTypes,
                     null);
 
-                if (defaultConstructorInfo == null)
+                if (defaultConstructorInfo != null)
                 {
-                    throw new JsonException($"Cannot find a default constructor on type {typeof(T)}");
+                    _constructor = defaultConstructorInfo.CreateDelegate<T>();
                 }
-
-                _constructor = defaultConstructorInfo.CreateDelegate<T>();
             }
 
             _discriminatorConvention = options.GetDiscriminatorConventionRegistry().GetConvention(typeof(T));
