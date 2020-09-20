@@ -44,9 +44,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             foreach (PropertyInfo propertyInfo in properties)
             {
-                if (propertyInfo.IsDefined(typeof(JsonIgnoreAttribute)))
+                JsonIgnoreAttribute? jsonIgnoreAttribute = propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>();
+                if (jsonIgnoreAttribute != null
+#if NET5_0
+                    && jsonIgnoreAttribute.Condition == JsonIgnoreCondition.Always
+#endif
+                    )
                 {
-                    continue;
+                        continue;
                 }
 
                 if (propertyInfo.IsDefined(typeof(JsonExtensionDataAttribute)))
@@ -70,7 +75,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
 
                 MemberMapping<T> memberMapping = new MemberMapping<T>(options, objectMapping, propertyInfo, propertyInfo.PropertyType);
-                ProcessDefaultValue(propertyInfo, memberMapping);
+                ProcessDefaultValue(propertyInfo, memberMapping, options);
                 ProcessShouldSerializeMethod(memberMapping);
                 ProcessRequired(propertyInfo, memberMapping);
                 ProcessMemberName(propertyInfo, memberMapping);
@@ -81,11 +86,15 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             foreach (FieldInfo fieldInfo in fields)
             {
-                if (fieldInfo.IsDefined(typeof(JsonIgnoreAttribute)))
+                JsonIgnoreAttribute? jsonIgnoreAttribute = fieldInfo.GetCustomAttribute<JsonIgnoreAttribute>();
+                if (jsonIgnoreAttribute != null
+#if NET5_0
+                    && jsonIgnoreAttribute.Condition == JsonIgnoreCondition.Always
+#endif
+                    )
                 {
                     continue;
                 }
-
                 if ((fieldInfo.IsPrivate || fieldInfo.IsStatic)
                     && !fieldInfo.IsDefined(typeof(JsonPropertyNameAttribute))
                     && !fieldInfo.IsDefined(typeof(JsonPropertyAttribute)))
@@ -96,7 +105,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 Type fieldType = fieldInfo.FieldType;
 
                 MemberMapping<T> memberMapping = new MemberMapping<T>(options, objectMapping, fieldInfo, fieldInfo.FieldType);
-                ProcessDefaultValue(fieldInfo, memberMapping);
+                ProcessDefaultValue(fieldInfo, memberMapping, options);
                 ProcessShouldSerializeMethod(memberMapping);
                 ProcessRequired(fieldInfo, memberMapping);
                 ProcessMemberName(fieldInfo, memberMapping);
@@ -173,7 +182,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             }
         }
 
-        private void ProcessDefaultValue<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
+        private void ProcessDefaultValue<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping, JsonSerializerOptions options)
         {
             DefaultValueAttribute? defaultValueAttribute = memberInfo.GetCustomAttribute<DefaultValueAttribute>();
             if (defaultValueAttribute != null)
@@ -185,6 +194,24 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             {
                 memberMapping.SetIngoreIfDefault(true);
             }
+
+#if NET5_0
+            if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingDefault
+                || options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull && memberMapping.MemberType.IsClass)
+            {
+                memberMapping.SetIngoreIfDefault(true);
+            }
+
+            JsonIgnoreAttribute? jsonIgnoreAttribute = memberInfo.GetCustomAttribute<JsonIgnoreAttribute>();
+            if (jsonIgnoreAttribute != null)
+            {
+                if (jsonIgnoreAttribute.Condition == JsonIgnoreCondition.WhenWritingDefault
+                    || jsonIgnoreAttribute.Condition == JsonIgnoreCondition.WhenWritingNull && memberMapping.MemberType.IsClass)
+                {
+                    memberMapping.SetIngoreIfDefault(true);
+                }
+            }
+#endif
         }
 
         private void ProcessShouldSerializeMethod<T>(MemberMapping<T> memberMapping)
