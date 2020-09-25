@@ -34,7 +34,7 @@ namespace Dahomey.Json
                 }
 
                 var path = String.Join(".", _context);
-                return $"{path}: {inner.Message}";
+                return $"The JSON value could not be converted at '{path}': {inner.Message}";
             }
         }
     }
