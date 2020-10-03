@@ -33,26 +33,7 @@ namespace Dahomey.Json.Serialization.Converters
         bool ShouldSerialize(ref T instance, Type declaredType, JsonSerializerOptions options);
     }
 
-    public static class ThrowHelper
-    {
-        public static JsonException BuildException(Type memberType, string memberName, Exception innerException)
-        {
-            string path;
-
-            if (innerException is JsonException jsonException)
-            {
-                path = $"{jsonException.Path}.{memberName}";
-            }
-            else
-            {
-                path = $"$.{memberName}";
-            }
-
-            throw new JsonException($"The JSON value could not be converted to {memberType}. Path: {path}", path, null, null, innerException);
-        }
-    }
-
-    public class MemberConverter<T, TM> : IMemberConverter 
+    public class MemberConverter<T, TM> : IMemberConverter
         where T : class
     {
         private readonly Func<T, TM>? _memberGetter;
@@ -138,7 +119,7 @@ namespace Dahomey.Json.Serialization.Converters
                 }
                 catch(Exception ex)
                 {
-                    throw ThrowHelper.BuildException(typeof(TM), MemberNameAsString, ex);
+                    throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
                 }
             }
         }
@@ -169,7 +150,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
             catch (Exception ex)
             {
-                throw ThrowHelper.BuildException(typeof(TM), MemberNameAsString, ex);
+                throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
             }
         }
 
@@ -331,7 +312,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
             catch (Exception ex)
             {
-                throw ThrowHelper.BuildException(typeof(TM), MemberNameAsString, ex);
+                throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
             }
         }
 
@@ -371,7 +352,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
             catch (Exception ex)
             {
-                throw ThrowHelper.BuildException(typeof(TM), MemberNameAsString, ex);
+                throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
             }
         }
 
