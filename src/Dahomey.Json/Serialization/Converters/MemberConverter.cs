@@ -119,7 +119,7 @@ namespace Dahomey.Json.Serialization.Converters
                 }
                 catch(Exception ex)
                 {
-                    throw new MemberJsonExceptionEx(MemberNameAsString, ex);
+                    throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
                 }
             }
         }
@@ -150,7 +150,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
             catch (Exception ex)
             {
-                throw new MemberJsonExceptionEx(MemberNameAsString, ex);
+                throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
             }
         }
 
@@ -312,7 +312,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
             catch (Exception ex)
             {
-                throw new MemberJsonExceptionEx(MemberNameAsString, ex);
+                throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
             }
         }
 
@@ -352,7 +352,7 @@ namespace Dahomey.Json.Serialization.Converters
             }
             catch (Exception ex)
             {
-                throw new MemberJsonExceptionEx(MemberNameAsString, ex);
+                throw new MemberJsonException(MemberNameAsString, typeof(TM), ex);
             }
         }
 

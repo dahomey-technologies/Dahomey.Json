@@ -24,10 +24,10 @@ namespace Dahomey.Json.Tests
 
             JsonSerializerOptions options = new JsonSerializerOptions().SetupExtensions();
             JsonException exception = Assert.ThrowsAny<JsonException>(() => JsonSerializer.Deserialize<Outer>(json, options));
-            Assert.Equal("The JSON value could not be converted at 'foo.bar': Cannot get the value of a token type 'String' as a number.", exception.Message);
+            Assert.Equal("The JSON value could not be converted to System.Int64. Path: $.foo.bar", exception.Message);
 
             JsonException exception2 = Assert.ThrowsAny<JsonException>(() => JsonSerializer.Deserialize<Inner>(innerJson, options));
-            Assert.Equal("The JSON value could not be converted at 'bar': Cannot get the value of a token type 'String' as a number.", exception2.Message);
+            Assert.Equal("The JSON value could not be converted to System.Int64. Path: $.bar", exception2.Message);
         }
     }
 }
