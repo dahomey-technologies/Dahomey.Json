@@ -206,7 +206,8 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             if (jsonIgnoreAttribute != null)
             {
                 if (jsonIgnoreAttribute.Condition == JsonIgnoreCondition.WhenWritingDefault
-                    || jsonIgnoreAttribute.Condition == JsonIgnoreCondition.WhenWritingNull && memberMapping.MemberType.IsClass)
+                    || jsonIgnoreAttribute.Condition == JsonIgnoreCondition.WhenWritingNull 
+                    && (memberMapping.MemberType.IsClass || Nullable.GetUnderlyingType(memberMapping.MemberType) != null))
                 {
                     memberMapping.SetIngoreIfDefault(true);
                 }
