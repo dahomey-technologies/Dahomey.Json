@@ -68,6 +68,12 @@ namespace Dahomey.Json.Tests
 
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             public object WhenWritingNull { get; set; }
+
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+            public int? WhenWritingNullableNull { get; set; }
+
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+            public int? WhenWritingNullableValue { get; set; } = 123;
         }
 
         [Fact]
@@ -83,7 +89,7 @@ namespace Dahomey.Json.Tests
                 WhenWritingNull = null,
             };
 
-            const string expected = @"{""Never"":0}";
+            const string expected = @"{""Never"":0,""WhenWritingNullableValue"":123}";
             string actual = JsonSerializer.Serialize(myClass, options);
 
             Assert.Equal(expected, actual);
