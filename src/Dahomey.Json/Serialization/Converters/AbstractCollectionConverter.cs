@@ -44,7 +44,7 @@ namespace Dahomey.Json.Serialization.Converters
 
         public override void Read(ref Utf8JsonReader reader, ref TC obj, JsonSerializerOptions options)
         {
-            using (new DepthHandler(options))
+            using (ReferenceHandler referenceHandler = new ReferenceHandler(options))
             {
                 string? id = null;
 
@@ -57,21 +57,22 @@ namespace Dahomey.Json.Serialization.Converters
 
                     reader.Read();
                     ReadOnlySpan<byte> memberName = reader.GetRawString();
+                    JsonSerializerOptionsState state = options.GetState();
 
-                    if (memberName.SequenceEqual(ReferenceHandler.ID_MEMBER_NAME))
+                    if (memberName.SequenceEqual(state.ID_MEMBER_NAME))
                     {
                         reader.Read();
                         id = reader.GetString();
 
                         reader.Read();
                         memberName = reader.GetRawString();
-                        if (!memberName.SequenceEqual(ReferenceHandler.VALUES_MEMBER_NAME))
+                        if (!memberName.SequenceEqual(state.VALUES_MEMBER_NAME))
                         {
                             throw new JsonException("Expected $values member name");
                         }
                         reader.Read();
                     }
-                    else if (memberName.SequenceEqual(ReferenceHandler.REF_MEMBER_NAME))
+                    else if (memberName.SequenceEqual(state.REF_MEMBER_NAME))
                     {
                         reader.Read();
                         string? @ref = reader.GetString();
@@ -81,7 +82,7 @@ namespace Dahomey.Json.Serialization.Converters
                             throw new JsonException($"Cannot resolve null reference");
                         }
 
-                        object? @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
+                        object? @object = referenceHandler.ResolveReference(@ref);
 
                         if (@object == null)
                         {
@@ -129,7 +130,7 @@ namespace Dahomey.Json.Serialization.Converters
                     obj = InstantiateCollection(workingCollection);
                     if (!string.IsNullOrEmpty(id))
                     {
-                        SerializationContext.Current.ReferenceHandler.AddReference(obj, id);
+                        referenceHandler.AddReference(obj, id);
                     }
                 }
                 else if (obj is ICollection<TI> collection)
@@ -154,28 +155,23 @@ namespace Dahomey.Json.Serialization.Converters
                 return;
             }
 
-            using (new DepthHandler(options))
+            using (ReferenceHandler referenceHandler = new ReferenceHandler(options))
             {
-                ReferenceHandler? referenceResolver = null;
-                if (_referenceHandling == ReferenceHandling.Ignore)
-                {
-                    referenceResolver = SerializationContext.Current.ReferenceHandler;
-                }
-                else if (_referenceHandling == ReferenceHandling.Preserve)
+                if (_referenceHandling == ReferenceHandling.Preserve)
                 {
                     writer.WriteStartObject();
 
-                    referenceResolver = SerializationContext.Current.ReferenceHandler;
-                    string reference = referenceResolver.GetReference(value, out bool firstReference);
+                    string reference = referenceHandler.GetReference(value, out bool firstReference);
+                    JsonSerializerOptionsState state = options.GetState();
 
                     if (firstReference)
                     {
-                        writer.WriteString(ReferenceHandler.ID_MEMBER_NAME, reference);
-                        writer.WritePropertyName(ReferenceHandler.VALUES_MEMBER_NAME);
+                        writer.WriteString(state.ID_MEMBER_NAME, reference);
+                        writer.WritePropertyName(state.VALUES_MEMBER_NAME);
                     }
                     else
                     {
-                        writer.WriteString(ReferenceHandler.REF_MEMBER_NAME, reference);
+                        writer.WriteString(state.REF_MEMBER_NAME, reference);
                         writer.WriteEndObject();
                         return;
                     }
@@ -187,13 +183,13 @@ namespace Dahomey.Json.Serialization.Converters
                 {
                     if (_referenceHandling == ReferenceHandling.Ignore)
                     {
-                        if (referenceResolver!.IsReferenced(item!))
+                        if (referenceHandler!.IsReferenced(item!))
                         {
                             continue;
                         }
                         else
                         {
-                            referenceResolver.AddReference(item!);
+                            referenceHandler.AddReference(item!);
                         }
                     }
 

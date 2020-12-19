@@ -6,8 +6,6 @@ namespace Dahomey.Json.Util
     public class ReadOnlyMemoryEqualityComparer<T> : IEqualityComparer<ReadOnlyMemory<T>>
         where T : IEquatable<T>
     {
-        public static ReadOnlyMemoryEqualityComparer<T> Instance { get; } = new ReadOnlyMemoryEqualityComparer<T>();
-
         public bool Equals(ReadOnlyMemory<T> x, ReadOnlyMemory<T> y)
         {
             return x.Span.SequenceEqual(y.Span);

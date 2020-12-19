@@ -5,7 +5,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 {
     public class StandardObjectMappingConventionProvider : IObjectMappingConventionProvider
     {
-        private static readonly StandardObjectMappingConvention _standardObjectMappingConvention = new StandardObjectMappingConvention();
+        private readonly StandardObjectMappingConvention _standardObjectMappingConvention = new StandardObjectMappingConvention();
 
         public IObjectMappingConvention? GetConvention(Type type)
         {

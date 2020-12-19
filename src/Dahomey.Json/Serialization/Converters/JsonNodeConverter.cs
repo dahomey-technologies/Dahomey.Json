@@ -14,13 +14,13 @@ namespace Dahomey.Json.Serialization.Converters
             switch (reader.TokenType)
             {
                 case JsonTokenType.StartObject:
-                    using (new DepthHandler(options))
+                    using (new ReferenceHandler(options))
                     {
                         return ReadObject(ref reader, options);
                     }
 
                 case JsonTokenType.StartArray:
-                    using (new DepthHandler(options))
+                    using (new ReferenceHandler(options))
                     {
                         return ReadArray(ref reader, options);
                     }
@@ -96,14 +96,14 @@ namespace Dahomey.Json.Serialization.Converters
             switch (value.ValueKind)
             {
                 case JsonValueKind.Object:
-                    using (new DepthHandler(options))
+                    using (new ReferenceHandler(options))
                     {
                         WriteObject(writer, (JsonObject)value, options);
                     }
                     break;
 
                 case JsonValueKind.Array:
-                    using (new DepthHandler(options))
+                    using (new ReferenceHandler(options))
                     {
                         WriteArray(writer, (JsonArray)value, options);
                     }
@@ -114,7 +114,7 @@ namespace Dahomey.Json.Serialization.Converters
                     break;
 
                 case JsonValueKind.Number:
-                    writer.WriteNumberValue(Encoding.ASCII.GetBytes(value.ToString()));
+                    writer.WriteNumberValue(options, Encoding.ASCII.GetBytes(value.ToString()));
                     break;
 
                 case JsonValueKind.True:

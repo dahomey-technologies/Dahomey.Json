@@ -65,11 +65,6 @@ namespace Dahomey.Json
             options.GetState().ReadOnlyPropertyHandling = referenceHandling;
         }
 
-        private static JsonSerializerOptionsState GetState(this JsonSerializerOptions options)
-        {
-            return (JsonSerializerOptionsState)options.GetConverter<JsonSerializerOptionsState>();
-        }
-
         public static MissingMemberHandling GetMissingMemberHandling(this JsonSerializerOptions options)
         {
             return options.GetState().MissingMemberHandling;
@@ -78,6 +73,11 @@ namespace Dahomey.Json
         public static void SetMissingMemberHandling(this JsonSerializerOptions options, MissingMemberHandling missingMemberHandling)
         {
             options.GetState().MissingMemberHandling = missingMemberHandling;
+        }
+
+        internal static JsonSerializerOptionsState GetState(this JsonSerializerOptions options)
+        {
+            return (JsonSerializerOptionsState)options.GetConverter<JsonSerializerOptionsState>();
         }
     }
 }
