@@ -242,5 +242,25 @@ namespace Dahomey.Json.Tests
 
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public void ReadPolymorphicObjectWithDeferredTypeProperty()
+        {
+            const string json = @"{""BaseObject"":{""Name"":""foo"",""Id"":1,""Unknown"":{""Prop1"":12,""Prop2"":""bar""},""$type"":12}}";
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
+            registry.ClearConventions();
+            registry.RegisterConvention(new DefaultDiscriminatorConvention<int>(options));
+            registry.RegisterType<NameObject>();
+
+            BaseObjectHolder obj = JsonSerializer.Deserialize<BaseObjectHolder>(json, options);
+
+            Assert.NotNull(obj);
+            NameObject nameObject = Assert.IsType<NameObject>(obj.BaseObject);
+            Assert.Equal("foo", nameObject.Name);
+            Assert.Equal(1, nameObject.Id);
+        }
     }
 }
