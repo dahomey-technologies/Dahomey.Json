@@ -54,6 +54,11 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                         continue;
                 }
 
+                if (typeof(Delegate).IsAssignableFrom(propertyInfo.PropertyType))
+                {
+                    continue;
+                }
+
                 if (propertyInfo.IsDefined(typeof(JsonExtensionDataAttribute)))
                 {
                     objectMapping.MapExtensionData(propertyInfo);
@@ -103,6 +108,11 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 }
 
                 Type fieldType = fieldInfo.FieldType;
+
+                if (typeof(Delegate).IsAssignableFrom(fieldType))
+                {
+                    continue;
+                }
 
                 MemberMapping<T> memberMapping = new MemberMapping<T>(options, objectMapping, fieldInfo, fieldInfo.FieldType);
                 ProcessDefaultValue(fieldInfo, memberMapping, options);
