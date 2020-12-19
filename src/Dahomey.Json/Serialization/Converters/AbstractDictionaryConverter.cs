@@ -44,7 +44,7 @@ namespace Dahomey.Json.Serialization.Converters
 
         public override void Read(ref Utf8JsonReader reader, ref TC obj, JsonSerializerOptions options)
         {
-            using (new DepthHandler(options))
+            using (new ReferenceHandler(options))
             {
                 if (reader.TokenType != JsonTokenType.StartObject)
                 {
@@ -94,7 +94,7 @@ namespace Dahomey.Json.Serialization.Converters
                 return;
             }
 
-            using (new DepthHandler(options))
+            using (new ReferenceHandler(options))
             {
                 writer.WriteStartObject();
 
