@@ -17,7 +17,7 @@ namespace Dahomey.Json
 
         private static string BuildPath(string memberName, Exception innerException)
         {
-            if (innerException is MemberJsonException memberJsonException)
+            if (innerException is MemberJsonException memberJsonException && memberJsonException.Path !=null)
             {
                 return $"$.{memberName}.{memberJsonException.Path.Substring(2)}";
             }
@@ -44,7 +44,7 @@ namespace Dahomey.Json
             }
         }
 
-        private static Exception BuildInnerException(Exception innerException)
+        private static Exception? BuildInnerException(Exception innerException)
         {
             if (innerException is MemberJsonException memberJsonException)
             {
