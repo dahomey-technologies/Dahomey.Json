@@ -9,14 +9,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
     {
         MemberInfo? MemberInfo { get; }
         Type MemberType { get; }
-        string? MemberName { get; }
-        JsonConverter? Converter { get; }
+        string? MemberName { get; set; }
+        JsonConverter? Converter { get; set; }
         bool CanBeDeserialized { get; }
         bool CanBeSerialized { get; }
-        object? DefaultValue { get; }
-        bool IgnoreIfDefault { get; }
-        Func<object, bool>? ShouldSerializeMethod { get; }
-        RequirementPolicy RequirementPolicy { get; }
+        object? DefaultValue { get; set; }
+        bool IgnoreIfDefault { get; set; }
+        Func<object, bool>? ShouldSerializeMethod { get; set; }
+        RequirementPolicy RequirementPolicy { get; set; }
         IMemberConverter GenerateMemberConverter();
     }
 }

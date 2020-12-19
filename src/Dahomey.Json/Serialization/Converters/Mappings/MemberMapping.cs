@@ -15,14 +15,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public MemberInfo MemberInfo { get; private set; }
         public Type MemberType { get; private set; }
-        public string? MemberName { get; private set; }
-        public JsonConverter? Converter { get; private set; }
+        public string? MemberName { get; set; }
+        public JsonConverter? Converter { get; set; }
         public bool CanBeDeserialized { get; private set; }
         public bool CanBeSerialized { get; private set; }
-        public object? DefaultValue { get; private set; }
-        public bool IgnoreIfDefault { get; private set; }
-        public Func<object, bool>? ShouldSerializeMethod { get; private set; }
-        public RequirementPolicy RequirementPolicy { get; private set; }
+        public object? DefaultValue { get; set; }
+        public bool IgnoreIfDefault { get; set; }
+        public Func<object, bool>? ShouldSerializeMethod { get; set; }
+        public RequirementPolicy RequirementPolicy { get; set; }
 
         public MemberMapping(JsonSerializerOptions options,
             IObjectMapping objectMapping, MemberInfo memberInfo, Type memberType)

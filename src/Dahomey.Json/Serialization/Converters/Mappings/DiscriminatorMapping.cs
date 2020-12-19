@@ -15,14 +15,14 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
         public MemberInfo? MemberInfo => null;
         public Type MemberType => throw new NotSupportedException();
-        public string? MemberName { get; private set; }
-        public JsonConverter? Converter => null;
+        public string? MemberName { get; set; }
+        public JsonConverter? Converter { get; set; }
         public bool CanBeDeserialized => false;
         public bool CanBeSerialized => true;
-        public object? DefaultValue => null;
-        public bool IgnoreIfDefault => false;
-        public Func<object, bool>? ShouldSerializeMethod => null;
-        public RequirementPolicy RequirementPolicy => RequirementPolicy.Never;
+        public object? DefaultValue { get; set; }
+        public bool IgnoreIfDefault { get; set; }
+        public Func<object, bool>? ShouldSerializeMethod { get; set; }
+        public RequirementPolicy RequirementPolicy { get; set; } = RequirementPolicy.Never;
 
         public DiscriminatorMapping(DiscriminatorConventionRegistry discriminatorConventionRegistry, 
             IObjectMapping objectMapping)
