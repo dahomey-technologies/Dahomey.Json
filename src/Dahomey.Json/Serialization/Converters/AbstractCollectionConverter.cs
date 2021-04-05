@@ -48,14 +48,18 @@ namespace Dahomey.Json.Serialization.Converters
             {
                 string? id = null;
 
-                if (_referenceHandling == ReferenceHandling.Preserve)
+                bool preserve = false;
+
+                if (_referenceHandling == ReferenceHandling.Preserve && reader.TokenType == JsonTokenType.StartObject)
                 {
-                    if (reader.TokenType != JsonTokenType.StartObject)
+                    preserve = true;
+                    reader.Read();
+
+                    if (reader.TokenType != JsonTokenType.PropertyName)
                     {
-                        throw new JsonException("Expected start of object");
+                        throw new JsonException();
                     }
 
-                    reader.Read();
                     ReadOnlySpan<byte> memberName = reader.GetRawString();
 
                     if (memberName.SequenceEqual(ReferenceHandler.ID_MEMBER_NAME))
@@ -88,6 +92,7 @@ namespace Dahomey.Json.Serialization.Converters
                             throw new JsonException($"Cannot resolve reference {@ref}");
                         }
 
+                        reader.Read();
                         if (reader.TokenType != JsonTokenType.EndObject)
                         {
                             throw new JsonException("Expected end of object");
@@ -109,13 +114,18 @@ namespace Dahomey.Json.Serialization.Converters
 
                 ICollection<TI> workingCollection = InstantiateWorkingCollection();
 
+                if (!string.IsNullOrEmpty(id))
+                {
+                    SerializationContext.Current.ReferenceHandler.AddReference(workingCollection, id);
+                }
+
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
                 {
                     TI item = _itemConverter.Read(ref reader, typeof(TI), options);
                     workingCollection.Add(item!);
                 }
 
-                if (_referenceHandling == ReferenceHandling.Preserve)
+                if (preserve)
                 {
                     reader.Read();
                     if (reader.TokenType != JsonTokenType.EndObject)
@@ -127,10 +137,6 @@ namespace Dahomey.Json.Serialization.Converters
                 if (obj == null || obj is IImmutableList<TI> || obj is IImmutableSet<TI>)
                 {
                     obj = InstantiateCollection(workingCollection);
-                    if (!string.IsNullOrEmpty(id))
-                    {
-                        SerializationContext.Current.ReferenceHandler.AddReference(obj, id);
-                    }
                 }
                 else if (obj is ICollection<TI> collection)
                 {

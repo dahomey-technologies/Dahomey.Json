@@ -144,50 +144,6 @@ namespace Dahomey.Json.Serialization.Converters
                     throw new JsonException("Expected start of object");
                 }
 
-                string? id = null;
-
-                if (_referenceHandling == ReferenceHandling.Preserve)
-                {
-                    reader.Read();
-                    ReadOnlySpan<byte> memberName = reader.GetRawString();
-
-                    if (memberName.SequenceEqual(ReferenceHandler.ID_MEMBER_NAME))
-                    {
-                        reader.Read();
-                        id = reader.GetString();
-                    }
-                    else if (memberName.SequenceEqual(ReferenceHandler.REF_MEMBER_NAME))
-                    {
-                        reader.Read();
-                        string? @ref = reader.GetString();
-
-                        if (@ref == null)
-                        {
-                            throw new JsonException($"Cannot resolve null reference");
-                        }
-
-                        object? @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
-
-                        if (@object == null)
-                        {
-                            throw new JsonException($"Cannot resolve reference {@ref}");
-                        }
-
-                        reader.Read();
-                        if (reader.TokenType != JsonTokenType.EndObject)
-                        {
-                            throw new JsonException("Expected end of object");
-                        }
-
-                        obj = (T)@object;
-                        return;
-                    }
-                    else
-                    {
-                        throw new JsonException($"Unexpected member name {Encoding.UTF8.GetString(memberName)}");
-                    }
-                }
-
                 Dictionary<ReadOnlyMemory<byte>, object>? creatorValues = null;
                 Dictionary<ReadOnlyMemory<byte>, object>? regularValues = null;
                 HashSet<IMemberConverter>? readMembers = null;
@@ -199,14 +155,77 @@ namespace Dahomey.Json.Serialization.Converters
 
                 IObjectConverter? converter = null;
 
-                while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
-                {
-                    if (reader.TokenType != JsonTokenType.PropertyName)
-                    {
-                        throw new JsonException();
-                    }
+                string? id = null;
+                bool end = false;
 
-                    ReadMember(ref reader, ref obj, ref converter, options, ref creatorValues, ref regularValues, readMembers, id);
+                if (_referenceHandling == ReferenceHandling.Preserve)
+                {
+                    reader.Read();
+
+                    switch(reader.TokenType)
+                    {
+                        case JsonTokenType.EndObject:
+                            end = true;
+                            break;
+
+                        case JsonTokenType.PropertyName:
+                            {
+                                ReadOnlySpan<byte> memberName = reader.GetRawString();
+
+                                if (memberName.SequenceEqual(ReferenceHandler.ID_MEMBER_NAME))
+                                {
+                                    reader.Read();
+                                    id = reader.GetString();
+                                }
+                                else if (memberName.SequenceEqual(ReferenceHandler.REF_MEMBER_NAME))
+                                {
+                                    reader.Read();
+                                    string? @ref = reader.GetString();
+
+                                    if (@ref == null)
+                                    {
+                                        throw new JsonException($"Cannot resolve null reference");
+                                    }
+
+                                    object? @object = SerializationContext.Current.ReferenceHandler.ResolveReference(@ref);
+
+                                    if (@object == null)
+                                    {
+                                        throw new JsonException($"Cannot resolve reference {@ref}");
+                                    }
+
+                                    reader.Read();
+                                    if (reader.TokenType != JsonTokenType.EndObject)
+                                    {
+                                        throw new JsonException("Expected end of object");
+                                    }
+
+                                    obj = (T)@object;
+                                    return;
+                                }
+                                else
+                                {
+                                    ReadMember(ref reader, ref obj, ref converter, options, ref creatorValues, ref regularValues, readMembers, id);
+                                }
+
+                                break;
+                            }
+                        default:
+                            throw new JsonException();
+                    }
+                }
+
+                if (!end)
+                {
+                    while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+                    {
+                        if (reader.TokenType != JsonTokenType.PropertyName)
+                        {
+                            throw new JsonException();
+                        }
+
+                        ReadMember(ref reader, ref obj, ref converter, options, ref creatorValues, ref regularValues, readMembers, id);
+                    }
                 }
 
                 if (creatorValues != null && converter != null)

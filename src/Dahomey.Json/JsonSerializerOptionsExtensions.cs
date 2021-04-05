@@ -50,9 +50,10 @@ namespace Dahomey.Json
             return options.GetState().ReferenceHandling;
         }
 
-        public static void SetReferenceHandling(this JsonSerializerOptions options, ReferenceHandling referenceHandling)
+        public static JsonSerializerOptions SetReferenceHandling(this JsonSerializerOptions options, ReferenceHandling referenceHandling)
         {
             options.GetState().ReferenceHandling = referenceHandling;
+            return options;
         }
 
         public static ReadOnlyPropertyHandling GetReadOnlyPropertyHandling(this JsonSerializerOptions options)
