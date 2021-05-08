@@ -80,5 +80,15 @@ namespace Dahomey.Json
         {
             options.GetState().MissingMemberHandling = missingMemberHandling;
         }
+
+        public static DuplicatePropertyNameHandling GetDuplicatePropertyNameHandling(this JsonSerializerOptions options)
+        {
+            return options.GetState().DuplicatePropertyNameHandling;
+        }
+
+        public static void SetDuplicatePropertyNameHandling(this JsonSerializerOptions options, DuplicatePropertyNameHandling duplicatePropertyNameHandling)
+        {
+            options.GetState().DuplicatePropertyNameHandling = duplicatePropertyNameHandling;
+        }
     }
 }

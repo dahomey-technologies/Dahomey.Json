@@ -48,6 +48,8 @@ namespace Dahomey.Json.Serialization.Converters
 
         public override void Read(ref Utf8JsonReader reader, ref TC obj, JsonSerializerOptions options)
         {
+            DuplicatePropertyNameHandling duplicatePropertyNameHandling = options.GetDuplicatePropertyNameHandling();
+
             using (new DepthHandler(options))
             {
                 string? id = null;
@@ -107,7 +109,23 @@ namespace Dahomey.Json.Serialization.Converters
                                     reader.Read();
                                     TV value = _valueConverter.Read(ref reader, typeof(TV), options);
 
-                                    workingCollection.Add(key, value!);
+                                    switch (duplicatePropertyNameHandling)
+                                    {
+                                        case DuplicatePropertyNameHandling.Replace:
+                                            workingCollection[key] = value!;
+                                            break;
+
+                                        case DuplicatePropertyNameHandling.Ignore:
+                                            workingCollection.TryAdd(key, value!);
+                                            break;
+
+                                        case DuplicatePropertyNameHandling.Error:
+                                            if (workingCollection.TryAdd(key, value!))
+                                            {
+                                                throw new JsonException($"Duplicate property '{key}'");
+                                            }
+                                            break;
+                                    }
                                 }
                             }
                             break;
@@ -140,7 +158,23 @@ namespace Dahomey.Json.Serialization.Converters
                         reader.Read();
                         TV value = _valueConverter.Read(ref reader, typeof(TV), options);
 
-                        workingCollection.Add(key, value!);
+                        switch (duplicatePropertyNameHandling)
+                        {
+                            case DuplicatePropertyNameHandling.Replace:
+                                workingCollection[key] = value!;
+                                break;
+
+                            case DuplicatePropertyNameHandling.Ignore:
+                                workingCollection.TryAdd(key, value!);
+                                break;
+
+                            case DuplicatePropertyNameHandling.Error:
+                                if (workingCollection.TryAdd(key, value!))
+                                {
+                                    throw new JsonException($"Duplicate property '{key}'");
+                                }
+                                break;
+                        }
                     }
                 }
 

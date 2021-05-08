@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Xunit;
@@ -460,6 +461,25 @@ namespace Dahomey.Json.Tests
             const string json = @"{""String"":""foo"",""Number"":12.12,""Bool"":true,""Null"":null,""Array"":[1,2],""Object"":{""Id"":1}}";
 
             Assert.Equal(json, obj.ToString());
+        }
+
+        [Theory]
+        [InlineData(DuplicatePropertyNameHandling.Replace, "bar", null)]
+        [InlineData(DuplicatePropertyNameHandling.Ignore, "foo", null)]
+        [InlineData(DuplicatePropertyNameHandling.Error, null, typeof(JsonException))]
+        public void ReadDuplicateProperty(DuplicatePropertyNameHandling duplicatePropertyNameHandling, string expectedValue, Type expectedExceptionType)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions().SetupExtensions();
+            options.SetDuplicatePropertyNameHandling(duplicatePropertyNameHandling);
+
+            const string json = @"{""key"":""foo"",""key"":""bar""}";
+
+            JsonObject expected = new JsonObject
+            {
+                ["key"] = expectedValue,
+            };
+
+            Helper.TestRead<JsonObject>(json, expected, options, expectedExceptionType);
         }
     }
 }

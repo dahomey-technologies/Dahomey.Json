@@ -37,6 +37,7 @@ The main purpose of this library is to bring missing features to the official .N
 * Support for MissingMemberHandling ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/MissingMemberHandlingTests.cs))
 * Support for different property requirement policy ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/RequiredTests.cs))
 * Support for extended naming policies: Kebab case and Snake case ([example1](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/KebabCaseNamingPolicyTests.cs), [example2](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/SnakeCaseNamingPolicyTests.cs))
+* Support for duplicated property handling
 
 ## Installation
 ### NuGet

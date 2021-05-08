@@ -60,6 +60,8 @@ namespace Dahomey.Json.Serialization.Converters
 
         private JsonObject ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
+            DuplicatePropertyNameHandling duplicatePropertyNameHandling = options.GetDuplicatePropertyNameHandling();
+
             JsonObject obj = new JsonObject();
 
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
@@ -79,7 +81,30 @@ namespace Dahomey.Json.Serialization.Converters
                 reader.Read();
                 JsonNode propertyValue = Read(ref reader, typeof(JsonNode), options);
 
-                obj.Add(propertyName, propertyValue);
+                switch (duplicatePropertyNameHandling)
+                {
+                    case DuplicatePropertyNameHandling.Replace:
+                        obj[propertyName] = propertyValue;
+                        break;
+
+                    case DuplicatePropertyNameHandling.Ignore:
+                        if (!obj.ContainsProperty(propertyName))
+                        {
+                            obj.Add(propertyName, propertyValue);
+                        }
+                        break;
+
+                    case DuplicatePropertyNameHandling.Error:
+                        if (!obj.ContainsProperty(propertyName))
+                        {
+                            obj.Add(propertyName, propertyValue);
+                        }
+                        else
+                        {
+                            throw new JsonException($"Duplicate property '{propertyName}'");
+                        }
+                        break;
+                }
             }
 
             return obj;

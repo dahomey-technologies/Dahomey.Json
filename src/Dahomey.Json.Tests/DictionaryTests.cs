@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Dahomey.Json.Tests
 {
-    public class Dictionary
+    public class DictionaryTests
     {
         [Fact]
         public void ReadDictionary()
@@ -161,6 +161,25 @@ namespace Dahomey.Json.Tests
             const string expected = @"{""Foo"":""foo"",""Bar"":""bar""}";
 
             Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [InlineData(DuplicatePropertyNameHandling.Replace, "bar", null)]
+        [InlineData(DuplicatePropertyNameHandling.Ignore, "foo", null)]
+        [InlineData(DuplicatePropertyNameHandling.Error, null, typeof(JsonException))]
+        public void ReadDuplicateKey(DuplicatePropertyNameHandling duplicatePropertyNameHandling, string expectedValue, Type expectedExceptionType)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions().SetupExtensions();
+            options.SetDuplicatePropertyNameHandling(duplicatePropertyNameHandling);
+
+            const string json = @"{""key"":""foo"",""key"":""bar""}";
+
+            Dictionary<string, string> expected = new Dictionary<string, string>
+            {
+                ["key"] = expectedValue,
+            };
+
+            Helper.TestRead<Dictionary<string, string>>(json, expected, options, expectedExceptionType);
         }
     }
 }
