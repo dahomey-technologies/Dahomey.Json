@@ -72,7 +72,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                     continue;
                 }
 
-                if ((getMethod.IsPrivate || getMethod.IsStatic)
+                if ((getMethod.IsFamily || getMethod.IsPrivate || getMethod.IsStatic)
                     && !propertyInfo.IsDefined(typeof(JsonPropertyNameAttribute))
                     && !propertyInfo.IsDefined(typeof(JsonPropertyAttribute)))
                 {
