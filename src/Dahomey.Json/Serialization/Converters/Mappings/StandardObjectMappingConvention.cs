@@ -121,7 +121,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             DataMemberAttribute? dataMemberAttribute = memberInfo.GetCustomAttribute<DataMemberAttribute>();
             if (dataMemberAttribute != null && !dataMemberAttribute.EmitDefaultValue)
             {
-                memberMapping.SetIngoreIfDefault(true);
+                memberMapping.SetIgnoreIfDefault(true);
             }
         }
 

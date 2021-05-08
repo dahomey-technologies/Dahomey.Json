@@ -52,7 +52,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             return this;
         }
 
-        public MemberMapping<T> SetIngoreIfDefault(bool ignoreIfDefault)
+        public MemberMapping<T> SetIgnoreIfDefault(bool ignoreIfDefault)
         {
             IgnoreIfDefault = ignoreIfDefault;
             return this;

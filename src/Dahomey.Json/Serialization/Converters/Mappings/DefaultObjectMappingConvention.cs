@@ -202,14 +202,15 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
             if (memberInfo.IsDefined(typeof(JsonIgnoreIfDefaultAttribute)))
             {
-                memberMapping.SetIngoreIfDefault(true);
+                memberMapping.SetIgnoreIfDefault(true);
             }
 
 #if NET5_0
             if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingDefault
-                || options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull && memberMapping.MemberType.IsClass)
+                || options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull 
+                && (memberMapping.MemberType.IsClass || Nullable.GetUnderlyingType(memberMapping.MemberType) != null))
             {
-                memberMapping.SetIngoreIfDefault(true);
+                memberMapping.SetIgnoreIfDefault(true);
             }
 
             JsonIgnoreAttribute? jsonIgnoreAttribute = memberInfo.GetCustomAttribute<JsonIgnoreAttribute>();
@@ -219,7 +220,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                     || jsonIgnoreAttribute.Condition == JsonIgnoreCondition.WhenWritingNull 
                     && (memberMapping.MemberType.IsClass || Nullable.GetUnderlyingType(memberMapping.MemberType) != null))
                 {
-                    memberMapping.SetIngoreIfDefault(true);
+                    memberMapping.SetIgnoreIfDefault(true);
                 }
             }
 #endif

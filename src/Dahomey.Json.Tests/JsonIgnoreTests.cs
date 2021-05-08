@@ -95,6 +95,40 @@ namespace Dahomey.Json.Tests
             Assert.Equal(expected, actual);
         }
 
+        public class MyClass2
+        {
+            public int Always { get; set; }
+
+            public int Never { get; set; }
+
+            public int WhenWritingDefault { get; set; }
+
+            public object WhenWritingNull { get; set; }
+
+            public int? WhenWritingNullableNull { get; set; }
+
+            public int? WhenWritingNullableValue { get; set; } = 123;
+        }
+
+        [Fact]
+        public void TestWritingDefaultCondition()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions().SetupExtensions();
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+
+            MyClass2 myClass = new MyClass2
+            {
+                Always = 12,
+                Never = 0,
+                WhenWritingDefault = 0,
+                WhenWritingNull = null,
+            };
+
+            const string expected = @"{""Always"":12,""Never"":0,""WhenWritingDefault"":0,""WhenWritingNullableValue"":123}";
+            string actual = JsonSerializer.Serialize(myClass, options);
+
+            Assert.Equal(expected, actual);
+        }
 #endif
     }
 }
