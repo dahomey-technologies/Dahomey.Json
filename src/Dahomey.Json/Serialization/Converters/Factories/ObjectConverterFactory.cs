@@ -12,7 +12,6 @@ namespace Dahomey.Json.Serialization.Converters.Factories
         {
             return typeToConvert.IsClass 
                     && typeToConvert != typeof(string)
-                    && typeToConvert != typeof(Uri)
                 || typeToConvert.IsInterface
                 || typeToConvert.IsStruct()
                     && typeToConvert != typeof(DateTime)
@@ -24,6 +23,11 @@ namespace Dahomey.Json.Serialization.Converters.Factories
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
+            if (typeToConvert == typeof(Uri))
+            {
+                return new UriConverter();
+            }
+
             Type? nullableUnderlyingType = Nullable.GetUnderlyingType(typeToConvert);
 
             if (nullableUnderlyingType != null)
