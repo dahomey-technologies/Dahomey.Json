@@ -1,4 +1,5 @@
-﻿using Dahomey.Json.Serialization.Conventions;
+﻿using System;
+using Dahomey.Json.Serialization.Conventions;
 using Dahomey.Json.Serialization.Converters.DictionaryKeys;
 using Dahomey.Json.Serialization.Converters.Factories;
 using Dahomey.Json.Serialization.Converters.Mappings;
@@ -14,13 +15,18 @@ namespace Dahomey.Json
             return (JsonConverter<T>)options.GetConverter(typeof(T));
         }
 
-        public static JsonSerializerOptions SetupExtensions(this JsonSerializerOptions options)
+        public static JsonSerializerOptions SetupExtensions(this JsonSerializerOptions options, Action<JsonSerializerOptions> configureOptions = null)
         {
             options.Converters.Add(new JsonSerializerOptionsState(options));
             options.Converters.Add(new DictionaryConverterFactory());
             options.Converters.Add(new CollectionConverterFactory());
             options.Converters.Add(new JsonNodeConverterFactory());
             options.Converters.Add(new ObjectConverterFactory());
+
+            if (configureOptions != null)
+            {
+                configureOptions(options);
+            }
 
             return options;
         }
