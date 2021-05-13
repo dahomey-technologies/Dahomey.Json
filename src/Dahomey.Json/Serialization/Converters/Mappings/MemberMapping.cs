@@ -147,7 +147,11 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             if (Converter is JsonConverterFactory factory)
             {
                 Converter = factory.CreateConverter(MemberType, _options);
-            }
+                if (Converter == null)
+                {
+                    throw new JsonException($"Cannot find a converter for type {MemberType}");
+                }            
+           }
 
             VerifyMemberConverterType(Converter.GetType());
         }
