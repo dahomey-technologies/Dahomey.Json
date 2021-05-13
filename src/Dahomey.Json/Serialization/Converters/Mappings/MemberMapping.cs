@@ -143,6 +143,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             {
                 Converter = _options.GetConverter(MemberType);
             }
+            
+            if (Converter is JsonConverterFactory factory)
+            {
+                Converter = factory.CreateConverter(MemberType, _options);
+            }
+
             VerifyMemberConverterType(Converter.GetType());
         }
 
