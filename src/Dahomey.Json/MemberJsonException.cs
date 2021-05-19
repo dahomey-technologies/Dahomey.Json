@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 
 namespace Dahomey.Json
@@ -9,7 +10,7 @@ namespace Dahomey.Json
         public Type MemberType { get; }
 
         public MemberJsonException(string memberName, Type memberType, Exception innerException)
-            : base(BuildMessage(memberName, memberType, innerException), 
+            : base(BuildMessage(memberName, memberType, innerException),
                   BuildPath(memberName, innerException), null, null, BuildInnerException(innerException))
         {
             MemberType = BuildMemberType(memberType, innerException);
@@ -29,7 +30,19 @@ namespace Dahomey.Json
 
         private static string BuildMessage(string memberName, Type memberType, Exception innerException)
         {
-            return $"The JSON value could not be converted to {BuildMemberType(memberType, innerException)}. Path: {BuildPath(memberName, innerException)}";
+            var sb = new StringBuilder();
+            var rootMemberType = BuildMemberType(memberType, innerException);
+            sb.Append("The JSON value could not be converted to ");
+            sb.Append(rootMemberType);
+            if (rootMemberType.IsPrimitive) {
+                sb.Append(".");
+            } else {
+                sb.Append(" due to: ");
+                sb.Append(innerException.Message);
+            }
+            sb.Append(" Path: ");
+            sb.Append(BuildPath(memberName, innerException));
+            return sb.ToString();
         }
 
         private static Type BuildMemberType(Type memberType, Exception innerException)
