@@ -12,6 +12,7 @@ namespace Dahomey.Json.Serialization.Converters.Factories
         {
             return typeToConvert.IsClass 
                     && typeToConvert != typeof(string)
+                    && typeToConvert != typeof(byte[])
                 || typeToConvert.IsInterface
                 || typeToConvert.IsStruct()
                     && typeToConvert != typeof(DateTime)

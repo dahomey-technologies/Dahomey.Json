@@ -11,7 +11,7 @@ namespace Dahomey.Json.Serialization.Converters.Factories
     {
         public override bool CanConvert(Type typeToConvert)
         {
-            return typeToConvert.IsArray
+            return typeToConvert.IsArray && typeToConvert != typeof(byte[])
                 || (typeToConvert.IsGenericType
                 && (typeToConvert.GetGenericTypeDefinition() == typeof(ImmutableArray<>)
                 || typeToConvert.GetGenericTypeDefinition() == typeof(ImmutableList<>)
