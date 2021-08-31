@@ -84,9 +84,11 @@ namespace Dahomey.Json.Serialization.Conventions
                 // setup discriminator for all base types
                 for (Type? currentType = type.BaseType; currentType != null && currentType != typeof(object); currentType = currentType.BaseType)
                 {
-                    objectMapping = _options.GetObjectMappingRegistry().Lookup(currentType);
-                    objectMapping.AddDiscriminatorMapping();
-                    _conventionsByType.TryAdd(currentType, convention);
+                    if (_conventionsByType.TryAdd(currentType, convention))
+                    {
+                        objectMapping = _options.GetObjectMappingRegistry().Lookup(currentType);
+                        objectMapping.AddDiscriminatorMapping();
+                    }
                 }
 
                 // setup discriminator for all interfaces
