@@ -244,5 +244,36 @@ namespace Dahomey.Json.Tests
 
             Helper.TestWrite(obj, json, options);
         }
+
+        public class ObjectWithPrivateConstructor
+        {
+            public readonly string Name;
+            public readonly DateTime Timestamp;
+
+            private ObjectWithPrivateConstructor(string name, DateTime? timestamp)
+            {
+                Name = name;
+                Timestamp = timestamp ?? DateTime.Now;
+            }
+
+            public static ObjectWithPrivateConstructor Create(string name, DateTime? timestamp) => new(name, timestamp);
+        }
+
+        [Fact]
+        public void SerializationAndDeserialization_CtorArgumentIsNullableWhileMemberIsNot_Test()
+        {
+            // Arrange.
+            var options = new JsonSerializerOptions().SetupExtensions();
+            var obj = ObjectWithPrivateConstructor.Create("Foo", DateTime.Now);
+
+            // Act.
+            var json = JsonSerializer.Serialize(obj, options);
+            var obj2 = JsonSerializer.Deserialize<ObjectWithPrivateConstructor>(json, options);
+
+            // Assert.
+            Assert.NotNull(obj2);
+            Assert.Equal(obj.Name, obj2.Name);
+            Assert.Equal(obj.Timestamp, obj2.Timestamp);
+        }
     }
 }

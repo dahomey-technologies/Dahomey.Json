@@ -127,7 +127,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
                 if (memberMapping != null)
                 {
-                    if (memberMapping.MemberType != parameter.ParameterType)
+                    if (parameter.ParameterType.IsAssignableFrom(memberMapping.MemberType) is false)
                     {
                         throw new JsonException($"Type mismatch between creator argument and field or property named {parameter.Name} on type {_objectMapping.ObjectType.FullName}");
                     }
