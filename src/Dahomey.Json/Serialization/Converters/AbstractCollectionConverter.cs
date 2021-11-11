@@ -121,7 +121,7 @@ namespace Dahomey.Json.Serialization.Converters
 
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
                 {
-                    TI item = _itemConverter.Read(ref reader, typeof(TI), options);
+                    TI? item = _itemConverter.Read(ref reader, typeof(TI), options);
                     workingCollection.Add(item!);
                 }
 

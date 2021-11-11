@@ -12,8 +12,8 @@ namespace Dahomey.Json.Serialization.Conventions
     {
         private readonly JsonSerializerOptions _options;
         private readonly ReadOnlyMemory<byte> _memberName;
-        private readonly Dictionary<T, Type> _typesByDiscriminator = new Dictionary<T, Type>();
-        private readonly Dictionary<Type, T> _discriminatorsByType = new Dictionary<Type, T>();
+        private readonly Dictionary<T, Type> _typesByDiscriminator = new();
+        private readonly Dictionary<Type, T> _discriminatorsByType = new();
         private readonly JsonConverter<T> _jsonConverter;
 
         public ReadOnlySpan<byte> MemberName => _memberName.Span;
@@ -34,7 +34,7 @@ namespace Dahomey.Json.Serialization.Conventions
         {
             IObjectMapping objectMapping = _options.GetObjectMappingRegistry().Lookup(type);
 
-            if (objectMapping.Discriminator == null || !(objectMapping.Discriminator is T discriminator))
+            if (objectMapping.Discriminator == null || objectMapping.Discriminator is not T discriminator)
             {
                 return false;
             }
@@ -46,7 +46,7 @@ namespace Dahomey.Json.Serialization.Conventions
 
         public Type ReadDiscriminator(ref Utf8JsonReader reader)
         {
-            T discriminator = _jsonConverter.Read(ref reader, typeof(T), _options);
+            T? discriminator = _jsonConverter.Read(ref reader, typeof(T), _options);
 
             if (discriminator == null)
             {
@@ -62,7 +62,7 @@ namespace Dahomey.Json.Serialization.Conventions
 
         public void WriteDiscriminator(Utf8JsonWriter writer, Type actualType)
         {
-            if (!_discriminatorsByType.TryGetValue(actualType, out T discriminator))
+            if (!_discriminatorsByType.TryGetValue(actualType, out T? discriminator))
             {
                 throw new JsonException($"Unknown discriminator for type: {actualType}");
             }
