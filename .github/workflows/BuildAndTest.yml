@@ -36,11 +36,17 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.400
+        
+    - name: setup .net core 6.0.100
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
 
 # workaround for using multiple dotnet core installs
     - name: setup multiple sdks
       run: |
-        rsync -a ${DOTNET_ROOT/5.0.400/3.1.412}/* $DOTNET_ROOT/
+        rsync -a ${DOTNET_ROOT/6.0.100/3.1.412}/* $DOTNET_ROOT/
+        rsync -a ${DOTNET_ROOT/6.0.100/5.0.400}/* $DOTNET_ROOT/
         dotnet --info
 
     - name: build
