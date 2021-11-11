@@ -107,7 +107,7 @@ namespace Dahomey.Json.Serialization.Converters
                                     TK key = _keyConverter.Read(ref reader, options);
 
                                     reader.Read();
-                                    TV value = _valueConverter.Read(ref reader, typeof(TV), options);
+                                    TV? value = _valueConverter.Read(ref reader, typeof(TV), options);
 
                                     switch (duplicatePropertyNameHandling)
                                     {
@@ -156,7 +156,7 @@ namespace Dahomey.Json.Serialization.Converters
                         TK key = _keyConverter.Read(ref reader, options);
 
                         reader.Read();
-                        TV value = _valueConverter.Read(ref reader, typeof(TV), options);
+                        TV? value = _valueConverter.Read(ref reader, typeof(TV), options);
 
                         switch (duplicatePropertyNameHandling)
                         {

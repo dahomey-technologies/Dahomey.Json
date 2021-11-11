@@ -79,7 +79,11 @@ namespace Dahomey.Json.Serialization.Converters
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
+#if NETSTANDARD2_0 || NET6_0_OR_GREATER
+                if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull)
+#else
                 if (options.IgnoreNullValues)
+#endif
                 {
                     return;
                 }
@@ -158,10 +162,15 @@ namespace Dahomey.Json.Serialization.Converters
         {
             if (value == null)
             {
+#if NETSTANDARD2_0 || NET6_0_OR_GREATER
+                if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull)
+#else
                 if (options.IgnoreNullValues)
+#endif
                 {
                     return;
                 }
+
                 if (_requirementPolicy == RequirementPolicy.DisallowNull || _requirementPolicy == RequirementPolicy.Always)
                 {
                     throw new JsonException($"Required property '{MemberNameAsString}' cannot be null.");
@@ -183,7 +192,12 @@ namespace Dahomey.Json.Serialization.Converters
                 throw new JsonException($"No member getter for '{MemberNameAsString}'");
             }
 
-            if (options.IgnoreNullValues && _canBeNull && _memberGetter((T)obj) == null)
+#if NETSTANDARD2_0 || NET6_0_OR_GREATER
+            if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull
+#else
+            if (options.IgnoreNullValues
+#endif
+                && _canBeNull && _memberGetter((T)obj) == null)
             {
                 return false;
             }
@@ -330,7 +344,11 @@ namespace Dahomey.Json.Serialization.Converters
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
+#if NETSTANDARD2_0 || NET6_0_OR_GREATER
+                if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull)
+#else
                 if (options.IgnoreNullValues)
+#endif
                 {
                     return;
                 }
@@ -381,7 +399,12 @@ namespace Dahomey.Json.Serialization.Converters
                 throw new JsonException($"No member getter for '{MemberNameAsString}'");
             }
 
-            if (options.IgnoreNullValues && _canBeNull && _memberGetter(ref instance) == null)
+#if NETSTANDARD2_0 || NET6_0_OR_GREATER
+            if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull
+#else
+            if (options.IgnoreNullValues
+#endif
+                && _canBeNull && _memberGetter(ref instance) == null)
             {
                 return false;
             }
