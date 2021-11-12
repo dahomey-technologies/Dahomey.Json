@@ -1,4 +1,5 @@
-﻿using Dahomey.Json.Serialization.Converters.Mappings;
+﻿using Dahomey.Json.Attributes;
+using Dahomey.Json.Serialization.Converters.Mappings;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;

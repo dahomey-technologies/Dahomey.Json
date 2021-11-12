@@ -1,4 +1,5 @@
-﻿using Dahomey.Json.Serialization.Conventions;
+﻿using Dahomey.Json.Attributes;
+using Dahomey.Json.Serialization.Conventions;
 using Dahomey.Json.Util;
 using System;
 using System.Collections.Generic;
