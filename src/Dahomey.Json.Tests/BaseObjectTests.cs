@@ -11,7 +11,7 @@ namespace Dahomey.Json.Tests
         }
 
         [Theory]
-        [InlineData(@"{""Value"":12}", 12L)]
+        [InlineData(@"{""Value"":12}", 12)]
         [InlineData(@"{""Value"":18446744073709551615}", ulong.MaxValue)]
         [InlineData(@"{""Value"":12.25}", 12.25)]
         [InlineData(@"{""Value"":null}", null)]

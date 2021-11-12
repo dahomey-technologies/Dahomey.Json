@@ -39,7 +39,7 @@ namespace Dahomey.Json.Tests.Issues
             Assert.Equal(2, value.Count);
             Assert.True(value.ContainsKey("key1"));
             Assert.True(value.ContainsKey("key2"));
-            Assert.Equal(12L, value["key1"]);
+            Assert.Equal(12, value["key1"]);
             Assert.Equal("value", value["key2"]);
         }
     }
