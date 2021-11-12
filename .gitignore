@@ -2,6 +2,7 @@
 *.suo
 *.user
 .vs
+.idea
 
 # Build output
 src/**/obj/
