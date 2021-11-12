@@ -46,12 +46,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             {
                 JsonIgnoreAttribute? jsonIgnoreAttribute = propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>();
                 if (jsonIgnoreAttribute != null
-#if NET5_0
+#if NET5_0_OR_GREATER
                     && jsonIgnoreAttribute.Condition == JsonIgnoreCondition.Always
 #endif
                     )
                 {
-                        continue;
+                    continue;
                 }
 
                 if (typeof(Delegate).IsAssignableFrom(propertyInfo.PropertyType))
@@ -86,6 +86,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 ProcessMemberName(propertyInfo, memberMapping);
                 ProcessConverter(propertyInfo, memberMapping);
                 ProcessDeserialize(propertyInfo, memberMapping);
+                ProcessOrder(propertyInfo, memberMapping);
                 memberMappings.Add(memberMapping);
             }
 
@@ -93,7 +94,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             {
                 JsonIgnoreAttribute? jsonIgnoreAttribute = fieldInfo.GetCustomAttribute<JsonIgnoreAttribute>();
                 if (jsonIgnoreAttribute != null
-#if NET5_0
+#if NET5_0_OR_GREATER
                     && jsonIgnoreAttribute.Condition == JsonIgnoreCondition.Always
 #endif
                     )
@@ -120,9 +121,12 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 ProcessRequired(fieldInfo, memberMapping);
                 ProcessMemberName(fieldInfo, memberMapping);
                 ProcessConverter(fieldInfo, memberMapping);
+                ProcessOrder(fieldInfo, memberMapping);
 
                 memberMappings.Add(memberMapping);
             }
+
+            memberMappings.Sort((m1, m2) => m1.Order - m2.Order);
 
             objectMapping.AddMemberMappings(memberMappings);
 
@@ -132,7 +136,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
                 ConstructorInfo? constructorInfo = constructorInfos
                     .FirstOrDefault(c => c.IsDefined(typeof(JsonConstructorExAttribute))
-#if NET5_0
+#if NET5_0_OR_GREATER
                     || c.IsDefined(typeof(JsonConstructorAttribute))
 #endif
                     );
@@ -205,7 +209,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 memberMapping.SetIgnoreIfDefault(true);
             }
 
-#if NET5_0
+#if NET5_0_OR_GREATER
             if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingDefault
                 || options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull 
                 && (memberMapping.MemberType.IsClass || Nullable.GetUnderlyingType(memberMapping.MemberType) != null))
@@ -296,6 +300,18 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             {
                 memberMapping.ForceDeserialize();
             }
+        }
+
+        private void ProcessOrder<T>(MemberInfo memberInfo, MemberMapping<T> memberMapping)
+        {
+#if NET6_0_OR_GREATER
+            JsonPropertyOrderAttribute? orderAttribute = memberInfo.GetCustomAttribute<JsonPropertyOrderAttribute>();
+
+            if (orderAttribute != null)
+            {
+                memberMapping.Order = orderAttribute.Order;
+            }
+#endif
         }
 
         private Action<T> GenerateCallbackDelegate<T>(MethodInfo methodInfo)

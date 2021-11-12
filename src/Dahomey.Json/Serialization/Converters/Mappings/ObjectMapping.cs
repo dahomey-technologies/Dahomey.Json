@@ -234,7 +234,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         {
             _orderByAction = () =>
             {
-                _memberMappings = _memberMappings
+                 _memberMappings = _memberMappings
                     .OrderBy(propertySelector)
                     .ToList();
             };

@@ -52,7 +52,7 @@ namespace Dahomey.Json.Tests
             public string Name { get; set; }
             public int Age { get; set; }
 
-#if NET5_0
+#if NET5_0_OR_GREATER
             [JsonConstructor]
 #else
             [JsonConstructorEx]
