@@ -30,12 +30,12 @@ jobs:
     - name: setup .net core 3.1.415
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.412
+        dotnet-version: 3.1.415
         
     - name: setup .net core 5.0.403
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.400
+        dotnet-version: 5.0.403
         
     - name: setup .net core 6.0.100
       uses: actions/setup-dotnet@v1
