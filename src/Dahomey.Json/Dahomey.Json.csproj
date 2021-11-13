@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dahomey.Json.Attributes\Dahomey.Json.Attributes.csproj" />
+    <PackageReference Include="Dahomey.Json.Attributes" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

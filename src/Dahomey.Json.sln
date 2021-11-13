@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dahomey.Json", "Dahomey.Jso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dahomey.Json.Tests", "Dahomey.Json.Tests\Dahomey.Json.Tests.csproj", "{3C250F40-9413-4193-BE91-2BC4E2937EC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dahomey.Json.Attributes", "Dahomey.Json.Attributes\Dahomey.Json.Attributes.csproj", "{E9B91550-A10A-401C-8A85-8F7FD4990707}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{3C250F40-9413-4193-BE91-2BC4E2937EC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C250F40-9413-4193-BE91-2BC4E2937EC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C250F40-9413-4193-BE91-2BC4E2937EC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9B91550-A10A-401C-8A85-8F7FD4990707}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9B91550-A10A-401C-8A85-8F7FD4990707}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9B91550-A10A-401C-8A85-8F7FD4990707}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9B91550-A10A-401C-8A85-8F7FD4990707}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
