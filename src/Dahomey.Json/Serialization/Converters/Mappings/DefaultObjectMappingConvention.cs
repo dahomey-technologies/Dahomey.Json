@@ -126,7 +126,26 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
                 memberMappings.Add(memberMapping);
             }
 
-            memberMappings.Sort((m1, m2) => m1.Order - m2.Order);
+            if (options.GetJsonPropertyOrderByName())
+            {
+                memberMappings = memberMappings
+                    .OrderBy((m) => m.MemberName ?? m.MemberInfo.Name)
+                    .Select((m, order) =>
+                    {
+                        if (m.Order == 0)
+                        {
+                            m.Order = order;
+                        }
+
+                        return m;
+                    })
+                    .OrderBy((o) => o.Order)
+                    .ToList();
+            }
+            else
+            {
+                memberMappings.Sort((m1, m2) => m1.Order - m2.Order);
+            }
 
             objectMapping.AddMemberMappings(memberMappings);
 

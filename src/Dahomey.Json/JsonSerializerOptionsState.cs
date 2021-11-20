@@ -17,6 +17,7 @@ namespace Dahomey.Json
         public ReadOnlyPropertyHandling ReadOnlyPropertyHandling { get; set; }
         public MissingMemberHandling MissingMemberHandling { get; set; }
         public DuplicatePropertyNameHandling DuplicatePropertyNameHandling { get; set; }
+        public bool JsonPropertyOrderByName { get; set; }
 
         public JsonSerializerOptionsState(JsonSerializerOptions options)
         {

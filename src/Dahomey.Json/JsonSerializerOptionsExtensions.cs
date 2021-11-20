@@ -90,5 +90,15 @@ namespace Dahomey.Json
         {
             options.GetState().DuplicatePropertyNameHandling = duplicatePropertyNameHandling;
         }
+
+        public static bool GetJsonPropertyOrderByName(this JsonSerializerOptions options)
+        {
+            return options.GetState().JsonPropertyOrderByName;
+        }
+
+        public static void SetJsonPropertyOrderByName(this JsonSerializerOptions options, bool JsonPropertyOrderByName)
+        {
+            options.GetState().JsonPropertyOrderByName = JsonPropertyOrderByName;
+        }
     }
 }
