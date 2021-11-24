@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Xunit;
 
 namespace Dahomey.Json.Tests.Issues
@@ -17,7 +18,11 @@ namespace Dahomey.Json.Tests.Issues
         {
             JsonSerializerOptions options = new JsonSerializerOptions
             {
+#if NET6_0_OR_GREATER
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+#else
                 IgnoreNullValues = true
+#endif
             }.SetupExtensions();
 
             const string json = @"{""Parent"":{},""Children"":[{},{}]}";
@@ -36,7 +41,11 @@ namespace Dahomey.Json.Tests.Issues
         {
             JsonSerializerOptions options = new JsonSerializerOptions
             {
+#if NET6_0_OR_GREATER
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+#else
                 IgnoreNullValues = true
+#endif
             }.SetupExtensions();
 
             const string json = @"{""Parent"":{},""Children"":[{},{}]}";

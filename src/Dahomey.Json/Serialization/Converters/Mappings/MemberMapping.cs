@@ -23,6 +23,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public bool IgnoreIfDefault { get; set; }
         public Func<object, bool>? ShouldSerializeMethod { get; set; }
         public RequirementPolicy RequirementPolicy { get; set; }
+        public int Order { get; set; }
 
         public MemberMapping(JsonSerializerOptions options,
             IObjectMapping objectMapping, MemberInfo memberInfo, Type memberType)
@@ -32,6 +33,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
             MemberInfo = memberInfo;
             MemberType = memberType;
             DefaultValue = Default.Value(memberType);
+            Order = 0;
         }
 
         public MemberMapping<T> SetMemberName(string memberName)

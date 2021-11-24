@@ -1,4 +1,5 @@
-﻿using Dahomey.Json.Serialization.Conventions;
+﻿using Dahomey.Json.Attributes;
+using Dahomey.Json.Serialization.Conventions;
 using Dahomey.Json.Util;
 using System;
 using System.Collections.Generic;
@@ -234,7 +235,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         {
             _orderByAction = () =>
             {
-                _memberMappings = _memberMappings
+                 _memberMappings = _memberMappings
                     .OrderBy(propertySelector)
                     .ToList();
             };

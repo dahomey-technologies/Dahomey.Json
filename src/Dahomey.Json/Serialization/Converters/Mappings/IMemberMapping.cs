@@ -17,6 +17,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         bool IgnoreIfDefault { get; set; }
         Func<object, bool>? ShouldSerializeMethod { get; set; }
         RequirementPolicy RequirementPolicy { get; set; }
+        int Order { get; set; }
         IMemberConverter GenerateMemberConverter();
     }
 }

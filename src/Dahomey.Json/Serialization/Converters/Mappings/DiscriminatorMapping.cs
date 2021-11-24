@@ -23,6 +23,7 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
         public bool IgnoreIfDefault { get; set; }
         public Func<object, bool>? ShouldSerializeMethod { get; set; }
         public RequirementPolicy RequirementPolicy { get; set; } = RequirementPolicy.Never;
+        public int Order { get; set; }
 
         public DiscriminatorMapping(DiscriminatorConventionRegistry discriminatorConventionRegistry, 
             IObjectMapping objectMapping)

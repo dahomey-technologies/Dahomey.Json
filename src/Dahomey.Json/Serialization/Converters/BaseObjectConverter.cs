@@ -39,7 +39,18 @@ namespace Dahomey.Json.Serialization.Converters
         private object ReadNumber(ref Utf8JsonReader reader)
         {
             ReadOnlySpan<byte> buffer = reader.GetRawString();
-            if (Utf8Parser.TryParse(buffer, out long lValue, out int bytesConsumed) && bytesConsumed == buffer.Length)
+
+            if (Utf8Parser.TryParse(buffer, out int iValue, out int bytesConsumed) && bytesConsumed == buffer.Length)
+            {
+                return iValue;
+            }
+
+            if (Utf8Parser.TryParse(buffer, out uint uValue, out bytesConsumed) && bytesConsumed == buffer.Length)
+            {
+                return uValue;
+            }
+
+            if (Utf8Parser.TryParse(buffer, out long lValue, out bytesConsumed) && bytesConsumed == buffer.Length)
             {
                 return lValue;
             }

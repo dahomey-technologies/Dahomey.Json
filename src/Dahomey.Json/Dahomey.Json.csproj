@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors></TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <PackageReleaseNotes>cf. https://github.com/dahomey-technologies/Dahomey.Json/releases/tag/$(Version)</PackageReleaseNotes>
     <Authors>Michaël Catanzariti</Authors>
     <Company>Dahomey Technologies</Company>
@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/dahomey-technologies/Dahomey.Json.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageIcon>icon.png</PackageIcon>
-    <Copyright>Copyright © Dahomey Technologies 2020</Copyright>
+    <Copyright>Copyright © Dahomey Technologies 2021</Copyright>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -24,8 +24,8 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.0" />
     <PackageReference Include="Nullable" Version="1.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -34,6 +34,10 @@
 
   <ItemGroup>
     <None Include="Images\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dahomey.Json.Attributes" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

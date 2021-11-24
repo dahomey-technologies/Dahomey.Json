@@ -5,7 +5,7 @@ namespace Dahomey.Json.Tests
 {
     public class RecordTests
     {
-#if NET5_0
+#if NET5_0_OR_GREATER
         public record Product
         {
             public string Name { get; init; }

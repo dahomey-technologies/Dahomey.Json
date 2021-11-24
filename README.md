@@ -11,7 +11,8 @@ The main purpose of this library is to bring missing features to the official .N
 ## Supported .NET versions
 * .NET Standard 2.0
 * .NET Core 3.1
-* .NET 5.0.1
+* .NET 5
+* .NET 6
 
 ## Features
 * Extensible Polymorphism support based on discriminator conventions ([example](https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json.Tests/DiscriminatorTests.cs))

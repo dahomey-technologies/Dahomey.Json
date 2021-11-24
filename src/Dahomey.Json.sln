@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.779
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dahomey.Json", "Dahomey.Json\Dahomey.Json.csproj", "{AC57E0BE-B507-4334-87B4-427E605969A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dahomey.Json.Tests", "Dahomey.Json.Tests\Dahomey.Json.Tests.csproj", "{3C250F40-9413-4193-BE91-2BC4E2937EC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dahomey.Json.Tests", "Dahomey.Json.Tests\Dahomey.Json.Tests.csproj", "{3C250F40-9413-4193-BE91-2BC4E2937EC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

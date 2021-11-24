@@ -31,7 +31,7 @@ namespace Dahomey.Json.Serialization.Converters.DictionaryKeys
         public T Read(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
             ReadOnlySpan<byte> name = reader.GetRawString();
-            if (!_names2Values.TryGetValue(name, out T key))
+            if (!_names2Values.TryGetValue(name, out T? key))
             {
                 throw new JsonException();
             }
