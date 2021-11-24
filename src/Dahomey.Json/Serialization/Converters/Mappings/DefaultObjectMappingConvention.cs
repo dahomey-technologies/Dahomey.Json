@@ -125,10 +125,8 @@ namespace Dahomey.Json.Serialization.Converters.Mappings
 
                 memberMappings.Add(memberMapping);
             }
-
-            memberMappings.Sort((m1, m2) => m1.Order - m2.Order);
-
-            objectMapping.AddMemberMappings(memberMappings);
+            
+            objectMapping.AddMemberMappings(memberMappings.OrderBy(x => x.Order).ToArray());
 
             if (!type.IsAbstract)
             {
