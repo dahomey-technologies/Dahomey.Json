@@ -12,7 +12,7 @@ namespace Dahomey.Json.Serialization.Conventions
     {
         private readonly JsonSerializerOptions _options;
         private readonly ReadOnlyMemory<byte> _memberName;
-        private readonly Dictionary<T, Type> _typesByDiscriminator = new();
+        private readonly Dictionary<T, List<Type>> _typesByDiscriminator = new();
         private readonly Dictionary<Type, T> _discriminatorsByType = new();
         private readonly JsonConverter<T> _jsonConverter;
 
@@ -40,11 +40,15 @@ namespace Dahomey.Json.Serialization.Conventions
             }
 
             _discriminatorsByType[type] = discriminator;
-            _typesByDiscriminator.Add(discriminator, type);
+            if(!_typesByDiscriminator.ContainsKey(discriminator))
+            {
+                _typesByDiscriminator.Add(discriminator, new List<Type>());
+            }
+            _typesByDiscriminator[discriminator].Add(type);
             return true;
         }
 
-        public Type ReadDiscriminator(ref Utf8JsonReader reader)
+        public IEnumerable<Type> ReadDiscriminator(ref Utf8JsonReader reader)
         {
             T? discriminator = _jsonConverter.Read(ref reader, typeof(T), _options);
 
@@ -53,11 +57,11 @@ namespace Dahomey.Json.Serialization.Conventions
                 throw new JsonException($"Null discriminator");
             }
 
-            if (!_typesByDiscriminator.TryGetValue(discriminator, out Type? type))
+            if (!_typesByDiscriminator.TryGetValue(discriminator, out List<Type>? types))
             {
                 throw new JsonException($"Unknown type discriminator: {discriminator}");
             }
-            return type;
+            return types;
         }
 
         public void WriteDiscriminator(Utf8JsonWriter writer, Type actualType)
