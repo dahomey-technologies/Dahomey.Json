@@ -5,6 +5,9 @@
 ![](https://github.com/dahomey-technologies/Dahomey.Json/workflows/Build%20and%20Test/badge.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 
+## Should Dahomey.Json be discontinued?
+Please participate to the discussion [here](https://github.com/dahomey-technologies/Dahomey.Json/discussions/116)
+
 ## Introduction
 The main purpose of this library is to bring missing features to the official .Net namespace [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview)
 
