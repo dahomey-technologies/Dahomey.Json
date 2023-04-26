@@ -4,6 +4,7 @@ using Dahomey.Json.Serialization.Conventions;
 using Dahomey.Json.Util;
 using System.Text.Json;
 using System;
+using System.Linq;
 using System.Text;
 using Dahomey.Json.Serialization.Converters.Mappings;
 using Dahomey.Json.Attributes;
@@ -309,11 +310,12 @@ namespace Dahomey.Json.Serialization.Converters
                         if (FindItem(ref findReader, _discriminatorConvention.MemberName))
                         {
                             // discriminator value
-                            Type actualType = _discriminatorConvention.ReadDiscriminator(ref findReader);
+                            var discriminatorTypes = _discriminatorConvention.ReadDiscriminator(ref findReader);
+                            Type? actualType = discriminatorTypes.FirstOrDefault(d => _objectMapping.ObjectType.IsAssignableFrom(d));
 
-                            if (!_objectMapping.ObjectType.IsAssignableFrom(actualType))
+                            if (actualType == null)
                             {
-                                throw new JsonException($"expected type {_objectMapping.ObjectType} is not assignable from actual type {actualType}");
+                                throw new JsonException($"no assignable type found for expected type {_objectMapping.ObjectType}");
                             }
 
                             converter = (IObjectConverter)options.GetConverter(actualType);

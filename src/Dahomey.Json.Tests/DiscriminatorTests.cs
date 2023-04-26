@@ -35,6 +35,18 @@ namespace Dahomey.Json.Tests
     {
     }
 
+    public class BaseObjectResponse
+    {
+        public int Id { get; set; }
+    }
+
+    [JsonDiscriminator(12)]
+    public class NameObjectResponse : BaseObjectResponse
+    {
+        public string Name { get; set; }
+    }
+
+
     public class DiscriminatorTests
     {
         [Fact]
@@ -107,10 +119,45 @@ namespace Dahomey.Json.Tests
             Assert.Equal(expected, actual);
         }
 
+        [Theory]
+        [InlineData(DiscriminatorPolicy.Default, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
+        [InlineData(DiscriminatorPolicy.Auto, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
+        [InlineData(DiscriminatorPolicy.Never, @"{""BaseObject"":{""Name"":""foo"",""Id"":1},""NameObject"":{""Name"":""bar"",""Id"":2}}")]
+        [InlineData(DiscriminatorPolicy.Always, @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1},""NameObject"":{""$type"":12,""Name"":""bar"",""Id"":2}}")]
+        public void WritePolymorphicObjectDuplicateKey(DiscriminatorPolicy discriminatorPolicy, string expected)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
+            registry.ClearConventions();
+            registry.RegisterConvention(new DefaultDiscriminatorConvention<int>(options));
+            registry.RegisterType<NameObject>();
+            registry.RegisterType<NameObjectResponse>();
+            registry.DiscriminatorPolicy = discriminatorPolicy;
+
+            BaseObjectHolder obj = new BaseObjectHolder
+            {
+                BaseObject = new NameObject
+                {
+                    Id = 1,
+                    Name = "foo"
+                },
+                NameObject = new NameObject
+                {
+                    Id = 2,
+                    Name = "bar"
+                }
+            };
+
+            string actual = JsonSerializer.Serialize(obj, options);
+
+            Assert.Equal(expected, actual);
+        }
+
         private class CustomDiscriminatorConvention : IDiscriminatorConvention
         {
             private readonly ReadOnlyMemory<byte> _memberName = Encoding.ASCII.GetBytes("type");
-            private readonly Dictionary<int, Type> _typesByDiscriminator = new Dictionary<int, Type>();
+            private readonly Dictionary<int, List<Type>> _typesByDiscriminator = new ();
             private readonly Dictionary<Type, int> _discriminatorsByType = new Dictionary<Type, int>();
 
             public ReadOnlySpan<byte> MemberName => _memberName.Span;
@@ -123,20 +170,22 @@ namespace Dahomey.Json.Tests
                     discriminator = discriminator * 23 + (int)c;
                 }
 
-                _typesByDiscriminator.Add(discriminator, type);
+                if(!_typesByDiscriminator.ContainsKey(discriminator))
+                    _typesByDiscriminator.Add(discriminator, new List<Type>());
+                _typesByDiscriminator[discriminator].Add(type);
                 _discriminatorsByType.Add(type, discriminator);
 
                 return true;
             }
 
-            public Type ReadDiscriminator(ref Utf8JsonReader reader)
+            public IEnumerable<Type> ReadDiscriminator(ref Utf8JsonReader reader)
             {
                 int discriminator = reader.GetInt32();
-                if (!_typesByDiscriminator.TryGetValue(discriminator, out Type type))
+                if (!_typesByDiscriminator.TryGetValue(discriminator, out List<Type> types))
                 {
                     throw new JsonException($"Unknown type discriminator: {discriminator}");
                 }
-                return type;
+                return types;
             }
 
             public void WriteDiscriminator(Utf8JsonWriter writer, Type actualType)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Dahomey.Json.Serialization.Conventions
@@ -7,7 +8,7 @@ namespace Dahomey.Json.Serialization.Conventions
     {
         ReadOnlySpan<byte> MemberName { get; }
         bool TryRegisterType(Type type);
-        Type ReadDiscriminator(ref Utf8JsonReader reader);
+        IEnumerable<Type> ReadDiscriminator(ref Utf8JsonReader reader);
         void WriteDiscriminator(Utf8JsonWriter writer, Type actualType);
     }
 }
