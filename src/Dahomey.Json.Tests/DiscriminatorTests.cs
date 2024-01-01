@@ -262,5 +262,26 @@ namespace Dahomey.Json.Tests
             Assert.Equal("foo", nameObject.Name);
             Assert.Equal(1, nameObject.Id);
         }
+
+        [Fact]
+        public void ReadPolymorphicObjectWithBaseRegister()
+        {
+            const string json = @"{""BaseObject"":{""$type"":12,""Name"":""foo"",""Id"":1}}";
+
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.SetupExtensions();
+            DiscriminatorConventionRegistry registry = options.GetDiscriminatorConventionRegistry();
+            registry.ClearConventions();
+            registry.RegisterConvention(new DefaultDiscriminatorConvention<int>(options));
+            registry.RegisterType<BaseObject>();
+            registry.RegisterType<NameObject>();
+
+            BaseObjectHolder obj = JsonSerializer.Deserialize<BaseObjectHolder>(json, options);
+
+            Assert.NotNull(obj);
+            Assert.IsType<NameObject>(obj.BaseObject);
+            Assert.Equal("foo", ((NameObject)obj.BaseObject).Name);
+            Assert.Equal(1, obj.BaseObject.Id);
+        }
     }
 }

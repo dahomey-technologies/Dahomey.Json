@@ -51,7 +51,17 @@ namespace Dahomey.Json.Serialization.Conventions
 
         public IDiscriminatorConvention? GetConvention(Type type)
         {
-            return _conventionsByType.GetOrAdd(type, t => InternalGetConvention(t));
+            if(_conventionsByType.TryGetValue(type, out IDiscriminatorConvention? convention))
+            {
+                return convention;
+            }
+
+            convention = InternalGetConvention(type);
+            if(convention != null)
+            {
+                _conventionsByType.TryAdd(type, convention);
+            }
+            return convention;
         }
 
         public void RegisterAssembly(Assembly assembly)
